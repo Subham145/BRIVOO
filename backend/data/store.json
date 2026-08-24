@@ -1,0 +1,368 @@
+{
+  "settings": {
+    "announcement": "FREE SHIPPING ON ALL ORDERS ABOVE ₹1999",
+    "freeShippingThreshold": 1999,
+    "heroTitle": "TIMELESS STYLE.\nPREMIUM YOU.",
+    "heroSubtext": "Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.",
+    "heroImage": "http://localhost:5005/images/hero.png"
+  },
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Shirts",
+      "slug": "shirts",
+      "description": "Linen & Cotton Essentials"
+    },
+    {
+      "id": "cat-2",
+      "name": "Polos",
+      "slug": "polos",
+      "description": "Textured & Knit Polos"
+    },
+    {
+      "id": "cat-3",
+      "name": "Vests",
+      "slug": "vests",
+      "description": "Tailored Waistcoats & Vests"
+    },
+    {
+      "id": "cat-4",
+      "name": "Trousers",
+      "slug": "trousers",
+      "description": "Relaxed Linen & Cotton Pants"
+    }
+  ],
+  "coupons": [
+    {
+      "id": "coup-1",
+      "code": "LUXE10",
+      "discountType": "percentage",
+      "value": 10,
+      "minSpend": 1000,
+      "active": true
+    },
+    {
+      "id": "coup-2",
+      "code": "BRIVOO500",
+      "discountType": "fixed",
+      "value": 500,
+      "minSpend": 2500,
+      "active": true
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-1",
+      "title": "Linen Resort Shirt",
+      "subtitle": "Ivory",
+      "category": "Shirts",
+      "gender": "Men",
+      "price": 1799,
+      "originalPrice": 2499,
+      "tag": "NEW",
+      "image": "http://localhost:5005/images/linen_resort_shirt.png",
+      "colors": [
+        {
+          "name": "Ivory",
+          "hex": "#F5F2EB"
+        },
+        {
+          "name": "Sage",
+          "hex": "#5C6B5A"
+        },
+        {
+          "name": "Black",
+          "hex": "#1C1C1C"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 44,
+      "description": "Elevated short-sleeve resort shirt cut from premium breathable linen. Designed with a classic camp collar and a relaxed silhouette for effortless summer elegance.",
+      "specs": "100% European Flax Linen. Pre-washed for soft feel. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": [
+        {
+          "id": "r1",
+          "userName": "Aarav Sharma",
+          "rating": 5,
+          "comment": "Super soft linen, perfect fit for summer outings!",
+          "date": "2026-08-10"
+        },
+        {
+          "id": "r2",
+          "userName": "Kabir Roy",
+          "rating": 4,
+          "comment": "Great texture and color. Feels very high end.",
+          "date": "2026-08-12"
+        }
+      ]
+    },
+    {
+      "id": "prod-2",
+      "title": "Oversized Linen Shirt",
+      "subtitle": "Beige",
+      "category": "Shirts",
+      "gender": "Women",
+      "price": 1899,
+      "originalPrice": 2699,
+      "tag": "NEW",
+      "image": "http://localhost:5005/images/oversized_shirt.png",
+      "colors": [
+        {
+          "name": "Beige",
+          "hex": "#E3D5C5"
+        },
+        {
+          "name": "Cocoa",
+          "hex": "#5D4037"
+        },
+        {
+          "name": "Noir",
+          "hex": "#141414"
+        }
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 30,
+      "description": "Relaxed oversized button-down shirt featuring dropped shoulders and chest pocket detail. Made from ultra-lightweight organic linen blend.",
+      "specs": "80% Linen, 20% Organic Cotton. Dry clean or hand wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": [
+        {
+          "id": "r3",
+          "userName": "Priya Verma",
+          "rating": 5,
+          "comment": "Looks so elegant and chic. Quality is top notch!",
+          "date": "2026-08-12"
+        }
+      ]
+    },
+    {
+      "id": "prod-3",
+      "title": "Textured Knit Polo",
+      "subtitle": "Brown",
+      "category": "Polos",
+      "gender": "Men",
+      "price": 1699,
+      "originalPrice": 2299,
+      "tag": "BESTSELLER",
+      "image": "http://localhost:5005/images/textured_knit_polo.png",
+      "colors": [
+        {
+          "name": "Brown",
+          "hex": "#4A3525"
+        },
+        {
+          "name": "Cream",
+          "hex": "#F7F3EE"
+        },
+        {
+          "name": "Black",
+          "hex": "#111111"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 20,
+      "description": "Sophisticated textured quarter-zip knit polo with refined ribbed collar and hem. Crafted from high-gauge luxury cotton.",
+      "specs": "100% Combed Cotton Knit. Lay flat to dry.",
+      "inStock": true,
+      "featured": true,
+      "reviews": [
+        {
+          "id": "r4",
+          "userName": "Rohan Mehta",
+          "rating": 5,
+          "comment": "The quarter zip detail is crisp and stylish. Fits true to size.",
+          "date": "2026-08-14"
+        }
+      ]
+    },
+    {
+      "id": "prod-4",
+      "title": "Tailored Vest",
+      "subtitle": "White",
+      "category": "Vests",
+      "gender": "Women",
+      "price": 1999,
+      "originalPrice": 2899,
+      "tag": "NEW",
+      "image": "http://localhost:5005/images/tailored_vest.png",
+      "colors": [
+        {
+          "name": "White",
+          "hex": "#FFFFFF"
+        },
+        {
+          "name": "Camel",
+          "hex": "#C69C6D"
+        },
+        {
+          "name": "Black",
+          "hex": "#000000"
+        }
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "stock": 15,
+      "description": "Sleek tailored waistcoat vest with subtle horn-button front and notched hem. Pair with matching trousers for a powerful luxury look.",
+      "specs": "70% Viscose, 30% Linen with 100% Silk lining.",
+      "inStock": true,
+      "featured": true,
+      "reviews": [
+        {
+          "id": "r5",
+          "userName": "Ananya Roy",
+          "rating": 5,
+          "comment": "Absolute perfection! Fits like a glove.",
+          "date": "2026-08-15"
+        }
+      ]
+    },
+    {
+      "id": "prod-5",
+      "title": "Linen Tailored Trouser",
+      "subtitle": "Oatmeal",
+      "category": "Trousers",
+      "gender": "Unisex",
+      "price": 2499,
+      "originalPrice": 3299,
+      "tag": "BESTSELLER",
+      "image": "http://localhost:5005/images/hero.png",
+      "colors": [
+        {
+          "name": "Oatmeal",
+          "hex": "#D6C7B2"
+        },
+        {
+          "name": "Charcoal",
+          "hex": "#363636"
+        }
+      ],
+      "sizes": [
+        "28",
+        "30",
+        "32",
+        "34",
+        "36"
+      ],
+      "stock": 25,
+      "description": "Relaxed straight-leg tailored trousers with elasticated back waist, horn buttons, and deep side pockets.",
+      "specs": "100% Fine Linen.",
+      "inStock": true,
+      "featured": false,
+      "reviews": []
+    }
+  ],
+  "orders": [
+    {
+      "id": "BRV-62632",
+      "customerName": "Hanuman Jogi",
+      "email": "hanuman@example.com",
+      "phone": "+91 98765 43210",
+      "address": "12, Luxury Palm Avenue, Jubilee Hills, indore, madhya Pradesh 500033",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "Ivory",
+          "image": "http://localhost:5005/images/linen_resort_shirt.png"
+        }
+      ],
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "paymentMethod": "UPI",
+      "status": "Processing",
+      "createdAt": "2026-08-17T10:03:20.808Z"
+    },
+    {
+      "id": "BRV-98412",
+      "customerName": "Rahul Kapoor",
+      "email": "rahul@example.com",
+      "phone": "+91 98765 43210",
+      "address": "Flat 402, Sunshine Heights, Bandra West, Mumbai 400050",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "L",
+          "selectedColor": "Ivory",
+          "image": "http://localhost:5005/images/linen_resort_shirt.png"
+        }
+      ],
+      "totalAmount": 1799,
+      "discountAmount": 0,
+      "paymentMethod": "UPI",
+      "status": "Processing",
+      "createdAt": "2026-08-16T10:30:00.000Z"
+    },
+    {
+      "id": "BRV-98411",
+      "customerName": "Sneha Reddy",
+      "email": "sneha@example.com",
+      "phone": "+91 91234 56789",
+      "address": "12 Jubilee Hills, Road No 36, Hyderabad 500033",
+      "items": [
+        {
+          "id": "prod-4",
+          "title": "Tailored Vest",
+          "price": 1999,
+          "quantity": 1,
+          "selectedSize": "S",
+          "selectedColor": "White",
+          "image": "http://localhost:5000/images/tailored_vest.png"
+        }
+      ],
+      "totalAmount": 1799,
+      "discountAmount": 200,
+      "paymentMethod": "Card",
+      "status": "Delivered",
+      "createdAt": "2026-08-15T14:20:00.000Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-admin",
+      "name": "Brivoo Admin",
+      "email": "admin@brivoo.com",
+      "password": "admin123",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+    },
+    {
+      "id": "usr-customer",
+      "name": "Hanuman Jogi",
+      "email": "customer@brivoo.com",
+      "password": "user123",
+      "role": "customer",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+    }
+  ],
+  "otps": {}
+}
