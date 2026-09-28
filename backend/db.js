@@ -12,7 +12,7 @@ const INITIAL_DATA = {
     freeShippingThreshold: 1999,
     heroTitle: "TIMELESS STYLE.\nPREMIUM YOU.",
     heroSubtext: "Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.",
-    heroImage: "http://localhost:5005/images/hero.png"
+    heroImage: "/images/hero.png"
   },
   categories: [
     { id: "cat-1", name: "Shirts", slug: "shirts", description: "Linen & Cotton Essentials" },
@@ -53,7 +53,7 @@ const INITIAL_DATA = {
       price: 1799,
       originalPrice: 2499,
       tag: "NEW",
-      image: "http://localhost:5005/images/linen_resort_shirt.png",
+      image: "/images/linen_resort_shirt.png",
       colors: [
         { name: "Ivory", hex: "#F5F2EB" },
         { name: "Sage", hex: "#5C6B5A" },
@@ -79,7 +79,7 @@ const INITIAL_DATA = {
       price: 1899,
       originalPrice: 2699,
       tag: "NEW",
-      image: "http://localhost:5005/images/oversized_shirt.png",
+      image: "/images/oversized_shirt.png",
       colors: [
         { name: "Beige", hex: "#E3D5C5" },
         { name: "Cocoa", hex: "#5D4037" },
@@ -104,7 +104,7 @@ const INITIAL_DATA = {
       price: 1699,
       originalPrice: 2299,
       tag: "BESTSELLER",
-      image: "http://localhost:5005/images/textured_knit_polo.png",
+      image: "/images/textured_knit_polo.png",
       colors: [
         { name: "Brown", hex: "#4A3525" },
         { name: "Cream", hex: "#F7F3EE" },
@@ -129,7 +129,7 @@ const INITIAL_DATA = {
       price: 1999,
       originalPrice: 2899,
       tag: "NEW",
-      image: "http://localhost:5005/images/tailored_vest.png",
+      image: "/images/tailored_vest.png",
       colors: [
         { name: "White", hex: "#FFFFFF" },
         { name: "Camel", hex: "#C69C6D" },
@@ -154,7 +154,7 @@ const INITIAL_DATA = {
       price: 2499,
       originalPrice: 3299,
       tag: "BESTSELLER",
-      image: "http://localhost:5005/images/hero.png",
+      image: "/images/hero.png",
       colors: [
         { name: "Oatmeal", hex: "#D6C7B2" },
         { name: "Charcoal", hex: "#363636" }
@@ -183,7 +183,7 @@ const INITIAL_DATA = {
           quantity: 1,
           selectedSize: "L",
           selectedColor: "Ivory",
-          image: "http://localhost:5005/images/linen_resort_shirt.png"
+          image: "/images/linen_resort_shirt.png"
         }
       ],
       totalAmount: 1799,

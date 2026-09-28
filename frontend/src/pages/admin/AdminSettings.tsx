@@ -12,7 +12,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
   const [announcement, setAnnouncement] = useState(settings?.announcement || 'FREE SHIPPING ON ALL ORDERS ABOVE ₹1999');
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(settings?.freeShippingThreshold?.toString() || '1999');
   const [heroSubtext, setHeroSubtext] = useState(settings?.heroSubtext || 'Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.');
-  const [heroImage, setHeroImage] = useState(settings?.heroImage || 'http://localhost:5005/images/hero.png');
+  const [heroImage, setHeroImage] = useState(settings?.heroImage || '/images/hero.png');
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);

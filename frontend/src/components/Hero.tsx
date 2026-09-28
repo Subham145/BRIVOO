@@ -54,7 +54,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onShopMen, onShopWomen }) 
           <div className="md:col-span-6 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#E6DFC5]/60 group">
               <img 
-                src={settings?.heroImage || "http://localhost:5005/images/hero.png"} 
+                src={settings?.heroImage || "/images/hero.png"} 
                 alt="BRIVOO Luxury Apparel" 
                 className="w-full h-[440px] md:h-[540px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />

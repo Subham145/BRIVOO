@@ -29,7 +29,7 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
   const [originalPrice, setOriginalPrice] = useState('2499');
   const [tag, setTag] = useState('NEW');
   const [stock, setStock] = useState('25');
-  const [image, setImage] = useState('http://localhost:5005/images/linen_resort_shirt.png');
+  const [image, setImage] = useState('/images/linen_resort_shirt.png');
   const [description, setDescription] = useState('');
   const [specs, setSpecs] = useState('');
   
@@ -56,7 +56,7 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     setOriginalPrice('2499');
     setTag('NEW');
     setStock('25');
-    setImage('http://localhost:5005/images/linen_resort_shirt.png');
+    setImage('/images/linen_resort_shirt.png');
     setDescription('Handcrafted luxury apparel using fine natural fabrics.');
     setSpecs('100% Premium Linen. Machine wash cold.');
     setColors([{ name: 'Ivory', hex: '#F5F2EB' }, { name: 'Black', hex: '#1C1C1C' }]);

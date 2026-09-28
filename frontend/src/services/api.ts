@@ -1,6 +1,6 @@
 import { Product, Category, Coupon, Order, SiteSettings, User } from '../types';
 
-const API_BASE = 'http://localhost:5005/api';
+const API_BASE = '/api';
 
 export const api = {
   // Auth API

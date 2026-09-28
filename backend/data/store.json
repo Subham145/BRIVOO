@@ -4,7 +4,7 @@
     "freeShippingThreshold": 1999,
     "heroTitle": "TIMELESS STYLE.\nPREMIUM YOU.",
     "heroSubtext": "Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.",
-    "heroImage": "http://localhost:5005/images/hero.png"
+    "heroImage": "/images/hero.png"
   },
   "categories": [
     {
@@ -60,7 +60,7 @@
       "price": 1799,
       "originalPrice": 2499,
       "tag": "NEW",
-      "image": "http://localhost:5005/images/linen_resort_shirt.png",
+      "image": "/images/linen_resort_shirt.png",
       "colors": [
         {
           "name": "Ivory",
@@ -113,7 +113,7 @@
       "price": 1899,
       "originalPrice": 2699,
       "tag": "NEW",
-      "image": "http://localhost:5005/images/oversized_shirt.png",
+      "image": "/images/oversized_shirt.png",
       "colors": [
         {
           "name": "Beige",
@@ -159,7 +159,7 @@
       "price": 1699,
       "originalPrice": 2299,
       "tag": "BESTSELLER",
-      "image": "http://localhost:5005/images/textured_knit_polo.png",
+      "image": "/images/textured_knit_polo.png",
       "colors": [
         {
           "name": "Brown",
@@ -204,7 +204,7 @@
       "price": 1999,
       "originalPrice": 2899,
       "tag": "NEW",
-      "image": "http://localhost:5005/images/tailored_vest.png",
+      "image": "/images/tailored_vest.png",
       "colors": [
         {
           "name": "White",
@@ -249,7 +249,7 @@
       "price": 2499,
       "originalPrice": 3299,
       "tag": "BESTSELLER",
-      "image": "http://localhost:5005/images/hero.png",
+      "image": "/images/hero.png",
       "colors": [
         {
           "name": "Oatmeal",
@@ -290,7 +290,7 @@
           "quantity": 1,
           "selectedSize": "S",
           "selectedColor": "Ivory",
-          "image": "http://localhost:5005/images/linen_resort_shirt.png"
+          "image": "/images/linen_resort_shirt.png"
         }
       ],
       "totalAmount": 1949,
@@ -313,7 +313,7 @@
           "quantity": 1,
           "selectedSize": "L",
           "selectedColor": "Ivory",
-          "image": "http://localhost:5005/images/linen_resort_shirt.png"
+          "image": "/images/linen_resort_shirt.png"
         }
       ],
       "totalAmount": 1799,
@@ -336,7 +336,7 @@
           "quantity": 1,
           "selectedSize": "S",
           "selectedColor": "White",
-          "image": "http://localhost:5000/images/tailored_vest.png"
+          "image": "/images/tailored_vest.png"
         }
       ],
       "totalAmount": 1799,

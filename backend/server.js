@@ -217,7 +217,7 @@ app.post('/api/products', (req, res) => {
     price: Number(price),
     originalPrice: originalPrice ? Number(originalPrice) : Number(price) + 500,
     tag: tag || 'NEW',
-    image: image || 'http://localhost:5005/images/linen_resort_shirt.png',
+    image: image || '/images/linen_resort_shirt.png',
     colors: colors || [{ name: "Classic", hex: "#1A1A1A" }],
     sizes: sizes || ["S", "M", "L", "XL"],
     stock: stock ? Number(stock) : 20,
