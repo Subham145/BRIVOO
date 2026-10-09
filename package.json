@@ -1,0 +1,12 @@
+{
+  "name": "brivoo",
+  "version": "1.0.0",
+  "description": "BRIVOO Luxury E-Commerce Platform",
+  "private": true,
+  "scripts": {
+    "dev": "node start-dev.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start": "node start-dev.js"
+  }
+}

@@ -3,46 +3,200 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    background-color: #FAF7F2;
+  html, body {
+    background-color: #FAF8F5;
     color: #1A1A1A;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    -webkit-tap-highlight-color: transparent;
   }
   
-  h1, h2, h3, .font-serif-luxury {
-    font-family: 'Playfair Display', serif;
+  /* Normal, clean, modern typography for all headings & metrics */
+  h1, h2, h3, h4, h5, h6, .font-serif-luxury {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Clean tabular figures for all prices and metrics */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Fluid image scaling rule */
+  img, video {
+    max-width: 100%;
+    height: auto;
   }
 }
 
-/* Custom Scrollbar */
+/* Hide scrollbar utility for clean mobile horizontal pill carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* iOS Safe area utility */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+/* Custom Luxury Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF7F2;
+  background: #FAF8F5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C5A059;
-  border-radius: 3px;
+  background: #D4AF37;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A6823C;
+  background: #B58A44;
 }
 
-/* Glassmorphism & Micro-animations */
+/* Modern Glassmorphism & Micro-animations */
 .glass-panel {
-  background: rgba(250, 247, 242, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(197, 160, 89, 0.2);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(230, 223, 197, 0.45);
 }
 
 .luxury-card {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 .luxury-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(26, 26, 26, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.08);
 }
+
+/* Subtle gold shimmer */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+}
+
+/* ============================================================
+   CLOTHING & ATELIER BESPOKE ANIMATIONS
+   ============================================================ */
+
+/* 1. Tailor's Sewing Thread Stitch Animation */
+@keyframes threadStitchMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 28px 0; }
+}
+
+.stitch-thread-link {
+  position: relative;
+  display: inline-block;
+}
+
+.stitch-thread-link::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #C5A059 0, #C5A059 5px, transparent 5px, transparent 9px);
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+}
+
+.stitch-thread-link:hover::after,
+.stitch-thread-link.active-stitch::after {
+  width: 100%;
+  opacity: 1;
+  animation: threadStitchMove 1.2s linear infinite;
+}
+
+/* 2. Coat Hanger Sway Animation */
+@keyframes hangerSway {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-6deg); }
+  45% { transform: rotate(5deg); }
+  70% { transform: rotate(-3deg); }
+  85% { transform: rotate(2deg); }
+}
+
+.animate-hanger-sway {
+  transform-origin: top center;
+  animation: hangerSway 4s ease-in-out infinite;
+}
+
+.group:hover .group-hover-hanger {
+  animation: hangerSway 1.5s ease-in-out infinite;
+}
+
+/* 3. Clothing Swing Tag Physics Sway */
+@keyframes tagSwing {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  25% { transform: rotate(-5deg) translateY(-1px); }
+  60% { transform: rotate(4deg) translateY(1px); }
+  85% { transform: rotate(-2deg); }
+}
+
+.animate-tag-swing {
+  transform-origin: top right;
+  animation: tagSwing 4.5s ease-in-out infinite;
+}
+
+/* 4. Luxury Fabric Silk Sheen */
+@keyframes fabricSheen {
+  0% { transform: translateX(-150%) skewX(-25deg); opacity: 0; }
+  20% { opacity: 0.8; }
+  60% { opacity: 0.8; }
+  100% { transform: translateX(250%) skewX(-25deg); opacity: 0; }
+}
+
+.animate-fabric-sheen {
+  animation: fabricSheen 4s ease-in-out infinite;
+}
+
+/* 5. Garment Tote Bag Swing on Hover */
+@keyframes toteBagSwing {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-12deg) scale(1.08); }
+  40% { transform: rotate(10deg) scale(1.08); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+}
+
+.hover-tote-swing:hover {
+  animation: toteBagSwing 0.7s ease-in-out;
+}
+
+/* 6. Floating Linen / Silk Thread Fibers in Breeze */
+@keyframes threadFloat {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-12px) rotate(8deg); opacity: 0.7; }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+}
+
+.animate-thread-float {
+  animation: threadFloat 5s ease-in-out infinite;
+}
+
+/* 7. Measuring Tape Pulse */
+@keyframes tapePulse {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.05); }
+}
+
+.animate-tape-pulse {
+  animation: tapePulse 3s ease-in-out infinite;
+}
+

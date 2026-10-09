@@ -4,32 +4,184 @@
     "freeShippingThreshold": 1999,
     "heroTitle": "TIMELESS STYLE.\nPREMIUM YOU.",
     "heroSubtext": "Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.",
-    "heroImage": "/images/hero.png"
+    "heroImage": "/images/hero.png",
+    "heroSlides": [
+      {
+        "id": "slide-1",
+        "image": "/images/hero_slide_1.jpg",
+        "badge": "SPRING / SUMMER 2026 • ATELIER RESORT",
+        "titleLine1": "TIMELESS STYLE.",
+        "titleHighlight": "PREMIUM YOU.",
+        "subtext": "Elevated essentials cut from 100% master-grade European flax linen. Minimal, breathable, and effortlessly sophisticated for the modern wardrobe.",
+        "featurePill": "100% Certified European Flax Linen",
+        "garmentName": "Linen Camp Collar Shirt",
+        "garmentPrice": "₹1,799",
+        "garmentTag": "TRENDING NOW",
+        "garmentSub": "Pre-washed 180 GSM Softness",
+        "primaryCtaText": "SHOP MEN",
+        "secondaryCtaText": "SHOP WOMEN",
+        "active": true
+      },
+      {
+        "id": "slide-2",
+        "image": "/images/hero_slide_2.jpg",
+        "badge": "EVENING ATELIER • LIMITED EDITION",
+        "titleLine1": "MEDITERRANEAN DUSK.",
+        "titleHighlight": "QUIET LUXURY.",
+        "subtext": "Tailored waistcoats and relaxed pleated trousers. Structured European tailoring engineered with breathable Italian flax for warm coastal nights.",
+        "featurePill": "Handcrafted French Seam Finishes",
+        "garmentName": "Tailored Linen Waistcoat",
+        "garmentPrice": "₹2,199",
+        "garmentTag": "ATELIER SPECIAL",
+        "garmentSub": "Structured Linen Blend",
+        "primaryCtaText": "EXPLORE ATELIER",
+        "secondaryCtaText": "SHOP COLLECTION",
+        "active": true
+      },
+      {
+        "id": "slide-3",
+        "image": "/images/hero_slide_3.jpg",
+        "badge": "MEDITERRANEAN ARCHITECTURE • SS26 ATELIER",
+        "titleLine1": "ARCHITECTURAL DRAPES.",
+        "titleHighlight": "QUIET ELEGANCE.",
+        "subtext": "Modernist clean lines crafted in stone-washed European flax linen and structured tailoring for unforgettable coastal evenings.",
+        "featurePill": "Naturally Thermo-Regulating Fabric",
+        "garmentName": "Linen Drape Atelier Dress & Suit",
+        "garmentPrice": "₹2,499",
+        "garmentTag": "RUNWAY CAPSULE",
+        "garmentSub": "Double Pleated Silhouette",
+        "primaryCtaText": "SHOP THE EDIT",
+        "secondaryCtaText": "VIEW LOOKBOOK",
+        "active": true
+      }
+    ],
+    "storeEmail": "concierge@brivoo.com",
+    "storePhone": "+91 8000 554 999",
+    "currency": "INR",
+    "enableCod": true,
+    "returnWindowDays": 7,
+    "shiprocketEmail": "brivo0504@gmail.com",
+    "shiprocketChannelId": "8083356",
+    "shiprocketPickupLocation": "BRIVOO Atelier Mumbai",
+    "autoPushToShiprocket": false
   },
   "categories": [
     {
       "id": "cat-1",
       "name": "Shirts",
       "slug": "shirts",
-      "description": "Linen & Cotton Essentials"
+      "description": "Linen & Cotton Essentials",
+      "subcategories": [
+        {
+          "id": "sub-101",
+          "categoryId": "cat-1",
+          "name": "Linen Shirts",
+          "slug": "linen-shirts",
+          "description": "Pure European flax breathable linen"
+        },
+        {
+          "id": "sub-102",
+          "categoryId": "cat-1",
+          "name": "Resort Camp Collar",
+          "slug": "resort-camp-collar",
+          "description": "Relaxed holiday silhouette"
+        },
+        {
+          "id": "sub-103",
+          "categoryId": "cat-1",
+          "name": "Formal Dress Shirts",
+          "slug": "formal-dress-shirts",
+          "description": "Crisp Egyptian cotton tailored shirts"
+        }
+      ]
     },
     {
       "id": "cat-2",
       "name": "Polos",
       "slug": "polos",
-      "description": "Textured & Knit Polos"
+      "description": "Textured & Knit Polos",
+      "subcategories": [
+        {
+          "id": "sub-201",
+          "categoryId": "cat-2",
+          "name": "Quarter-Zip Polos",
+          "slug": "quarter-zip-polos",
+          "description": "High-gauge luxury textured knit"
+        },
+        {
+          "id": "sub-202",
+          "categoryId": "cat-2",
+          "name": "Classic Pique Polos",
+          "slug": "classic-pique-polos",
+          "description": "Timeless breathable cotton pique"
+        }
+      ]
     },
     {
       "id": "cat-3",
       "name": "Vests",
       "slug": "vests",
-      "description": "Tailored Waistcoats & Vests"
+      "description": "Tailored Waistcoats & Vests",
+      "subcategories": [
+        {
+          "id": "sub-301",
+          "categoryId": "cat-3",
+          "name": "Tailored Waistcoats",
+          "slug": "tailored-waistcoats",
+          "description": "Silk-lined formal vests"
+        },
+        {
+          "id": "sub-302",
+          "categoryId": "cat-3",
+          "name": "Linen Vests",
+          "slug": "linen-vests",
+          "description": "Summer relaxed waistcoats"
+        }
+      ]
     },
     {
       "id": "cat-4",
       "name": "Trousers",
       "slug": "trousers",
-      "description": "Relaxed Linen & Cotton Pants"
+      "description": "Relaxed Linen & Cotton Pants",
+      "subcategories": [
+        {
+          "id": "sub-401",
+          "categoryId": "cat-4",
+          "name": "Linen Trousers",
+          "slug": "linen-trousers",
+          "description": "Straight-leg effortless linen"
+        },
+        {
+          "id": "sub-402",
+          "categoryId": "cat-4",
+          "name": "Pleated Dress Slacks",
+          "slug": "pleated-slacks",
+          "description": "Italian tailored pleated pants"
+        }
+      ]
+    },
+    {
+      "id": "cat-5",
+      "name": "Accessories",
+      "slug": "accessories",
+      "description": "Handcrafted Leather & Silk Goods",
+      "subcategories": [
+        {
+          "id": "sub-501",
+          "categoryId": "cat-5",
+          "name": "Leather Belts",
+          "slug": "leather-belts",
+          "description": "Handmade Italian full-grain leather"
+        },
+        {
+          "id": "sub-502",
+          "categoryId": "cat-5",
+          "name": "Silk Pocket Squares",
+          "slug": "silk-pocket-squares",
+          "description": "Hand-rolled mulberry silk"
+        }
+      ]
     }
   ],
   "coupons": [
@@ -39,6 +191,11 @@
       "discountType": "percentage",
       "value": 10,
       "minSpend": 1000,
+      "maxDiscount": 500,
+      "usageLimit": 100,
+      "usageCount": 23,
+      "expiryDate": "2026-12-31",
+      "description": "10% off on all luxury apparel orders",
       "active": true
     },
     {
@@ -47,7 +204,159 @@
       "discountType": "fixed",
       "value": 500,
       "minSpend": 2500,
+      "maxDiscount": 500,
+      "usageLimit": 50,
+      "usageCount": 14,
+      "expiryDate": "2026-11-30",
+      "description": "Flat ₹500 off on shopping above ₹2500",
       "active": true
+    },
+    {
+      "id": "coup-3",
+      "code": "ROYALVIP",
+      "discountType": "percentage",
+      "value": 20,
+      "minSpend": 4000,
+      "maxDiscount": 1200,
+      "usageLimit": 200,
+      "usageCount": 45,
+      "expiryDate": "2027-01-01",
+      "description": "VIP Club 20% discount on cart over ₹4000",
+      "active": true
+    },
+    {
+      "id": "coup-4",
+      "code": "LINEN25",
+      "discountType": "percentage",
+      "value": 25,
+      "minSpend": 1999,
+      "maxDiscount": 1500,
+      "usageLimit": 200,
+      "usageCount": 18,
+      "expiryDate": "2026-11-30",
+      "description": "25% off on European Flax Linen Collection",
+      "active": true
+    },
+    {
+      "id": "coup-5",
+      "code": "WELCOME500",
+      "discountType": "fixed",
+      "value": 500,
+      "minSpend": 2499,
+      "maxDiscount": 500,
+      "usageLimit": 500,
+      "usageCount": 62,
+      "expiryDate": "2026-12-31",
+      "description": "₹500 instant welcome privilege on first luxury purchase",
+      "active": true
+    },
+    {
+      "id": "coup-6",
+      "code": "WEEKEND30",
+      "discountType": "percentage",
+      "value": 30,
+      "minSpend": 3499,
+      "maxDiscount": 2000,
+      "usageLimit": 150,
+      "usageCount": 9,
+      "expiryDate": "2026-10-31",
+      "description": "30% off on Weekend Atelier Flash Soirée",
+      "active": true
+    }
+  ],
+  "offers": [
+    {
+      "id": "off-1",
+      "title": "Summer European Flax Linen Sale",
+      "subtitle": "Bespoke linen shirts, relaxed trousers & waistcoats",
+      "badge": "FLAT 25% OFF",
+      "code": "LINEN25",
+      "discountType": "percentage",
+      "discountValue": 25,
+      "minSpend": 1999,
+      "description": "Unlock 25% off on our signature 100% European Flax Linen collection. Handcrafted French seams and genuine mother-of-pearl buttons.",
+      "validUntil": "2026-11-30",
+      "category": "All",
+      "bannerImage": "/images/hero_slide_1.jpg",
+      "tagColor": "gold",
+      "featured": true,
+      "active": true,
+      "terms": [
+        "Valid on orders above ₹1,999",
+        "Applicable on all European Flax Linen articles",
+        "Includes complimentary door-to-door express delivery",
+        "Cannot be combined with other promotional codes"
+      ],
+      "createdAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": "off-2",
+      "title": "Atelier First Order Privilege",
+      "subtitle": "Welcome to BRIVOO luxury tailoring",
+      "badge": "₹500 OFF",
+      "code": "WELCOME500",
+      "discountType": "fixed",
+      "discountValue": 500,
+      "minSpend": 2499,
+      "description": "A warm welcome gift for discerning patrons. Receive ₹500 instant deduction on your first bespoke purchase.",
+      "validUntil": "2026-12-31",
+      "category": "All",
+      "bannerImage": "/images/hero_slide_2.jpg",
+      "tagColor": "dark",
+      "featured": true,
+      "active": true,
+      "terms": [
+        "Minimum cart value of ₹2,499 required",
+        "Valid for new customers only",
+        "Applicable across all shirts, polos & waistcoats"
+      ],
+      "createdAt": "2026-10-02T10:00:00.000Z"
+    },
+    {
+      "id": "off-3",
+      "title": "Weekend Luxury Flash Soirée",
+      "subtitle": "Limited 48-Hour Weekend Window",
+      "badge": "FLASH DEAL 30%",
+      "code": "WEEKEND30",
+      "discountType": "percentage",
+      "discountValue": 30,
+      "minSpend": 3499,
+      "description": "Exclusive weekend privilege for our atelier club members. Save 30% on orders exceeding ₹3,499.",
+      "validUntil": "2026-10-31",
+      "category": "Shirts",
+      "bannerImage": "/images/hero_slide_3.jpg",
+      "tagColor": "rose",
+      "featured": true,
+      "active": true,
+      "terms": [
+        "Valid till Sunday midnight",
+        "Minimum cart spend ₹3,499",
+        "Includes express priority dispatched within 24 hours"
+      ],
+      "createdAt": "2026-10-05T12:00:00.000Z"
+    },
+    {
+      "id": "off-4",
+      "title": "Complimentary Silk Pocket Square",
+      "subtitle": "Bespoke luxury gift with every Vest or Suit",
+      "badge": "COMPLIMENTARY GIFT",
+      "code": "SILKGIFT",
+      "discountType": "fixed",
+      "discountValue": 300,
+      "minSpend": 2999,
+      "description": "Receive a complimentary hand-rolled mulberry silk pocket square and ₹300 off with any tailored waistcoat.",
+      "validUntil": "2026-11-15",
+      "category": "Vests",
+      "bannerImage": "/images/tailored_vest.png",
+      "tagColor": "emerald",
+      "featured": false,
+      "active": true,
+      "terms": [
+        "Automatic silk pocket square included in packaging",
+        "Minimum spend ₹2,999 on tailored items",
+        "Non-exchangeable for cash"
+      ],
+      "createdAt": "2026-10-06T09:00:00.000Z"
     }
   ],
   "products": [
@@ -56,6 +365,7 @@
       "title": "Linen Resort Shirt",
       "subtitle": "Ivory",
       "category": "Shirts",
+      "subCategory": "Linen Shirts",
       "gender": "Men",
       "price": 1799,
       "originalPrice": 2499,
@@ -82,7 +392,7 @@
         "XL",
         "XXL"
       ],
-      "stock": 44,
+      "stock": 43,
       "description": "Elevated short-sleeve resort shirt cut from premium breathable linen. Designed with a classic camp collar and a relaxed silhouette for effortless summer elegance.",
       "specs": "100% European Flax Linen. Pre-washed for soft feel. Machine wash cold.",
       "inStock": true,
@@ -109,6 +419,7 @@
       "title": "Oversized Linen Shirt",
       "subtitle": "Beige",
       "category": "Shirts",
+      "subCategory": "Linen Shirts",
       "gender": "Women",
       "price": 1899,
       "originalPrice": 2699,
@@ -155,6 +466,7 @@
       "title": "Textured Knit Polo",
       "subtitle": "Brown",
       "category": "Polos",
+      "subCategory": "Quarter-Zip Polos",
       "gender": "Men",
       "price": 1699,
       "originalPrice": 2299,
@@ -180,7 +492,7 @@
         "L",
         "XL"
       ],
-      "stock": 20,
+      "stock": 8,
       "description": "Sophisticated textured quarter-zip knit polo with refined ribbed collar and hem. Crafted from high-gauge luxury cotton.",
       "specs": "100% Combed Cotton Knit. Lay flat to dry.",
       "inStock": true,
@@ -200,6 +512,7 @@
       "title": "Tailored Vest",
       "subtitle": "White",
       "category": "Vests",
+      "subCategory": "Tailored Waistcoats",
       "gender": "Women",
       "price": 1999,
       "originalPrice": 2899,
@@ -245,6 +558,7 @@
       "title": "Linen Tailored Trouser",
       "subtitle": "Oatmeal",
       "category": "Trousers",
+      "subCategory": "Linen Trousers",
       "gender": "Unisex",
       "price": 2499,
       "originalPrice": 3299,
@@ -267,85 +581,25 @@
         "34",
         "36"
       ],
-      "stock": 25,
+      "stock": 6,
       "description": "Relaxed straight-leg tailored trousers with elasticated back waist, horn buttons, and deep side pockets.",
       "specs": "100% Fine Linen.",
       "inStock": true,
       "featured": false,
-      "reviews": []
+      "reviews": [
+        {
+          "id": "r6",
+          "userName": "Dev Malhotra",
+          "rating": 5,
+          "comment": "Unbelievable drape and comfort.",
+          "date": "2026-08-20"
+        }
+      ]
     }
   ],
-  "orders": [
-    {
-      "id": "BRV-62632",
-      "customerName": "Hanuman Jogi",
-      "email": "hanuman@example.com",
-      "phone": "+91 98765 43210",
-      "address": "12, Luxury Palm Avenue, Jubilee Hills, indore, madhya Pradesh 500033",
-      "items": [
-        {
-          "id": "prod-1",
-          "title": "Linen Resort Shirt",
-          "price": 1799,
-          "quantity": 1,
-          "selectedSize": "S",
-          "selectedColor": "Ivory",
-          "image": "/images/linen_resort_shirt.png"
-        }
-      ],
-      "totalAmount": 1949,
-      "discountAmount": 0,
-      "paymentMethod": "UPI",
-      "status": "Processing",
-      "createdAt": "2026-08-17T10:03:20.808Z"
-    },
-    {
-      "id": "BRV-98412",
-      "customerName": "Rahul Kapoor",
-      "email": "rahul@example.com",
-      "phone": "+91 98765 43210",
-      "address": "Flat 402, Sunshine Heights, Bandra West, Mumbai 400050",
-      "items": [
-        {
-          "id": "prod-1",
-          "title": "Linen Resort Shirt",
-          "price": 1799,
-          "quantity": 1,
-          "selectedSize": "L",
-          "selectedColor": "Ivory",
-          "image": "/images/linen_resort_shirt.png"
-        }
-      ],
-      "totalAmount": 1799,
-      "discountAmount": 0,
-      "paymentMethod": "UPI",
-      "status": "Processing",
-      "createdAt": "2026-08-16T10:30:00.000Z"
-    },
-    {
-      "id": "BRV-98411",
-      "customerName": "Sneha Reddy",
-      "email": "sneha@example.com",
-      "phone": "+91 91234 56789",
-      "address": "12 Jubilee Hills, Road No 36, Hyderabad 500033",
-      "items": [
-        {
-          "id": "prod-4",
-          "title": "Tailored Vest",
-          "price": 1999,
-          "quantity": 1,
-          "selectedSize": "S",
-          "selectedColor": "White",
-          "image": "/images/tailored_vest.png"
-        }
-      ],
-      "totalAmount": 1799,
-      "discountAmount": 200,
-      "paymentMethod": "Card",
-      "status": "Delivered",
-      "createdAt": "2026-08-15T14:20:00.000Z"
-    }
-  ],
+  "orders": [],
+  "payments": [],
+  "returns": [],
   "users": [
     {
       "id": "usr-admin",
@@ -353,16 +607,195 @@
       "email": "admin@brivoo.com",
       "password": "admin123",
       "role": "admin",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
-    },
-    {
-      "id": "usr-customer",
-      "name": "Hanuman Jogi",
-      "email": "customer@brivoo.com",
-      "password": "user123",
-      "role": "customer",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      "phone": "+91 98980 11223",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "tier": "Platinum Luxe",
+      "status": "Active",
+      "joinedAt": "2026-01-01"
     }
   ],
-  "otps": {}
+  "otps": {},
+  "whatsapp": {
+    "config": {
+      "businessPhone": "+91 98000 12345",
+      "wabaId": "WABA_BRIVOO_9921",
+      "phoneNumberId": "PNID_8839210",
+      "metaAppStatus": "Connected",
+      "webhookVerified": true,
+      "autoReplyEnabled": true,
+      "botName": "BRIVOO Concierge AI"
+    },
+    "conversations": [],
+    "automations": [
+      {
+        "id": "auto-1",
+        "name": "Instant Order Confirmation",
+        "trigger": "ORDER_PLACED",
+        "description": "Immediately sends branded receipt, itemized garment summary, and support link upon checkout.",
+        "enabled": true,
+        "delayMinutes": 0,
+        "sentCount": 143,
+        "successRate": "99.8%",
+        "template": "Hello {customer_name}! ✨ Your BRIVOO order #{order_id} of ₹{total_amount} is confirmed. Our atelier craftsmen are carefully hand-inspecting and preparing your luxury pieces. Track status anytime: {tracking_link}"
+      },
+      {
+        "id": "auto-2",
+        "name": "Dispatch & Live AWB Tracking",
+        "trigger": "ORDER_SHIPPED",
+        "description": "Sends live courier tracking link (FedEx/Bluedart) when order enters transit.",
+        "enabled": true,
+        "delayMinutes": 5,
+        "sentCount": 98,
+        "successRate": "99.4%",
+        "template": "Exciting news {customer_name}! 🚀 Your order #{order_id} has been dispatched via {carrier} (AWB: {tracking_number}). Expected delivery: {estimated_delivery}. Track your package live here: {tracking_link}"
+      },
+      {
+        "id": "auto-3",
+        "name": "Abandoned Cart Smart Recovery",
+        "trigger": "CART_ABANDONED",
+        "description": "Re-engages shoppers who left products in cart with an exclusive 10% reservation perk.",
+        "enabled": true,
+        "delayMinutes": 120,
+        "sentCount": 56,
+        "successRate": "42.1% recovered",
+        "template": "Hello {customer_name}! We saved your selected luxury pieces in your BRIVOO private bag. Complete your order within 24 hours and unlock 10% off with code VIP10: {checkout_link}"
+      },
+      {
+        "id": "auto-4",
+        "name": "Post-Delivery VIP Review Request",
+        "trigger": "ORDER_DELIVERED",
+        "description": "Invites delivered patrons to share feedback and photo reviews 24 hours after unboxing.",
+        "enabled": true,
+        "delayMinutes": 1440,
+        "sentCount": 84,
+        "successRate": "34.5% rated",
+        "template": "Hello {customer_name}, we hope you are loving your new BRIVOO garments! How was your unboxing experience? Tap here to share a review and receive 500 Atelier Reward points: {review_link}"
+      },
+      {
+        "id": "auto-5",
+        "name": "Welcome Concierge & VIP Pass",
+        "trigger": "NEW_SIGNUP",
+        "description": "Welcomes newly registered patrons with personal concierge contact info.",
+        "enabled": true,
+        "delayMinutes": 2,
+        "sentCount": 210,
+        "successRate": "100%",
+        "template": "Welcome to BRIVOO Atelier, {customer_name}! 🌟 You are now enrolled in our Private Clientele circle. Enjoy complimentary tailoring, priority previews, and member-only pricing. Reach us directly here anytime."
+      }
+    ],
+    "campaigns": [
+      {
+        "id": "camp-1",
+        "name": "Summer Linen 2026 Lookbook Launch",
+        "audience": "All Active Patrons (145 contacts)",
+        "scheduledAt": "2026-10-01 11:00 AM",
+        "status": "Completed",
+        "delivered": 144,
+        "read": 138,
+        "replies": 28,
+        "ctr": "31.2%"
+      },
+      {
+        "id": "camp-2",
+        "name": "VIP Evening Atelier Private Drop",
+        "audience": "Platinum & Gold Patrons (42 contacts)",
+        "scheduledAt": "2026-10-04 06:30 PM",
+        "status": "Completed",
+        "delivered": 42,
+        "read": 41,
+        "replies": 16,
+        "ctr": "48.5%"
+      }
+    ]
+  },
+  "vendors": [
+    {
+      "id": "vnd-1",
+      "name": "Milano Flax Mills (Italy)",
+      "category": "Fabric & Textiles",
+      "contactPerson": "Marco Bellini",
+      "phone": "+39 02 8849 1029",
+      "email": "marco@milanoflax.it",
+      "city": "Milan, Italy",
+      "gstin": "07AAACM1209A1ZP",
+      "totalBilled": 0,
+      "totalPaid": 0,
+      "pendingBalance": 0,
+      "status": "Active",
+      "rating": 4.9,
+      "bankDetails": {
+        "accountName": "Milano Flax Textiles SpA",
+        "accountNumber": "IT60X0542811101000000123456",
+        "ifsc": "SWIFT: BCMITMM",
+        "bankName": "Banca Intesa Sanpaolo"
+      }
+    },
+    {
+      "id": "vnd-2",
+      "name": "Surat Heritage Loom Co.",
+      "category": "Fabric & Textiles",
+      "contactPerson": "Rajesh Singhania",
+      "phone": "+91 98251 44332",
+      "email": "rajesh@suratloom.in",
+      "city": "Surat, Gujarat",
+      "gstin": "24AAACS8819Q1ZG",
+      "totalBilled": 0,
+      "totalPaid": 0,
+      "pendingBalance": 0,
+      "status": "Active",
+      "rating": 4.8,
+      "bankDetails": {
+        "accountName": "Surat Heritage Loom Co",
+        "accountNumber": "9921004928109",
+        "ifsc": "HDFC0000214",
+        "bankName": "HDFC Bank Surat Ring Road"
+      }
+    },
+    {
+      "id": "vnd-3",
+      "name": "Atelier Artisans Tailoring Unit",
+      "category": "Tailoring & Production",
+      "contactPerson": "Virender Chawla",
+      "phone": "+91 98110 33921",
+      "email": "virender@atelierartisans.in",
+      "city": "Noida, NCR",
+      "gstin": "09AAACA4490B1ZF",
+      "totalBilled": 0,
+      "totalPaid": 0,
+      "pendingBalance": 0,
+      "status": "Active",
+      "rating": 5,
+      "bankDetails": {
+        "accountName": "Atelier Artisans Studio Pvt Ltd",
+        "accountNumber": "50200019283741",
+        "ifsc": "ICIC0001092",
+        "bankName": "ICICI Bank Sector 18 Noida"
+      }
+    },
+    {
+      "id": "vnd-4",
+      "name": "Florence Mother of Pearl Buttons & Trims",
+      "category": "Trims & Buttons",
+      "contactPerson": "Elena Rossi",
+      "phone": "+39 055 992019",
+      "email": "elena@florencetrims.com",
+      "city": "Florence, Italy",
+      "gstin": "07AAACF8892P1ZK",
+      "totalBilled": 0,
+      "totalPaid": 0,
+      "pendingBalance": 0,
+      "status": "Active",
+      "rating": 4.9,
+      "bankDetails": {
+        "accountName": "Florence Trims SRL",
+        "accountNumber": "IT99Y0123456789000000098765",
+        "ifsc": "SWIFT: UNICITMM",
+        "bankName": "UniCredit Florence"
+      }
+    }
+  ],
+  "vendorInward": [],
+  "vendorPayouts": []
 }

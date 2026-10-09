@@ -27,15 +27,18 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-6 animate-in fade-in zoom-in duration-200 print:shadow-none print:border-none">
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto p-4 sm:p-6 flex justify-center items-start"
+    >
+      <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-4 sm:my-8 animate-in fade-in zoom-in duration-200 print:shadow-none print:border-none">
         
         {/* Top Success Banner */}
         <div className="bg-[#141414] text-white p-6 text-center space-y-2 relative">
           <div className="w-12 h-12 rounded-full bg-[#C5A059] text-white flex items-center justify-center mx-auto shadow-lg">
             <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <h2 className="font-serif-luxury text-2xl font-bold tracking-wide">
+          <h2 className="font-sans text-2xl font-extrabold tracking-tight">
             Thank You For Your Order!
           </h2>
           <p className="text-xs text-[#C5A059] uppercase font-bold tracking-widest">
@@ -83,7 +86,7 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
           {/* Purchased Items Table */}
           <div className="space-y-3">
-            <h4 className="font-serif-luxury font-bold text-sm text-[#1A1A1A] border-b border-[#E6DFC5] pb-2">
+            <h4 className="font-sans font-bold text-sm text-stone-900 border-b border-[#E6DFC5] pb-2">
               Order Items ({order.items.length})
             </h4>
             <div className="divide-y divide-[#E6DFC5]">

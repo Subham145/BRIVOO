@@ -32,7 +32,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({
             <span className="text-[11px] font-bold tracking-[0.25em] text-[#B58A44] uppercase">
               FEATURED COLLECTION
             </span>
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-normal text-[#1A1A1A] tracking-tight">
+            <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl font-extrabold text-stone-900 tracking-tight">
               Crafted for Everyday Luxury.
             </h2>
             <p className="text-[#66625D] text-sm max-w-md pt-1">
@@ -49,8 +49,8 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({
           </button>
         </div>
 
-        {/* Product Grid matching Image 1 (4 Columns) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Product Grid: 2 Columns on Mobile, 3 on Tablet, 4 on Desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
           {featuredList.map(product => (
             <ProductCard
               key={product.id}
@@ -63,11 +63,11 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({
           ))}
         </div>
 
-        {/* Bottom Center Button matching Image 1 */}
-        <div className="mt-14 text-center">
+        {/* Bottom Center Button */}
+        <div className="mt-10 sm:mt-14 text-center">
           <button 
             onClick={onViewAll}
-            className="bg-[#141414] hover:bg-[#C5A059] text-white px-8 py-3.5 rounded-lg text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md inline-flex items-center space-x-3 group"
+            className="w-full sm:w-auto min-h-[44px] justify-center bg-[#141414] hover:bg-[#C5A059] text-white px-8 py-3.5 rounded-xl text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-md inline-flex items-center space-x-3 group"
           >
             <span>EXPLORE ALL PRODUCTS</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

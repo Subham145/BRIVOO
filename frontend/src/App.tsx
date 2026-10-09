@@ -1,32 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Product, CartItem, Order, Category, Coupon, SiteSettings, User } from './types';
+import { Product, CartItem, Order, Category, Coupon, Offer, SiteSettings, User } from './types';
 import { api } from './services/api';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { FeaturedCollection } from './components/FeaturedCollection';
+import { CategoryShowcase } from './components/CategoryShowcase';
+import { OffersBanner } from './components/OffersBanner';
+import { ArtisanStory } from './components/ArtisanStory';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { AuthModal } from './components/AuthModal';
+import { AIStylistModal } from './components/AIStylistModal';
 import { Footer } from './components/Footer';
 import { ShopPage } from './pages/ShopPage';
 import { AccountPage } from './pages/AccountPage';
+import { OffersPage } from './pages/OffersPage';
 
 // Admin Pages & Auth
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
 import { AdminOrders } from './pages/admin/AdminOrders';
+import { AdminTracking } from './pages/admin/AdminTracking';
 import { AdminCategories } from './pages/admin/AdminCategories';
 import { AdminCoupons } from './pages/admin/AdminCoupons';
+import { AdminOffers } from './pages/admin/AdminOffers';
+import { AdminPayments } from './pages/admin/AdminPayments';
+import { AdminReturns } from './pages/admin/AdminReturns';
+import { AdminCustomers } from './pages/admin/AdminCustomers';
+import { AdminReviews } from './pages/admin/AdminReviews';
 import { AdminSettings } from './pages/admin/AdminSettings';
+import { AdminWhatsAppCRM } from './pages/admin/AdminWhatsAppCRM';
+import { AdminVendors } from './pages/admin/AdminVendors';
+import { AdminMarketing } from './pages/admin/AdminMarketing';
 import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminLayout } from './pages/admin/AdminLayout';
 
 export function App() {
   // Store Data States
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
@@ -59,16 +75,22 @@ export function App() {
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
   const [trackOrderId, setTrackOrderId] = useState<string>('');
 
+  // AI Stylist & Virtual Try-On Modal States
+  const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
+  const [aiModalProduct, setAiModalProduct] = useState<Product | null>(null);
+  const [aiModalMode, setAiModalMode] = useState<'ask' | 'tryon'>('ask');
+
   // Add Product Quick Launch from Admin Dashboard
   const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false);
 
   // Load all initial store data from backend
   const fetchAllData = async () => {
     try {
-      const [prodRes, catRes, coupRes, ordRes, setRes, anaRes] = await Promise.all([
+      const [prodRes, catRes, coupRes, offRes, ordRes, setRes, anaRes] = await Promise.all([
         api.getProducts(),
         api.getCategories(),
         api.getCoupons(),
+        api.getOffers(),
         api.getOrders(),
         api.getSettings(),
         api.getAnalytics()
@@ -77,6 +99,7 @@ export function App() {
       if (prodRes.success) setProducts(prodRes.data);
       if (catRes.success) setCategories(catRes.data);
       if (coupRes.success) setCoupons(coupRes.data);
+      if (offRes && offRes.success) setOffers(offRes.data);
       if (ordRes.success) setOrders(ordRes.data);
       if (setRes.success) setSettings(setRes.data);
       if (anaRes.success) setAnalytics(anaRes.data);
@@ -197,6 +220,148 @@ export function App() {
   };
 
   const totalCartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // DEDICATED FULL-SCREEN LUXURY ADMIN SUITE
+  if (activeTab === 'admin') {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return (
+        <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-4">
+          <AdminLogin
+            onAdminLoginSuccess={handleLoginSuccess}
+            onCancel={() => {
+              setIsAdmin(false);
+              setActiveTab('home');
+            }}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <AdminLayout
+        currentUser={currentUser}
+        activeTab={adminTab}
+        onSelectTab={setAdminTab}
+        onExitToStore={() => {
+          setIsAdmin(false);
+          setActiveTab('home');
+        }}
+        onLogout={handleLogout}
+        orders={orders}
+        products={products}
+        analytics={analytics}
+        onAddNewProduct={() => {
+          setAdminTab('products');
+          setOpenAddProductModal(true);
+        }}
+      >
+        {adminTab === 'dashboard' && (
+          <AdminDashboard
+            analytics={analytics}
+            orders={orders}
+            products={products}
+            onNavigateTab={setAdminTab}
+            onAddNewProduct={() => {
+              setAdminTab('products');
+              setOpenAddProductModal(true);
+            }}
+          />
+        )}
+
+        {adminTab === 'orders' && (
+          <AdminOrders
+            orders={orders}
+            onRefresh={fetchAllData}
+            onNavigateToTracking={() => setAdminTab('tracking')}
+          />
+        )}
+
+        {adminTab === 'tracking' && (
+          <AdminTracking
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'categories' && (
+          <AdminCategories
+            categories={categories}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'coupons' && (
+          <AdminCoupons
+            coupons={coupons}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'offers' && (
+          <AdminOffers
+            offers={offers}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'payments' && (
+          <AdminPayments
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'returns' && (
+          <AdminReturns
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'products' && (
+          <AdminProducts
+            products={products}
+            categories={categories}
+            onRefresh={fetchAllData}
+            openAddModalInitially={openAddProductModal}
+          />
+        )}
+
+        {adminTab === 'vendors' && (
+          <AdminVendors />
+        )}
+
+        {adminTab === 'marketing' && (
+          <AdminMarketing />
+        )}
+
+        {adminTab === 'customers' && (
+          <AdminCustomers
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'reviews' && (
+          <AdminReviews />
+        )}
+
+        {adminTab === 'whatsapp' && (
+          <AdminWhatsAppCRM
+            orders={orders}
+            onRefreshOrders={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'settings' && (
+          <AdminSettings
+            settings={settings!}
+            onRefresh={fetchAllData}
+          />
+        )}
+      </AdminLayout>
+    );
+  }
+
   const wishlistProducts = products.filter(p => wishlistIds.includes(p.id));
 
   return (
@@ -229,6 +394,11 @@ export function App() {
         setActiveTab={setActiveTab}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        onOpenAIStylist={(mode) => {
+          setAiModalMode(mode || 'ask');
+          setAiModalProduct(selectedProduct || products[0] || null);
+          setIsAIModalOpen(true);
+        }}
       />
 
       {/* Main Body Router Views */}
@@ -242,6 +412,17 @@ export function App() {
               onShopMen={() => setActiveTab('men')}
               onShopWomen={() => setActiveTab('women')}
             />
+            <CategoryShowcase
+              categories={categories}
+              onSelectCategory={(catName) => {
+                setActiveTab('shop-all');
+              }}
+            />
+            <OffersBanner
+              offers={offers}
+              onViewAllOffers={() => setActiveTab('offers')}
+              onShopCategory={(cat) => setActiveTab('shop-all')}
+            />
             <FeaturedCollection
               products={products}
               onQuickAdd={handleAddToCart}
@@ -250,7 +431,29 @@ export function App() {
               wishlistIds={wishlistIds}
               onViewAll={() => setActiveTab('shop-all')}
             />
+            <ArtisanStory />
           </>
+        )}
+
+        {/* CUSTOMER VIEW - OFFERS & PROMOTIONAL PRIVILEGES */}
+        {activeTab === 'offers' && !isAdmin && (
+          <OffersPage
+            offers={offers}
+            onShopCategory={(category) => {
+              if (category === 'Shirts' || category === 'Polos' || category === 'Vests' || category === 'Trousers') {
+                setActiveTab('shop-all');
+              } else if (category === 'Men') {
+                setActiveTab('men');
+              } else if (category === 'Women') {
+                setActiveTab('women');
+              } else {
+                setActiveTab('shop-all');
+              }
+            }}
+            onApplyCouponToCart={(code) => {
+              setAppliedCouponCode(code);
+            }}
+          />
         )}
 
         {/* CUSTOMER VIEW - CATALOG SHOP / MEN / WOMEN / COLLECTIONS */}
@@ -281,107 +484,7 @@ export function App() {
           />
         )}
 
-        {/* ADMIN CONTROL PANEL ROUTE (Gated with Admin Login) */}
-        {activeTab === 'admin' && (
-          !currentUser || currentUser.role !== 'admin' ? (
-            /* ADMIN LOGIN SCREEN */
-            <AdminLogin
-              onAdminLoginSuccess={handleLoginSuccess}
-              onCancel={() => setActiveTab('home')}
-            />
-          ) : (
-            /* ADMIN CONTROL PANEL */
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              
-              {/* Admin Header Bar */}
-              <div className="bg-[#141414] text-white p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between shadow-xl">
-                <div>
-                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C5A059]">
-                    ADMINISTRATION PORTAL
-                  </span>
-                  <h2 className="font-serif-luxury text-2xl font-bold">BRIVOO Command Center</h2>
-                  <p className="text-xs text-gray-400">Logged in as: <strong className="text-white">{currentUser.email}</strong></p>
-                </div>
 
-                {/* Admin Navigation Tabs */}
-                <div className="mt-4 md:mt-0 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider">
-                  {[
-                    { id: 'dashboard', label: 'Dashboard' },
-                    { id: 'products', label: 'Products' },
-                    { id: 'orders', label: 'Orders' },
-                    { id: 'categories', label: 'Categories' },
-                    { id: 'coupons', label: 'Coupons' },
-                    { id: 'settings', label: 'Site Settings' }
-                  ].map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setAdminTab(tab.id)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        adminTab === tab.id
-                          ? 'bg-[#C5A059] text-white shadow-md'
-                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Admin Tab Content */}
-              {adminTab === 'dashboard' && (
-                <AdminDashboard
-                  analytics={analytics}
-                  orders={orders}
-                  products={products}
-                  onNavigateTab={setAdminTab}
-                  onAddNewProduct={() => {
-                    setAdminTab('products');
-                    setOpenAddProductModal(true);
-                  }}
-                />
-              )}
-
-              {adminTab === 'products' && (
-                <AdminProducts
-                  products={products}
-                  categories={categories}
-                  onRefresh={fetchAllData}
-                  openAddModalInitially={openAddProductModal}
-                />
-              )}
-
-              {adminTab === 'orders' && (
-                <AdminOrders
-                  orders={orders}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'categories' && (
-                <AdminCategories
-                  categories={categories}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'coupons' && (
-                <AdminCoupons
-                  coupons={coupons}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'settings' && (
-                <AdminSettings
-                  settings={settings!}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-            </div>
-          )
-        )}
 
       </main>
 
@@ -412,6 +515,11 @@ export function App() {
         onToggleWishlist={handleToggleWishlist}
         isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
         onReviewSubmitted={fetchAllData}
+        onOpenAITryOn={(prod) => {
+          setAiModalProduct(prod);
+          setAiModalMode('tryon');
+          setIsAIModalOpen(true);
+        }}
       />
 
       {/* Slide-over Cart Drawer */}
@@ -444,6 +552,53 @@ export function App() {
           setActiveTab('account');
         }}
       />
+
+      {/* Global AI Fashion Stylist & Virtual Try-On Studio Modal */}
+      <AIStylistModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        products={products}
+        initialProduct={aiModalProduct}
+        initialMode={aiModalMode}
+        onAddToCart={handleAddToCart}
+        onOpenProductDetail={(prod) => {
+          setSelectedProduct(prod);
+          setIsAIModalOpen(false);
+        }}
+      />
+
+      {/* Floating AI Stylist & Virtual Try-On Quick Concierge Pill */}
+      {!isAdmin && (
+        <aside aria-label="Floating AI Stylist" className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-30">
+          <button
+            onClick={() => {
+              setAiModalMode('ask');
+              setAiModalProduct(selectedProduct || products[0] || null);
+              setIsAIModalOpen(true);
+            }}
+            className="group relative flex items-center space-x-2.5 bg-[#141414] hover:bg-[#C5A059] text-white hover:text-stone-950 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.35)] border border-[#C5A059]/40 hover:border-[#C5A059] transition-all transform hover:-translate-y-1 active:translate-y-0"
+          >
+            <div className="relative">
+              <span className="w-2 h-2 rounded-full bg-[#C5A059] group-hover:bg-stone-900 absolute -top-0.5 -right-0.5 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-[#C5A059] group-hover:bg-stone-900 absolute -top-0.5 -right-0.5" />
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#C5A059] to-[#E6DFC5] text-stone-950 flex items-center justify-center font-bold shadow-2xs">
+                ✨
+              </div>
+            </div>
+            <div className="text-left">
+              <div className="text-[11px] font-black tracking-wider uppercase flex items-center gap-1.5">
+                <span>Ask AI & Try-On</span>
+                <span className="text-[9px] bg-[#C5A059] group-hover:bg-stone-900 text-stone-950 group-hover:text-white px-1.5 py-0.2 rounded font-mono font-bold">
+                  LIVE
+                </span>
+              </div>
+              <div className="text-[9px] text-stone-400 group-hover:text-stone-800 hidden sm:block font-medium">
+                Styling advice & photo fit
+              </div>
+            </div>
+          </button>
+        </aside>
+      )}
 
     </div>
   );
