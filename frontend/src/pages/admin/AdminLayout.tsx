@@ -120,16 +120,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         <div>
           <div className="p-6 border-b border-white/10 flex items-center justify-between">
             <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-lg font-sans font-extrabold tracking-[0.25em] text-white">BRIVOO</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30">
-                  OS v2.4
-                </span>
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/logo.png" 
+                  alt="BRIVOO Admin" 
+                  className="w-10 h-10 rounded-full object-contain border border-[#C5A059]/40 bg-white/5 p-0.5 shadow-xs" 
+                />
+                <div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-base font-sans font-extrabold tracking-[0.22em] text-white">BRIVOO</span>
+                    <span className="text-[8px] px-1.5 py-0.2 rounded font-mono font-bold bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30">
+                      OS v2.4
+                    </span>
+                  </div>
+                  <p className="text-[9.5px] text-gray-400 uppercase tracking-widest mt-0.5 font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Admin Suite</span>
+                  </p>
+                </div>
               </div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1 font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Atelier Command Suite</span>
-              </p>
             </div>
 
             <button 

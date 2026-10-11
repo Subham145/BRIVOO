@@ -87,16 +87,8 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* Right Admin Portal Quick Trigger */}
-        <div className="hidden lg:flex justify-end items-center space-x-3 w-1/4">
-          <button 
-            onClick={onOpenAdmin}
-            className="group flex items-center space-x-1.5 bg-stone-900/90 hover:bg-[#C5A059] text-stone-300 hover:text-white px-2.5 py-0.5 rounded-full text-[9.5px] font-bold tracking-wider border border-stone-700/60 hover:border-[#C5A059] transition-all shadow-xs"
-          >
-            <Lock className="w-2.5 h-2.5 text-[#C5A059] group-hover:text-white transition-colors" />
-            <span>{isAdmin ? "Exit Admin" : "Admin Console"}</span>
-          </button>
-        </div>
+        {/* Right spacing for alignment */}
+        <div className="hidden lg:block w-1/4" />
       </div>
 
       {/* Main Header Nav */}
@@ -113,38 +105,24 @@ export const Header: React.FC<HeaderProps> = ({
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Brand Logo with Swaying Atelier Coat Hanger */}
+          {/* Brand Logo */}
           <div 
             onClick={() => setActiveTab('home')} 
-            className="cursor-pointer flex flex-col items-center group py-0 relative select-none"
+            className="cursor-pointer flex items-center space-x-2.5 sm:space-x-3 group py-0.5 relative select-none"
           >
-            {/* Real Tailored Coat Hanger with Physics Sway */}
-            <div className="relative group-hover:scale-110 transition-transform duration-300">
-              <svg 
-                className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#B58A44] transition-all duration-500 animate-hanger-sway group-hover:text-[#D4AF37]" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="1.8" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                {/* Coat Hanger Hook */}
-                <path d="M12 3a2 2 0 0 1 2 2c0 1.2-1 2-2 3" />
-                {/* Shoulders of Hanger */}
-                <path d="M2.5 15.5L12 8.5l9.5 7" />
-                {/* Trouser Crossbar with stitched style */}
-                <line x1="4.5" y1="15.5" x2="19.5" y2="15.5" strokeDasharray="1.5 1.5" />
-              </svg>
+            <img 
+              src="/logo.png" 
+              alt="BRIVOO Fashion" 
+              className="w-13 h-13 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] rounded-full object-contain shadow-xs transition-transform duration-300 group-hover:scale-105 border border-[#C5A059]/30 shrink-0" 
+            />
+            <div className="flex flex-col">
+              <span className="font-sans text-[18px] sm:text-[22px] md:text-[24px] tracking-[0.24em] font-black text-stone-900 group-hover:text-[#C5A059] transition-colors leading-tight">
+                BRIVOO
+              </span>
+              <span className="text-[7px] sm:text-[8px] md:text-[8.5px] tracking-[0.38em] text-[#B58A44] uppercase font-extrabold mt-0.5 leading-none">
+                HAUTE ATELIER
+              </span>
             </div>
-            <span className="font-sans text-[17px] sm:text-[20px] tracking-[0.24em] sm:tracking-[0.28em] font-black text-stone-900 group-hover:text-[#C5A059] transition-colors leading-none my-0.5">
-              BRIVOO
-            </span>
-            <span className="text-[7px] sm:text-[7.5px] tracking-[0.38em] sm:tracking-[0.45em] text-[#B58A44] uppercase font-extrabold border-t border-[#C5A059]/40 pt-0.5 w-full text-center leading-none flex items-center justify-center gap-1">
-              <span className="w-1.5 h-px bg-[#C5A059]/50"></span>
-              HAUTE ATELIER
-              <span className="w-1.5 h-px bg-[#C5A059]/50"></span>
-            </span>
           </div>
         </div>
 
@@ -329,11 +307,14 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Drawer Top Header */}
             <div>
               <div className="p-4 sm:p-5 border-b border-[#E6DFC5] flex items-center justify-between bg-[#F7F3EE]">
-                <div className="flex items-center space-x-2">
-                  <span className="font-sans text-lg font-black tracking-[0.25em] text-stone-900">BRIVOO</span>
-                  <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#C5A059]/20 text-[#B58A44] border border-[#C5A059]/30">
-                    ATELIER
-                  </span>
+                <div className="flex items-center space-x-3">
+                  <img src="/logo.png" alt="BRIVOO" className="w-12 h-12 rounded-full object-contain border border-[#C5A059]/30 shrink-0" />
+                  <div>
+                    <span className="font-sans text-lg font-black tracking-[0.25em] text-stone-900 block leading-none">BRIVOO</span>
+                    <span className="text-[7.5px] font-extrabold uppercase text-[#B58A44] tracking-widest block mt-0.5">
+                      HAUTE ATELIER
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

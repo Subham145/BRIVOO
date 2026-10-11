@@ -151,11 +151,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Top Banner */}
         <div className="bg-[#141414] text-white p-4 sm:p-6 text-center space-y-2">
-          <div className="flex justify-center items-center space-x-1">
-            <svg className="w-5 h-5 text-[#C5A059]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M12 3v3M12 6L4 12v2h16v-2L12 6z" />
-              <path d="M4 14v5a1 1 0 001 1h14a1 1 0 001-1v-5" />
-            </svg>
+          <div className="flex justify-center items-center space-x-2.5">
+            <img src="/logo.png" alt="BRIVOO" className="w-8 h-8 rounded-full object-contain border border-[#C5A059]/40 bg-white/5" />
             <span className="font-sans text-xl tracking-[0.25em] font-extrabold text-white">BRIVOO</span>
           </div>
           <p className="text-xs text-[#C5A059] uppercase font-bold tracking-widest">

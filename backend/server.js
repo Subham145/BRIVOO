@@ -26,17 +26,19 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
   }
 
-  const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const normalizedEmail = email.toLowerCase();
+  const existing = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
   if (existing) {
     return res.status(400).json({ success: false, message: 'User already exists with this email address' });
   }
 
+  const isSpecialAdmin = normalizedEmail === 'sujalrathore970@gmail.com' || normalizedEmail === 'admin@brivoo.com';
   const newUser = {
     id: `usr-${Date.now()}`,
     name,
-    email: email.toLowerCase(),
+    email: normalizedEmail,
     password,
-    role: 'customer',
+    role: isSpecialAdmin ? 'admin' : 'customer',
     avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`
   };
 
@@ -59,9 +61,39 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ success: false, message: 'Email and password are required' });
   }
 
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+  const normalizedEmail = email.toLowerCase();
+  let user = db.users.find(u => u.email.toLowerCase() === normalizedEmail && u.password === password);
+  
+  // Auto-heal / initialize admin user if credentials match
+  if (!user && normalizedEmail === 'sujalrathore970@gmail.com' && password === 'Suj@l0504') {
+    const existingAdmin = db.users.find(u => u.email.toLowerCase() === 'sujalrathore970@gmail.com');
+    if (existingAdmin) {
+      existingAdmin.password = 'Suj@l0504';
+      existingAdmin.role = 'admin';
+      user = existingAdmin;
+    } else {
+      user = {
+        id: 'usr-admin',
+        name: 'Sujal Rathore (Admin)',
+        email: 'sujalrathore970@gmail.com',
+        password: 'Suj@l0504',
+        role: 'admin',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        joinedAt: new Date().toISOString()
+      };
+      db.users.push(user);
+    }
+    writeData(db);
+  }
+
   if (!user) {
     return res.status(401).json({ success: false, message: 'Invalid email address or password' });
+  }
+
+  // Ensure role is admin if logging in with the designated admin email
+  if (normalizedEmail === 'sujalrathore970@gmail.com' && user.role !== 'admin') {
+    user.role = 'admin';
+    writeData(db);
   }
 
   const token = `jwt_token_${user.id}_${Date.now()}`;
@@ -82,8 +114,9 @@ app.post('/api/auth/google', (req, res) => {
   const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}`;
 
   let user = db.users.find(u => u.email.toLowerCase() === targetEmail);
+  const isAdminEmail = targetEmail === 'sujalrathore970@gmail.com' || targetEmail === 'admin@brivoo.com';
   if (!user) {
-    const isSpecialAdmin = role === 'admin' || targetEmail === 'admin@brivoo.com';
+    const isSpecialAdmin = role === 'admin' || isAdminEmail;
     user = {
       id: `usr-g-${Date.now()}`,
       name: userName,
@@ -97,7 +130,7 @@ app.post('/api/auth/google', (req, res) => {
   } else {
     if (userName && (user.name === 'Google User' || !user.name)) user.name = userName;
     if (userAvatar && !user.avatar) user.avatar = userAvatar;
-    if (role === 'admin' && targetEmail === 'admin@brivoo.com') user.role = 'admin';
+    if (role === 'admin' || isAdminEmail) user.role = 'admin';
   }
 
   writeData(db);

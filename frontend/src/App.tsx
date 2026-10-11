@@ -57,9 +57,27 @@ export function App() {
   const [authPromptMessage, setAuthPromptMessage] = useState<string>('');
 
   // App UI Navigation States
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('brivoo_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        return u && u.role === 'admin';
+      }
+    } catch (e) {}
+    return false;
+  });
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('brivoo_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        if (u && u.role === 'admin') return 'admin';
+      }
+    } catch (e) {}
+    return 'home';
+  });
   const [adminTab, setAdminTab] = useState<string>('dashboard');
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cart & Wishlist States

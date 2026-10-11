@@ -118,9 +118,9 @@ const INITIAL_DATA = {
   users: [
     {
       id: "usr-admin",
-      name: "Brivoo Admin",
-      email: "admin@brivoo.com",
-      password: "admin123", // Hashed in production
+      name: "Sujal Rathore (Admin)",
+      email: "sujalrathore970@gmail.com",
+      password: "Suj@l0504", // Hashed in production
       role: "admin",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
     },

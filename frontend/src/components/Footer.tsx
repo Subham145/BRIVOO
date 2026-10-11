@@ -29,19 +29,20 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
           
           {/* Column 1 - Brand Info */}
           <div className="sm:col-span-2 lg:col-span-4 space-y-4 sm:space-y-6">
-            <div className="flex flex-col items-start cursor-pointer">
-              <div className="flex items-center space-x-1">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#B58A44]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 3v3M12 6L4 12v2h16v-2L12 6z" />
-                  <path d="M4 14v5a1 1 0 001 1h14a1 1 0 001-1v-5" />
-                </svg>
+            <div className="flex items-center space-x-3 cursor-pointer group">
+              <img 
+                src="/logo.png" 
+                alt="BRIVOO" 
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-contain shadow-sm border border-[#C5A059]/30 group-hover:scale-105 transition-transform shrink-0" 
+              />
+              <div className="flex flex-col">
+                <span className="font-sans text-xl sm:text-2xl tracking-[0.24em] font-extrabold text-[#1A1A1A] group-hover:text-[#C5A059] transition-colors leading-tight">
+                  BRIVOO
+                </span>
+                <span className="text-[7.5px] sm:text-[8px] tracking-[0.32em] text-[#B58A44] uppercase font-bold">
+                  FASHION FOR EVERY YOU
+                </span>
               </div>
-              <span className="font-sans text-xl sm:text-2xl tracking-[0.28em] font-extrabold text-[#1A1A1A]">
-                BRIVOO
-              </span>
-              <span className="text-[8.5px] sm:text-[9px] tracking-[0.38em] text-[#66625D] uppercase font-bold border-t border-[#C5A059]/40 pt-0.5 w-32">
-                ATELIER
-              </span>
             </div>
 
             <p className="text-xs text-[#66625D] leading-relaxed max-w-sm">

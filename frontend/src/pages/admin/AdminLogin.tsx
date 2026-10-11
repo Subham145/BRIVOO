@@ -10,8 +10,8 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onCancel }) => {
-  const [email, setEmail] = useState('admin@brivoo.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('sujalrathore970@gmail.com');
+  const [password, setPassword] = useState('Suj@l0504');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
@@ -45,9 +45,11 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onC
         
         {/* Header */}
         <div className="bg-[#141414] text-white p-8 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-[#C5A059] text-white flex items-center justify-center mx-auto shadow-lg">
-            <Lock className="w-6 h-6 stroke-[2]" />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="BRIVOO Logo" 
+            className="w-16 h-16 rounded-full object-contain mx-auto shadow-xl border-2 border-[#C5A059]/60 bg-white/5 p-0.5" 
+          />
           <h2 className="font-sans text-2xl font-extrabold tracking-tight">
             BRIVOO Command Portal
           </h2>
@@ -67,9 +69,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onC
 
           {/* Preset Demo Credentials helper */}
           <div className="p-3 bg-amber-50 text-amber-900 rounded-lg border border-amber-200 text-[11px] space-y-1">
-            <p className="font-bold flex items-center"><ShieldCheck className="w-4 h-4 mr-1 text-[#C5A059]" /> Demo Credentials:</p>
-            <p>Email: <code className="font-bold">admin@brivoo.com</code></p>
-            <p>Password: <code className="font-bold">admin123</code></p>
+            <p className="font-bold flex items-center"><ShieldCheck className="w-4 h-4 mr-1 text-[#C5A059]" /> Admin Credentials:</p>
+            <p>Email: <code className="font-bold">sujalrathore970@gmail.com</code></p>
+            <p>Password: <code className="font-bold">Suj@l0504</code></p>
           </div>
 
           <div>

@@ -29,8 +29,8 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
 
   const defaultAccounts = role === 'admin' ? [
     {
-      name: 'BRIVOO Super Admin',
-      email: 'admin@brivoo.com',
+      name: 'Sujal Rathore (Super Admin)',
+      email: 'sujalrathore970@gmail.com',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
       badge: 'Verified Admin'
     },
