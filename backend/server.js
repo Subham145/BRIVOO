@@ -10,15 +10,71 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+const HOST = process.env.HOST || '0.0.0.0';
 
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// ----------------------------------------------------
+// SECURITY MIDDLEWARE & PATCHES
+// ----------------------------------------------------
+// 1. Essential Security Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.removeHeader('X-Powered-By');
+  next();
+});
+
+// 2. Safe Cross-Origin Resource Sharing (CORS)
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
+  : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5005'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (process.env.NODE_ENV !== 'production' || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Fallback permissive for local network access
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
+
+// 3. Lightweight In-Memory Sliding Window Rate Limiter
+const rateLimitMap = new Map();
+function rateLimiter({ windowMs = 60 * 1000, max = 40, message = 'Too many requests. Please wait a moment.' } = {}) {
+  return (req, res, next) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const now = Date.now();
+    let record = rateLimitMap.get(ip);
+    if (!record || now - record.resetTime > windowMs) {
+      record = { count: 1, resetTime: now };
+      rateLimitMap.set(ip, record);
+    } else {
+      record.count += 1;
+      if (record.count > max) {
+        return res.status(429).json({ success: false, message });
+      }
+    }
+    next();
+  };
+}
+
+// Helper: Email format validator
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
 
 // ----------------------------------------------------
 // AUTHENTICATION API (JWT Token Simulation, Google OAuth, Reset OTP)
 // ----------------------------------------------------
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', rateLimiter({ windowMs: 60 * 1000, max: 15 }), (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { name, email, password } = req.body;
@@ -26,7 +82,23 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
   }
 
-  const normalizedEmail = email.toLowerCase();
+  if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ success: false, message: 'Invalid payload structure' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Please provide a valid email address' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+  }
+
+  if (password.length > 128) {
+    return res.status(400).json({ success: false, message: 'Password cannot exceed 128 characters' });
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
   const existing = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
   if (existing) {
     return res.status(400).json({ success: false, message: 'User already exists with this email address' });
@@ -35,11 +107,11 @@ app.post('/api/auth/register', (req, res) => {
   const isSpecialAdmin = normalizedEmail === 'sujalrathore970@gmail.com' || normalizedEmail === 'admin@brivoo.com';
   const newUser = {
     id: `usr-${Date.now()}`,
-    name,
+    name: name.trim().slice(0, 100),
     email: normalizedEmail,
     password,
     role: isSpecialAdmin ? 'admin' : 'customer',
-    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`
+    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}`
   };
 
   db.users.push(newUser);
@@ -53,7 +125,7 @@ app.post('/api/auth/register', (req, res) => {
   });
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', rateLimiter({ windowMs: 60 * 1000, max: 20 }), (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { email, password } = req.body;
@@ -143,7 +215,7 @@ app.post('/api/auth/google', (req, res) => {
   });
 });
 
-app.post('/api/auth/forgot-password', (req, res) => {
+app.post('/api/auth/forgot-password', rateLimiter({ windowMs: 60 * 1000, max: 10 }), (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { email } = req.body;
@@ -156,7 +228,10 @@ app.post('/api/auth/forgot-password', (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   if (!db.otps) db.otps = {};
-  db.otps[email.toLowerCase()] = otp;
+  db.otps[email.toLowerCase()] = {
+    code: otp,
+    expiresAt: Date.now() + 10 * 60 * 1000 // 10-minute expiry
+  };
   writeData(db);
 
   res.json({
@@ -166,7 +241,7 @@ app.post('/api/auth/forgot-password', (req, res) => {
   });
 });
 
-app.post('/api/auth/reset-password', (req, res) => {
+app.post('/api/auth/reset-password', rateLimiter({ windowMs: 60 * 1000, max: 10 }), (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { email, otp, newPassword } = req.body;
@@ -175,8 +250,15 @@ app.post('/api/auth/reset-password', (req, res) => {
     return res.status(400).json({ success: false, message: 'Email, OTP, and new password are required' });
   }
 
-  const storedOtp = db.otps?.[email.toLowerCase()];
-  if (!storedOtp || storedOtp !== otp.trim()) {
+  if (typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+  }
+
+  const storedOtpData = db.otps?.[email.toLowerCase()];
+  const storedOtp = typeof storedOtpData === 'object' ? storedOtpData?.code : storedOtpData;
+  const isExpired = typeof storedOtpData === 'object' && storedOtpData?.expiresAt && Date.now() > storedOtpData.expiresAt;
+
+  if (!storedOtp || isExpired || storedOtp !== otp.trim()) {
     return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
   }
 
@@ -2464,6 +2546,24 @@ app.post('/api/ai/try-on', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`BRIVOO Luxury E-Commerce Server running on http://localhost:${PORT}`);
+// ----------------------------------------------------
+// 404 & CENTRALIZED SAFE ERROR HANDLERS
+// ----------------------------------------------------
+// Undefined API routes fallback
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: `API route ${req.method} ${req.originalUrl} not found` });
+});
+
+// Centralized error handler (prevents leaking internal stack traces)
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err);
+  const status = err.status || (res.statusCode >= 400 ? res.statusCode : 500);
+  res.status(status).json({
+    success: false,
+    message: process.env.NODE_ENV === 'production' ? 'An unexpected server error occurred' : (err.message || 'Server error')
+  });
+});
+
+app.listen(PORT, HOST, () => {
+  console.log(`\x1b[32m✔\x1b[0m BRIVOO Luxury E-Commerce Server running on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
 });

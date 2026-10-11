@@ -371,10 +371,17 @@ export function readData() {
 export function writeData(data) {
   initDB();
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    const tempFile = `${DATA_FILE}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tempFile, DATA_FILE);
     return true;
   } catch (err) {
-    console.error('Error writing database file:', err);
-    return false;
+    try {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      return true;
+    } catch (fallbackErr) {
+      console.error('Error writing database file:', fallbackErr);
+      return false;
+    }
   }
 }

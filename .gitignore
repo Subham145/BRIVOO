@@ -1,8 +1,66 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Production builds
 dist/
+build/
+
+# Environment and sensitive keys
 .env
 .env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Operating System Files
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Editor and IDE directories
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Lock files if switching package managers
 bun.lock
 bun.lockb
+
+# Database temporary files
+*.tmp
+backend/data/*.tmp
