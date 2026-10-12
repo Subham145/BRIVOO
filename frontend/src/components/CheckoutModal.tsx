@@ -74,8 +74,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       paymentMethod
     };
 
+    if (paymentMethod !== 'COD') {
+      try {
+        const rzpRes = await api.createRazorpayOrder(orderPayload.items);
+        if (!rzpRes.success) {
+          setErrorMsg(rzpRes.message || 'Online payment gateway is currently unavailable on the server. Please select Cash on Delivery (COD) to place your order.');
+          setPlacingOrder(false);
+          return;
+        }
+      } catch (err) {
+        setErrorMsg('Online payment gateway connection failed. Please select Cash on Delivery (COD) to place your order.');
+        setPlacingOrder(false);
+        return;
+      }
+    }
+
+    const codPayload = {
+      ...orderPayload,
+      paymentMethod: 'Cash on Delivery'
+    };
+
     try {
-      const res = await api.createOrder(orderPayload);
+      const res = await api.createOrder(codPayload);
       if (res.success && res.data) {
         onOrderSuccess(res.data);
       } else {

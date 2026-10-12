@@ -392,7 +392,7 @@
         "XL",
         "XXL"
       ],
-      "stock": 43,
+      "stock": 37,
       "description": "Elevated short-sleeve resort shirt cut from premium breathable linen. Designed with a classic camp collar and a relaxed silhouette for effortless summer elegance.",
       "specs": "100% European Flax Linen. Pre-washed for soft feel. Machine wash cold.",
       "inStock": true,
@@ -605,7 +605,7 @@
       "id": "usr-admin",
       "name": "Sujal Rathore (Admin)",
       "email": "sujalrathore970@gmail.com",
-      "password": "Suj@l0504",
+      "password": "$2b$10$rnj85etFY47WNtna9GUs/uc8ctUVczT0yG.SMZeUQc5HypNKHn8uu",
       "role": "admin",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
       "phone": "+91 98980 11223",

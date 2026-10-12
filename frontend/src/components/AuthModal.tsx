@@ -35,7 +35,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Forgot Password State
   const [forgotStep, setForgotStep] = useState<1 | 2>(1);
   const [otp, setOtp] = useState('');
-  const [demoOtp, setDemoOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
 
@@ -101,13 +100,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const res = await api.forgotPassword(email);
       if (res.success) {
         setForgotStep(2);
-        setDemoOtp(res.otp || '123456');
-        setSuccessMsg(`OTP sent to ${email} (Demo Code: ${res.otp})`);
+        setSuccessMsg(res.message || 'If registered, a verification code has been sent to your email.');
       } else {
-        setErrorMsg(res.message || 'Email not found');
+        setErrorMsg(res.message || 'Failed to send verification code');
       }
     } catch (err) {
-      setErrorMsg('Failed to send OTP');
+      setErrorMsg('Failed to send verification code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -120,14 +118,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorMsg('');
     try {
       const res = await api.resetPassword(email, otp, newPassword);
-      if (res.success && res.user && res.token) {
-        onLoginSuccess(res.user, res.token);
-        onClose();
+      if (res.success) {
+        setSuccessMsg(res.message || 'Password reset successfully! Please sign in with your new password.');
+        setMode('login');
+        setForgotStep(1);
+        setOtp('');
+        setNewPassword('');
       } else {
-        setErrorMsg(res.message || 'Reset failed');
+        setErrorMsg(res.message || 'Password reset failed');
       }
     } catch (err) {
-      setErrorMsg('Password reset error');
+      setErrorMsg('Password reset error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -432,14 +433,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               ) : (
                 <form onSubmit={handleResetPassword} className="space-y-4">
                   <p className="text-gray-500 text-[11px]">
-                    OTP code has been generated. Enter the code and your new password.
+                    Enter the 6-digit verification code sent to your email and your new password.
                   </p>
 
                   <div>
                     <label className="block font-bold mb-1">6-Digit Verification OTP *</label>
                     <input 
                       type="text" 
-                      placeholder={demoOtp || "123456"}
+                      placeholder="Enter 6-digit code"
                       value={otp}
                       onChange={e => setOtp(e.target.value)}
                       className="w-full p-3 bg-white border border-[#E6DFC5] rounded-lg font-bold uppercase tracking-widest text-center text-sm"

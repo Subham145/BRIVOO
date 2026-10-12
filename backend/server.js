@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { readData, writeData } from './db.js';
 import { shiprocket } from './shiprocketService.js';
 
@@ -13,9 +16,8 @@ const PORT = process.env.PORT || 5005;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // ----------------------------------------------------
-// SECURITY MIDDLEWARE & PATCHES
+// SECURITY MIDDLEWARE & HEADERS
 // ----------------------------------------------------
-// 1. Essential Security Headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -25,37 +27,50 @@ app.use((req, res, next) => {
   next();
 });
 
-// 2. Safe Cross-Origin Resource Sharing (CORS)
+// Safe Cross-Origin Resource Sharing (CORS) with strict origin allowlist
 const allowedOrigins = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
-  : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5005'];
+  : ['https://brivoo.in', 'https://www.brivoo.in'];
+
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push(
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5000',
+    'http://localhost:5005',
+    'http://localhost:5012'
+  );
+}
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow non-browser requests without origin header (e.g., mobile apps, server-to-server)
     if (!origin) return callback(null, true);
-    if (process.env.NODE_ENV !== 'production' || allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, true); // Fallback permissive for local network access
+    return callback(new Error(`CORS error: Origin ${origin} not allowed by policy`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
-// 3. Lightweight In-Memory Sliding Window Rate Limiter
-const rateLimitMap = new Map();
+// Lightweight In-Memory Sliding Window Rate Limiter (scoped per route)
 function rateLimiter({ windowMs = 60 * 1000, max = 40, message = 'Too many requests. Please wait a moment.' } = {}) {
+  const routeLimitMap = new Map();
   return (req, res, next) => {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
     const now = Date.now();
-    let record = rateLimitMap.get(ip);
+    let record = routeLimitMap.get(ip);
     if (!record || now - record.resetTime > windowMs) {
       record = { count: 1, resetTime: now };
-      rateLimitMap.set(ip, record);
+      routeLimitMap.set(ip, record);
     } else {
       record.count += 1;
       if (record.count > max) {
@@ -66,18 +81,145 @@ function rateLimiter({ windowMs = 60 * 1000, max = 40, message = 'Too many reque
   };
 }
 
-// Helper: Email format validator
 function isValidEmail(email) {
   return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 // ----------------------------------------------------
-// AUTHENTICATION API (JWT Token Simulation, Google OAuth, Reset OTP)
+// JWT & AUTHENTICATION CONFIGURATION
 // ----------------------------------------------------
-app.post('/api/auth/register', rateLimiter({ windowMs: 60 * 1000, max: 15 }), (req, res) => {
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'brivoo_jwt_secret_dev_local_2026_x9k2');
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
+function signToken(user) {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured on the server');
+  }
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email.toLowerCase(),
+      role: user.role || 'customer'
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN, algorithm: 'HS256' }
+  );
+}
+
+export function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authentication required: missing token' });
+  }
+
+  if (!JWT_SECRET) {
+    return res.status(500).json({ success: false, message: 'Server authentication configuration missing' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+    const db = readData();
+    const user = (db.users || []).find(u => u.id === decoded.id || u.email.toLowerCase() === decoded.email.toLowerCase());
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User account not found or deactivated' });
+    }
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email.toLowerCase(),
+      role: user.role || decoded.role || 'customer',
+      avatar: user.avatar
+    };
+    next();
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Authentication token has expired' });
+    }
+    return res.status(401).json({ success: false, message: 'Invalid authentication token' });
+  }
+}
+
+export function optionalAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (!token || !JWT_SECRET) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+    const db = readData();
+    const user = (db.users || []).find(u => u.id === decoded.id || u.email.toLowerCase() === decoded.email.toLowerCase());
+    if (user) {
+      req.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email.toLowerCase(),
+        role: user.role || decoded.role || 'customer',
+        avatar: user.avatar
+      };
+    } else {
+      req.user = null;
+    }
+  } catch {
+    req.user = null;
+  }
+  next();
+}
+
+export function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Access forbidden: Administrator privileges required' });
+  }
+  next();
+}
+
+// Password verification and non-destructive lazy migration helper
+const isBcryptHash = (str) => typeof str === 'string' && /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(str);
+
+async function verifyAndMigratePassword(user, candidatePassword, db) {
+  if (!user || !user.password || typeof candidatePassword !== 'string') {
+    return false;
+  }
+
+  // 1. If already hashed with bcrypt
+  if (isBcryptHash(user.password)) {
+    return await bcrypt.compare(candidatePassword, user.password);
+  }
+
+  // 2. Reject Google-only accounts from password login attempt
+  if (user.password.startsWith('google_oauth_')) {
+    return false;
+  }
+
+  // 3. Legacy plaintext match: migrate lazily to bcrypt
+  if (user.password === candidatePassword) {
+    try {
+      user.password = await bcrypt.hash(candidatePassword, 10);
+      writeData(db);
+    } catch (err) {
+      console.error('Password migration error:', err.message);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+// ----------------------------------------------------
+// AUTHENTICATION API
+// ----------------------------------------------------
+
+// Public Registration (Always Customer, never Admin)
+app.post('/api/auth/register', rateLimiter({ windowMs: 60 * 1000, max: 15 }), async (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { name, email, password } = req.body;
+
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
   }
@@ -104,146 +246,218 @@ app.post('/api/auth/register', rateLimiter({ windowMs: 60 * 1000, max: 15 }), (r
     return res.status(400).json({ success: false, message: 'User already exists with this email address' });
   }
 
-  const isSpecialAdmin = normalizedEmail === 'sujalrathore970@gmail.com' || normalizedEmail === 'admin@brivoo.com';
+  const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = {
     id: `usr-${Date.now()}`,
     name: name.trim().slice(0, 100),
     email: normalizedEmail,
-    password,
-    role: isSpecialAdmin ? 'admin' : 'customer',
-    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}`
+    password: hashedPassword,
+    role: 'customer', // Public registration is strictly customer
+    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}`,
+    joinedAt: new Date().toISOString()
   };
 
   db.users.push(newUser);
   writeData(db);
 
-  const token = `jwt_token_${newUser.id}_${Date.now()}`;
-  res.status(201).json({
-    success: true,
-    token,
-    user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, avatar: newUser.avatar }
-  });
+  try {
+    const token = signToken(newUser);
+    res.status(201).json({
+      success: true,
+      token,
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, avatar: newUser.avatar }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to issue token: ' + err.message });
+  }
 });
 
-app.post('/api/auth/login', rateLimiter({ windowMs: 60 * 1000, max: 20 }), (req, res) => {
+// Secure Login with lazy password migration
+app.post('/api/auth/login', rateLimiter({ windowMs: 60 * 1000, max: 20 }), async (req, res) => {
   const db = readData();
   if (!db.users) db.users = [];
   const { email, password } = req.body;
-  if (!email || !password) {
+
+  if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ success: false, message: 'Email and password are required' });
   }
 
-  const normalizedEmail = email.toLowerCase();
-  let user = db.users.find(u => u.email.toLowerCase() === normalizedEmail && u.password === password);
-  
-  // Auto-heal / initialize admin user if credentials match
-  if (!user && normalizedEmail === 'sujalrathore970@gmail.com' && password === 'Suj@l0504') {
-    const existingAdmin = db.users.find(u => u.email.toLowerCase() === 'sujalrathore970@gmail.com');
-    if (existingAdmin) {
-      existingAdmin.password = 'Suj@l0504';
-      existingAdmin.role = 'admin';
-      user = existingAdmin;
-    } else {
-      user = {
-        id: 'usr-admin',
-        name: 'Sujal Rathore (Admin)',
-        email: 'sujalrathore970@gmail.com',
-        password: 'Suj@l0504',
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        joinedAt: new Date().toISOString()
-      };
-      db.users.push(user);
-    }
-    writeData(db);
-  }
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
 
   if (!user) {
     return res.status(401).json({ success: false, message: 'Invalid email address or password' });
   }
 
-  // Ensure role is admin if logging in with the designated admin email
-  if (normalizedEmail === 'sujalrathore970@gmail.com' && user.role !== 'admin') {
-    user.role = 'admin';
+  const isValid = await verifyAndMigratePassword(user, password, db);
+  if (!isValid) {
+    return res.status(401).json({ success: false, message: 'Invalid email address or password' });
+  }
+
+  try {
+    const token = signToken(user);
+    res.json({
+      success: true,
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Authentication failure: ' + err.message });
+  }
+});
+
+// Google OAuth Server-Side Token Verification
+app.post('/api/auth/google', async (req, res) => {
+  const { idToken, credential } = req.body;
+  const tokenToVerify = idToken || credential;
+
+  if (!tokenToVerify || typeof tokenToVerify !== 'string') {
+    return res.status(400).json({
+      success: false,
+      message: 'Google ID token (credential) is required for server-side verification'
+    });
+  }
+
+  const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+  if (!GOOGLE_CLIENT_ID) {
+    return res.status(503).json({
+      success: false,
+      message: 'Google authentication service is not configured on the server (missing GOOGLE_CLIENT_ID)'
+    });
+  }
+
+  try {
+    const googleVerifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokenToVerify)}`);
+    if (!googleVerifyRes.ok) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired Google authentication token' });
+    }
+    const tokenInfo = await googleVerifyRes.json();
+
+    if (tokenInfo.aud !== GOOGLE_CLIENT_ID) {
+      return res.status(401).json({ success: false, message: 'Google token client ID mismatch' });
+    }
+
+    if (tokenInfo.email_verified !== 'true' && tokenInfo.email_verified !== true) {
+      return res.status(401).json({ success: false, message: 'Google email address is not verified' });
+    }
+
+    const verifiedEmail = tokenInfo.email.toLowerCase().trim();
+    const verifiedName = tokenInfo.name || verifiedEmail.split('@')[0];
+    const verifiedAvatar = tokenInfo.picture || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(verifiedName)}`;
+    const googleSub = tokenInfo.sub;
+
+    const db = readData();
+    if (!db.users) db.users = [];
+
+    // Admin allowlist verification (controlled server-side only)
+    const adminAllowlist = (process.env.ADMIN_EMAILS || '')
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    let user = db.users.find(u => u.email.toLowerCase() === verifiedEmail);
+    if (!user) {
+      const isAllowedAdmin = adminAllowlist.includes(verifiedEmail);
+      user = {
+        id: `usr-g-${Date.now()}`,
+        name: verifiedName,
+        email: verifiedEmail,
+        password: `google_oauth_${Date.now()}`,
+        role: isAllowedAdmin ? 'admin' : 'customer',
+        avatar: verifiedAvatar,
+        googleId: googleSub,
+        joinedAt: new Date().toISOString()
+      };
+      db.users.push(user);
+    } else {
+      user.googleId = googleSub;
+      if (verifiedName && (!user.name || user.name === 'Google User')) user.name = verifiedName;
+      if (verifiedAvatar && !user.avatar) user.avatar = verifiedAvatar;
+      if (adminAllowlist.includes(verifiedEmail)) user.role = 'admin';
+    }
+
     writeData(db);
+    const token = signToken(user);
+    res.json({
+      success: true,
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to verify Google token: ' + err.message });
   }
-
-  const token = `jwt_token_${user.id}_${Date.now()}`;
-  res.json({
-    success: true,
-    token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar }
-  });
 });
 
-app.post('/api/auth/google', (req, res) => {
-  const db = readData();
-  if (!db.users) db.users = [];
-  const { name, email, googleId, avatar, role } = req.body;
-
-  const targetEmail = (email || 'google_user@gmail.com').toLowerCase();
-  const userName = name || 'Google User';
-  const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}`;
-
-  let user = db.users.find(u => u.email.toLowerCase() === targetEmail);
-  const isAdminEmail = targetEmail === 'sujalrathore970@gmail.com' || targetEmail === 'admin@brivoo.com';
-  if (!user) {
-    const isSpecialAdmin = role === 'admin' || isAdminEmail;
-    user = {
-      id: `usr-g-${Date.now()}`,
-      name: userName,
-      email: targetEmail,
-      password: `google_oauth_${Date.now()}`,
-      role: isSpecialAdmin ? 'admin' : 'customer',
-      avatar: userAvatar,
-      googleId: googleId || `gid_${Date.now()}`
-    };
-    db.users.push(user);
-  } else {
-    if (userName && (user.name === 'Google User' || !user.name)) user.name = userName;
-    if (userAvatar && !user.avatar) user.avatar = userAvatar;
-    if (role === 'admin' || isAdminEmail) user.role = 'admin';
-  }
-
-  writeData(db);
-
-  const token = `jwt_google_token_${user.id}_${Date.now()}`;
-  res.json({
-    success: true,
-    token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar }
-  });
-});
-
-app.post('/api/auth/forgot-password', rateLimiter({ windowMs: 60 * 1000, max: 10 }), (req, res) => {
-  const db = readData();
-  if (!db.users) db.users = [];
+// Secure Password Reset: Initiate OTP
+app.post('/api/auth/forgot-password', rateLimiter({ windowMs: 15 * 60 * 1000, max: 5 }), async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ success: false, message: 'Email address is required' });
-
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) {
-    return res.status(404).json({ success: false, message: 'No registered user found with this email' });
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ success: false, message: 'Email address is required' });
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  if (!db.otps) db.otps = {};
-  db.otps[email.toLowerCase()] = {
-    code: otp,
-    expiresAt: Date.now() + 10 * 60 * 1000 // 10-minute expiry
-  };
-  writeData(db);
+  const normalizedEmail = email.toLowerCase().trim();
 
+  // Check if an email delivery service is configured
+  const emailConfigured = Boolean(
+    (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) ||
+    process.env.RESEND_API_KEY
+  );
+
+  if (!emailConfigured) {
+    return res.status(503).json({
+      success: false,
+      message: 'Password reset is currently unavailable: email delivery service is not configured on the server. Please contact support.'
+    });
+  }
+
+  const db = readData();
+  if (!db.users) db.users = [];
+  const user = db.users.find(u => u.email.toLowerCase() === normalizedEmail);
+
+  if (user) {
+    // Generate unpredictable 6-digit numeric OTP
+    const rawOtp = crypto.randomInt(100000, 1000000).toString();
+    const otpHash = crypto.createHash('sha256').update(rawOtp).digest('hex');
+
+    if (!db.otps) db.otps = {};
+    db.otps[normalizedEmail] = {
+      hash: otpHash,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      attempts: 0
+    };
+    writeData(db);
+
+    // Send email using configured provider
+    try {
+      if (process.env.RESEND_API_KEY) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+          },
+          body: JSON.stringify({
+            from: process.env.EMAIL_FROM || 'BRIVOO <noreply@brivoo.in>',
+            to: normalizedEmail,
+            subject: 'BRIVOO Password Reset Verification Code',
+            text: `Your BRIVOO verification code is: ${rawOtp}. This code expires in 10 minutes.`
+          })
+        });
+      }
+    } catch {
+      console.error('[Email Service] Failed to deliver reset email');
+    }
+  }
+
+  // Consistent generic response to prevent email enumeration, never exposing OTP
   res.json({
     success: true,
-    message: `OTP sent to ${email}`,
-    otp
+    message: 'If the provided email is registered, a password reset code has been sent.'
   });
 });
 
-app.post('/api/auth/reset-password', rateLimiter({ windowMs: 60 * 1000, max: 10 }), (req, res) => {
-  const db = readData();
-  if (!db.users) db.users = [];
+// Secure Password Reset: Verify OTP and update password
+app.post('/api/auth/reset-password', rateLimiter({ windowMs: 15 * 60 * 1000, max: 10 }), async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   if (!email || !otp || !newPassword) {
@@ -254,29 +468,61 @@ app.post('/api/auth/reset-password', rateLimiter({ windowMs: 60 * 1000, max: 10 
     return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
   }
 
-  const storedOtpData = db.otps?.[email.toLowerCase()];
-  const storedOtp = typeof storedOtpData === 'object' ? storedOtpData?.code : storedOtpData;
-  const isExpired = typeof storedOtpData === 'object' && storedOtpData?.expiresAt && Date.now() > storedOtpData.expiresAt;
+  if (newPassword.length > 128) {
+    return res.status(400).json({ success: false, message: 'New password cannot exceed 128 characters' });
+  }
 
-  if (!storedOtp || isExpired || storedOtp !== otp.trim()) {
+  const normalizedEmail = email.toLowerCase().trim();
+  const db = readData();
+  const storedOtpData = db.otps?.[normalizedEmail];
+
+  if (!storedOtpData) {
     return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
   }
 
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+  if (Date.now() > (storedOtpData.expiresAt || 0)) {
+    delete db.otps[normalizedEmail];
+    writeData(db);
+    return res.status(400).json({ success: false, message: 'OTP code has expired' });
+  }
 
-  user.password = newPassword;
-  delete db.otps[email.toLowerCase()];
+  storedOtpData.attempts = (storedOtpData.attempts || 0) + 1;
+  if (storedOtpData.attempts > 5) {
+    delete db.otps[normalizedEmail];
+    writeData(db);
+    return res.status(400).json({ success: false, message: 'Too many invalid attempts. Please request a new OTP.' });
+  }
+
+  const candidateHash = crypto.createHash('sha256').update(String(otp).trim()).digest('hex');
+  const validHash = storedOtpData.hash || (storedOtpData.code ? crypto.createHash('sha256').update(String(storedOtpData.code).trim()).digest('hex') : null);
+
+  if (!validHash || candidateHash !== validHash) {
+    writeData(db);
+    return res.status(400).json({ success: false, message: 'Invalid OTP code' });
+  }
+
+  const user = db.users?.find(u => u.email.toLowerCase() === normalizedEmail);
+  if (!user) {
+    delete db.otps[normalizedEmail];
+    writeData(db);
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  delete db.otps[normalizedEmail];
   writeData(db);
 
-  const token = `jwt_token_${user.id}_${Date.now()}`;
   res.json({
     success: true,
-    message: 'Password reset successfully! Logged in.',
-    token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar }
+    message: 'Password reset successfully! Please log in with your new password.'
   });
 });
+
+// Authenticated current user profile
+app.get('/api/auth/me', authenticateToken, (req, res) => {
+  res.json({ success: true, user: req.user });
+});
+
 
 // Static images directory
 app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
@@ -327,7 +573,7 @@ app.get('/api/products/:id', (req, res) => {
   res.json({ success: true, data: prod });
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const { title, subtitle, category, gender, price, originalPrice, tag, image, colors, sizes, stock, description, specs } = req.body;
 
@@ -360,7 +606,7 @@ app.post('/api/products', (req, res) => {
   res.status(201).json({ success: true, message: 'Product created successfully', data: newProduct });
 });
 
-app.post('/api/products/bulk', (req, res) => {
+app.post('/api/products/bulk', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const { products } = req.body;
 
@@ -423,7 +669,7 @@ app.post('/api/products/bulk', (req, res) => {
   });
 });
 
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.products.findIndex(p => p.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Product not found' });
@@ -439,7 +685,7 @@ app.put('/api/products/:id', (req, res) => {
   res.json({ success: true, message: 'Product updated successfully', data: updated });
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.products.findIndex(p => p.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Product not found' });
@@ -482,7 +728,7 @@ app.get('/api/categories', (req, res) => {
   res.json({ success: true, data: db.categories });
 });
 
-app.post('/api/categories', (req, res) => {
+app.post('/api/categories', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const { name, description } = req.body;
   if (!name) return res.status(400).json({ success: false, message: 'Category name is required' });
@@ -494,7 +740,7 @@ app.post('/api/categories', (req, res) => {
   res.status(201).json({ success: true, data: newCat });
 });
 
-app.put('/api/categories/:id', (req, res) => {
+app.put('/api/categories/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.categories.findIndex(c => c.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Category not found' });
@@ -504,7 +750,7 @@ app.put('/api/categories/:id', (req, res) => {
   res.json({ success: true, data: db.categories[index] });
 });
 
-app.delete('/api/categories/:id', (req, res) => {
+app.delete('/api/categories/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.categories.findIndex(c => c.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Category not found' });
@@ -515,7 +761,7 @@ app.delete('/api/categories/:id', (req, res) => {
 });
 
 // Subcategories API
-app.post('/api/categories/:id/subcategories', (req, res) => {
+app.post('/api/categories/:id/subcategories', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const category = db.categories.find(c => c.id === req.params.id);
   if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
@@ -536,7 +782,7 @@ app.post('/api/categories/:id/subcategories', (req, res) => {
   res.status(201).json({ success: true, data: newSub });
 });
 
-app.delete('/api/categories/:catId/subcategories/:subId', (req, res) => {
+app.delete('/api/categories/:catId/subcategories/:subId', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const category = db.categories.find(c => c.id === req.params.catId);
   if (!category || !category.subcategories) return res.status(404).json({ success: false, message: 'Category not found' });
@@ -593,7 +839,7 @@ app.post('/api/coupons/validate', (req, res) => {
   res.json({ success: true, coupon, discount });
 });
 
-app.post('/api/coupons', (req, res) => {
+app.post('/api/coupons', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const { code, discountType, value, minSpend } = req.body;
   if (!code || !value) return res.status(400).json({ success: false, message: 'Code and value are required' });
@@ -612,7 +858,7 @@ app.post('/api/coupons', (req, res) => {
   res.status(201).json({ success: true, data: newCoupon });
 });
 
-app.put('/api/coupons/:id', (req, res) => {
+app.put('/api/coupons/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.coupons.findIndex(c => c.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Coupon not found' });
@@ -622,7 +868,7 @@ app.put('/api/coupons/:id', (req, res) => {
   res.json({ success: true, data: db.coupons[index] });
 });
 
-app.delete('/api/coupons/:id', (req, res) => {
+app.delete('/api/coupons/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const index = db.coupons.findIndex(c => c.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Coupon not found' });
@@ -641,7 +887,7 @@ app.get('/api/offers', (req, res) => {
   res.json({ success: true, count: offers.length, data: offers });
 });
 
-app.post('/api/offers', (req, res) => {
+app.post('/api/offers', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.offers) db.offers = [];
 
@@ -712,7 +958,7 @@ app.post('/api/offers', (req, res) => {
   res.status(201).json({ success: true, data: newOffer });
 });
 
-app.put('/api/offers/:id', (req, res) => {
+app.put('/api/offers/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.offers) db.offers = [];
   const index = db.offers.findIndex(o => o.id === req.params.id);
@@ -723,7 +969,7 @@ app.put('/api/offers/:id', (req, res) => {
   res.json({ success: true, data: db.offers[index] });
 });
 
-app.patch('/api/offers/:id/toggle', (req, res) => {
+app.patch('/api/offers/:id/toggle', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.offers) db.offers = [];
   const index = db.offers.findIndex(o => o.id === req.params.id);
@@ -734,7 +980,7 @@ app.patch('/api/offers/:id/toggle', (req, res) => {
   res.json({ success: true, data: db.offers[index] });
 });
 
-app.delete('/api/offers/:id', (req, res) => {
+app.delete('/api/offers/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.offers) db.offers = [];
   const index = db.offers.findIndex(o => o.id === req.params.id);
@@ -746,46 +992,167 @@ app.delete('/api/offers/:id', (req, res) => {
 });
 
 // ----------------------------------------------------
-// 4. ORDERS API (Create, Status update, View history)
+// 4. ORDERS & PAYMENTS PROCESSING API
 // ----------------------------------------------------
-app.get('/api/orders', (req, res) => {
+
+// Server-side Cart & Price Calculation Helper
+function validateCartAndCalculateTotals(items, couponCode, db) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return { error: 'Order must contain at least one product item' };
+  }
+
+  let subtotal = 0;
+  const verifiedItems = [];
+
+  for (const item of items) {
+    if (!item.id || item.quantity === undefined || item.quantity === null) {
+      return { error: 'Invalid product item in cart' };
+    }
+
+    const qty = Number(item.quantity);
+    if (!Number.isInteger(qty) || qty <= 0) {
+      return { error: `Invalid quantity (${item.quantity}) for product item` };
+    }
+
+    const product = (db.products || []).find(p => p.id === item.id);
+    if (!product) {
+      return { error: `Product "${item.title || item.id}" was not found in catalog` };
+    }
+
+    if (!product.inStock || product.stock < qty) {
+      return { error: `Insufficient inventory for "${product.title}". In stock: ${product.stock || 0}` };
+    }
+
+    const price = Number(product.price);
+    if (isNaN(price) || price < 0) {
+      return { error: `Invalid price configuration for "${product.title}"` };
+    }
+
+    subtotal += price * qty;
+    verifiedItems.push({
+      id: product.id,
+      title: product.title,
+      price: price, // Server-calculated trusted price
+      quantity: qty,
+      selectedSize: item.selectedSize || '',
+      selectedColor: item.selectedColor || '',
+      image: product.image || item.image || ''
+    });
+  }
+
+  // Validate Coupon discount on server
+  let discountAmount = 0;
+  let appliedCoupon = null;
+  if (couponCode && typeof couponCode === 'string' && couponCode.trim()) {
+    const code = couponCode.trim().toUpperCase();
+    const coupon = (db.coupons || []).find(c => c.code.toUpperCase() === code && c.active);
+    if (coupon) {
+      if (subtotal >= (coupon.minSpend || 0)) {
+        if (coupon.discountType === 'percentage') {
+          discountAmount = Math.round((subtotal * coupon.value) / 100);
+        } else if (coupon.discountType === 'fixed') {
+          discountAmount = Math.min(coupon.value, subtotal);
+        }
+        appliedCoupon = coupon.code;
+      }
+    }
+  }
+
+  // Shipping threshold check
+  const threshold = Number(db.settings?.freeShippingThreshold) || 1999;
+  const shippingCharge = (subtotal - discountAmount) >= threshold ? 0 : 150;
+  const grandTotal = Math.max(0, subtotal - discountAmount + shippingCharge);
+
+  return {
+    subtotal,
+    discountAmount,
+    shippingCharge,
+    grandTotal,
+    appliedCoupon,
+    verifiedItems
+  };
+}
+
+// Get Orders: Authenticated customer sees only own orders; admin sees all
+app.get('/api/orders', authenticateToken, (req, res) => {
   const db = readData();
-  res.json({ success: true, count: db.orders.length, data: db.orders });
+  const orders = db.orders || [];
+
+  if (req.user.role === 'admin') {
+    return res.json({ success: true, count: orders.length, data: orders });
+  }
+
+  const customerOrders = orders.filter(o => o.email && o.email.toLowerCase() === req.user.email.toLowerCase());
+  res.json({ success: true, count: customerOrders.length, data: customerOrders });
 });
 
-app.get('/api/orders/:id', (req, res) => {
+// Get Single Order: Customer can access only their own order; admin can access any
+app.get('/api/orders/:id', authenticateToken, (req, res) => {
   const db = readData();
-  const order = db.orders.find(o => o.id === req.params.id);
+  const order = (db.orders || []).find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+  if (req.user.role !== 'admin' && (!order.email || order.email.toLowerCase() !== req.user.email.toLowerCase())) {
+    return res.status(403).json({ success: false, message: 'Access forbidden: you do not own this order' });
+  }
+
   res.json({ success: true, data: order });
 });
 
-app.post('/api/orders', (req, res) => {
+// Create Order (Cash on Delivery Only)
+app.post('/api/orders', optionalAuth, (req, res) => {
   const db = readData();
-  const { customerName, email, phone, address, items, totalAmount, discountAmount, paymentMethod, shippingCity, shippingState, shippingPincode } = req.body;
+  const {
+    customerName,
+    email,
+    phone,
+    address,
+    items,
+    couponCode,
+    paymentMethod,
+    shippingCity,
+    shippingState,
+    shippingPincode
+  } = req.body;
 
-  if (!customerName || !email || !items || items.length === 0) {
+  if (!customerName || !email || !items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ success: false, message: 'Customer details and items are required' });
   }
 
+  // Normalize payment method
+  const normalizedMethod = (paymentMethod || '').trim().toLowerCase();
+  const isCOD = normalizedMethod === 'cod' || normalizedMethod === 'cash on delivery';
+
+  if (!isCOD) {
+    return res.status(400).json({
+      success: false,
+      message: 'Direct order placement is permitted only for Cash on Delivery. Online payments must be completed and verified through Razorpay.'
+    });
+  }
+
+  const calculation = validateCartAndCalculateTotals(items, couponCode, db);
+  if (calculation.error) {
+    return res.status(400).json({ success: false, message: calculation.error });
+  }
+
   const orderId = `BRV-${Math.floor(10000 + Math.random() * 90000)}`;
-  const paymentRef = `TXN_${(paymentMethod || 'UPI').toUpperCase().replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}`;
-  const paymentStatus = paymentMethod === 'Cash on Delivery' ? 'Pending' : 'Completed';
+  const paymentRef = `TXN_COD_${Date.now().toString().slice(-6)}`;
 
   const newOrder = {
     id: orderId,
-    customerName,
-    email,
-    phone: phone || '',
-    address: address || '',
+    customerName: String(customerName).trim().slice(0, 100),
+    email: String(email).trim().toLowerCase(),
+    phone: phone ? String(phone).trim() : '',
+    address: address ? String(address).trim() : '',
     shippingCity: shippingCity || '',
     shippingState: shippingState || '',
     shippingPincode: shippingPincode || '',
-    items,
-    totalAmount: Number(totalAmount),
-    discountAmount: Number(discountAmount || 0),
-    paymentMethod: paymentMethod || 'UPI',
-    paymentStatus,
+    items: calculation.verifiedItems,
+    totalAmount: calculation.grandTotal,
+    discountAmount: calculation.discountAmount,
+    couponCode: calculation.appliedCoupon || null,
+    paymentMethod: 'Cash on Delivery',
+    paymentStatus: 'Pending', // COD orders remain Pending until settled at doorstep
     paymentRef,
     status: 'Processing',
     tracking: {
@@ -801,7 +1168,7 @@ app.post('/api/orders', (req, res) => {
           status: 'Order Confirmed',
           location: 'BRIVOO Mumbai Center',
           timestamp: new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric', year: 'numeric' }),
-          description: 'Order placed, items allocated and payment processed.'
+          description: 'Order confirmed with Cash on Delivery.'
         }
       ]
     },
@@ -809,16 +1176,16 @@ app.post('/api/orders', (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  // Reduce product stocks
-  items.forEach(item => {
+  // Decrement stock only once for validated items
+  calculation.verifiedItems.forEach(item => {
     const prod = db.products.find(p => p.id === item.id);
-    if (prod && prod.stock >= item.quantity) {
-      prod.stock -= item.quantity;
+    if (prod) {
+      prod.stock = Math.max(0, prod.stock - item.quantity);
       if (prod.stock === 0) prod.inStock = false;
     }
   });
 
-  // Add order
+  if (!db.orders) db.orders = [];
   db.orders.unshift(newOrder);
 
   // Sync to Payments ledger
@@ -826,11 +1193,11 @@ app.post('/api/orders', (req, res) => {
   db.payments.unshift({
     id: `PAY-${Date.now().toString().slice(-6)}`,
     orderId,
-    customerName,
-    customerEmail: email,
-    amount: Number(totalAmount),
-    method: paymentMethod || 'UPI',
-    status: paymentStatus,
+    customerName: newOrder.customerName,
+    customerEmail: newOrder.email,
+    amount: newOrder.totalAmount,
+    method: 'Cash on Delivery',
+    status: 'Pending',
     transactionRef: paymentRef,
     createdAt: new Date().toISOString()
   });
@@ -839,9 +1206,10 @@ app.post('/api/orders', (req, res) => {
   res.status(201).json({ success: true, message: 'Order placed successfully', data: newOrder });
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+// Update Order Status: Administrator Only
+app.put('/api/orders/:id/status', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
-  const order = db.orders.find(o => o.id === req.params.id);
+  const order = (db.orders || []).find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   const { status } = req.body;
@@ -850,12 +1218,13 @@ app.put('/api/orders/:id/status', (req, res) => {
   order.status = status;
   if (order.tracking) {
     order.tracking.status = status;
+    if (!order.tracking.checkpoints) order.tracking.checkpoints = [];
     order.tracking.checkpoints.push({
       id: `cp-${Date.now()}`,
       status,
       location: order.tracking.currentLocation || 'Distribution Facility',
       timestamp: new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric', year: 'numeric' }),
-      description: `Order milestone status changed to ${status}.`
+      description: `Order status updated to ${status}.`
     });
   }
 
@@ -863,10 +1232,10 @@ app.put('/api/orders/:id/status', (req, res) => {
   res.json({ success: true, message: `Order status updated to ${status}`, data: order });
 });
 
-// Update Order Tracking Details & Add Checkpoints
-app.put('/api/orders/:id/tracking', (req, res) => {
+// Update Order Tracking Details & Add Checkpoints: Administrator Only
+app.put('/api/orders/:id/tracking', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
-  const order = db.orders.find(o => o.id === req.params.id);
+  const order = (db.orders || []).find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   const { carrier, trackingNumber, estimatedDelivery, status, location, checkpointDescription } = req.body;
@@ -903,6 +1272,233 @@ app.put('/api/orders/:id/tracking', (req, res) => {
   res.json({ success: true, message: 'Tracking updated', data: order });
 });
 
+// ----------------------------------------------------
+// RAZORPAY PAYMENT GATEWAY INTEGRATION
+// ----------------------------------------------------
+
+// Razorpay Order Creation: Validates stock and pricing on server
+app.post('/api/payments/razorpay/order', optionalAuth, async (req, res) => {
+  const { items, couponCode } = req.body;
+  const db = readData();
+
+  const calculation = validateCartAndCalculateTotals(items, couponCode, db);
+  if (calculation.error) {
+    return res.status(400).json({ success: false, message: calculation.error });
+  }
+
+  const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+  const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    return res.status(503).json({
+      success: false,
+      message: 'Razorpay payment gateway is not configured on the server (missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET)'
+    });
+  }
+
+  try {
+    const amountInPaise = Math.round(calculation.grandTotal * 100);
+    const receipt = `rcpt_${Date.now()}`;
+    const authHeader = 'Basic ' + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+
+    const rzpResponse = await fetch('https://api.razorpay.com/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader
+      },
+      body: JSON.stringify({
+        amount: amountInPaise,
+        currency: 'INR',
+        receipt,
+        payment_capture: 1
+      })
+    });
+
+    if (!rzpResponse.ok) {
+      const errData = await rzpResponse.json();
+      return res.status(502).json({
+        success: false,
+        message: 'Razorpay order creation failed: ' + (errData.error?.description || rzpResponse.statusText)
+      });
+    }
+
+    const orderData = await rzpResponse.json();
+    res.json({
+      success: true,
+      keyId: RAZORPAY_KEY_ID,
+      orderId: orderData.id,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      calculatedTotal: calculation.grandTotal
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to create Razorpay order: ' + err.message });
+  }
+});
+
+// Razorpay Payment Verification & Order Placement
+app.post('/api/payments/razorpay/verify', optionalAuth, async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    customerName,
+    email,
+    phone,
+    address,
+    shippingCity,
+    shippingState,
+    shippingPincode,
+    items,
+    couponCode
+  } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return res.status(400).json({ success: false, message: 'Missing required Razorpay verification credentials' });
+  }
+
+  const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+  const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+
+  if (!RAZORPAY_KEY_SECRET) {
+    return res.status(503).json({ success: false, message: 'Razorpay secret key is not configured' });
+  }
+
+  // 1. Verify HMAC SHA-256 signature
+  const expectedSignature = crypto
+    .createHmac('sha256', RAZORPAY_KEY_SECRET)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest('hex');
+
+  const signatureMatches = crypto.timingSafeEqual(
+    Buffer.from(expectedSignature, 'utf-8'),
+    Buffer.from(razorpay_signature, 'utf-8')
+  );
+
+  if (!signatureMatches) {
+    return res.status(400).json({ success: false, message: 'Payment verification failed: invalid signature' });
+  }
+
+  const db = readData();
+
+  // 2. Idempotency Check: Prevent duplicate order processing and multiple stock deductions
+  const existingOrder = (db.orders || []).find(o => o.paymentRef === razorpay_payment_id);
+  if (existingOrder) {
+    return res.json({ success: true, message: 'Order already processed', data: existingOrder });
+  }
+
+  // 3. Re-validate cart and trusted server pricing
+  const calculation = validateCartAndCalculateTotals(items, couponCode, db);
+  if (calculation.error) {
+    return res.status(400).json({ success: false, message: calculation.error });
+  }
+
+  // 4. Fetch payment from Razorpay API to verify status and amount
+  if (RAZORPAY_KEY_ID) {
+    try {
+      const authHeader = 'Basic ' + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+      const rzpPayRes = await fetch(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
+        headers: { 'Authorization': authHeader }
+      });
+
+      if (!rzpPayRes.ok) {
+        return res.status(400).json({ success: false, message: 'Failed to verify payment with Razorpay gateway' });
+      }
+
+      const paymentData = await rzpPayRes.json();
+
+      if (paymentData.order_id !== razorpay_order_id) {
+        return res.status(400).json({ success: false, message: 'Payment record does not match the active order ID' });
+      }
+
+      if (paymentData.status !== 'captured' && paymentData.status !== 'authorized') {
+        return res.status(400).json({ success: false, message: `Payment is not in captured status (${paymentData.status})` });
+      }
+
+      if (paymentData.currency !== 'INR') {
+        return res.status(400).json({ success: false, message: 'Invalid payment currency' });
+      }
+
+      const expectedPaise = Math.round(calculation.grandTotal * 100);
+      if (Number(paymentData.amount) !== expectedPaise) {
+        return res.status(400).json({ success: false, message: 'Payment amount mismatch against verified cart total' });
+      }
+    } catch (err) {
+      return res.status(500).json({ success: false, message: 'Razorpay verification request failed: ' + err.message });
+    }
+  }
+
+  // 5. Decrement inventory only once upon verified payment
+  calculation.verifiedItems.forEach(item => {
+    const prod = db.products.find(p => p.id === item.id);
+    if (prod) {
+      prod.stock = Math.max(0, prod.stock - item.quantity);
+      if (prod.stock === 0) prod.inStock = false;
+    }
+  });
+
+  // 6. Record verified paid order
+  const orderId = `BRV-${Math.floor(10000 + Math.random() * 90000)}`;
+  const newOrder = {
+    id: orderId,
+    customerName: String(customerName || 'Valued Customer').trim().slice(0, 100),
+    email: String(email || '').trim().toLowerCase(),
+    phone: phone ? String(phone).trim() : '',
+    address: address ? String(address).trim() : '',
+    shippingCity: shippingCity || '',
+    shippingState: shippingState || '',
+    shippingPincode: shippingPincode || '',
+    items: calculation.verifiedItems,
+    totalAmount: calculation.grandTotal,
+    discountAmount: calculation.discountAmount,
+    couponCode: calculation.appliedCoupon || null,
+    paymentMethod: 'Razorpay',
+    paymentStatus: 'Completed',
+    paymentRef: razorpay_payment_id,
+    razorpayOrderId: razorpay_order_id,
+    status: 'Processing',
+    tracking: {
+      carrier: 'BlueDart Express',
+      trackingNumber: `BLUEDART-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      estimatedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      dispatchedAt: new Date().toISOString(),
+      currentLocation: 'BRIVOO Mumbai Fulfillment Hub',
+      status: 'Processing',
+      checkpoints: [
+        {
+          id: `cp-${Date.now()}`,
+          status: 'Payment Verified & Order Confirmed',
+          location: 'BRIVOO Mumbai Center',
+          timestamp: new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric', year: 'numeric' }),
+          description: `Razorpay payment ${razorpay_payment_id} successfully verified.`
+        }
+      ]
+    },
+    returnStatus: 'None',
+    createdAt: new Date().toISOString()
+  };
+
+  if (!db.orders) db.orders = [];
+  db.orders.unshift(newOrder);
+
+  if (!db.payments) db.payments = [];
+  db.payments.unshift({
+    id: `PAY-${Date.now().toString().slice(-6)}`,
+    orderId,
+    customerName: newOrder.customerName,
+    customerEmail: newOrder.email,
+    amount: newOrder.totalAmount,
+    method: 'Razorpay',
+    status: 'Completed',
+    transactionRef: razorpay_payment_id,
+    createdAt: new Date().toISOString()
+  });
+
+  writeData(db);
+  res.status(201).json({ success: true, message: 'Payment verified and order placed successfully', data: newOrder });
+});
+
 // Tracking Search by Order ID or Tracking AWB Number
 app.get('/api/tracking/:query', async (req, res) => {
   const db = readData();
@@ -937,7 +1533,7 @@ app.get('/api/tracking/:query', async (req, res) => {
 // ----------------------------------------------------
 
 // Live Status & Connection Details
-app.get('/api/shiprocket/status', async (req, res) => {
+app.get('/api/shiprocket/status', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const status = await shiprocket.getStatus();
     res.json(status);
@@ -947,7 +1543,7 @@ app.get('/api/shiprocket/status', async (req, res) => {
 });
 
 // Pincode Serviceability & Courier Rates
-app.get('/api/shiprocket/serviceability', async (req, res) => {
+app.get('/api/shiprocket/serviceability', authenticateToken, async (req, res) => {
   try {
     const { pickup_postcode, delivery_postcode, weight, cod } = req.query;
     if (!delivery_postcode) {
@@ -966,7 +1562,7 @@ app.get('/api/shiprocket/serviceability', async (req, res) => {
 });
 
 // 1-Click Order Dispatch with Shiprocket
-app.post('/api/shiprocket/orders/:id/dispatch', async (req, res) => {
+app.post('/api/shiprocket/orders/:id/dispatch', authenticateToken, requireAdmin, async (req, res) => {
   const db = readData();
   const order = db.orders.find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
@@ -1060,7 +1656,7 @@ app.post('/api/shiprocket/orders/:id/dispatch', async (req, res) => {
 });
 
 // Assign AWB to Existing Shipment
-app.post('/api/shiprocket/orders/:id/assign-awb', async (req, res) => {
+app.post('/api/shiprocket/orders/:id/assign-awb', authenticateToken, requireAdmin, async (req, res) => {
   const db = readData();
   const order = db.orders.find(o => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
@@ -1100,7 +1696,7 @@ app.post('/api/shiprocket/orders/:id/assign-awb', async (req, res) => {
 });
 
 // Generate Label URL
-app.get('/api/shiprocket/orders/:id/label', async (req, res) => {
+app.get('/api/shiprocket/orders/:id/label', authenticateToken, requireAdmin, async (req, res) => {
   const db = readData();
   const order = db.orders.find(o => o.id === req.params.id);
   if (!order || !order.shiprocket?.shipmentId) {
@@ -1120,7 +1716,7 @@ app.get('/api/shiprocket/orders/:id/label', async (req, res) => {
 });
 
 // Generate Invoice URL
-app.get('/api/shiprocket/orders/:id/invoice', async (req, res) => {
+app.get('/api/shiprocket/orders/:id/invoice', authenticateToken, requireAdmin, async (req, res) => {
   const db = readData();
   const order = db.orders.find(o => o.id === req.params.id);
   if (!order || !order.shiprocket?.orderId) {
@@ -1150,7 +1746,7 @@ app.get('/api/shiprocket/track/:awb', async (req, res) => {
 });
 
 // Add Pickup Location
-app.post('/api/shiprocket/pickup-location', async (req, res) => {
+app.post('/api/shiprocket/pickup-location', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await shiprocket.addPickupLocation(req.body);
     res.json(result);
@@ -1160,7 +1756,7 @@ app.post('/api/shiprocket/pickup-location', async (req, res) => {
 });
 
 // Update Shiprocket Configuration
-app.post('/api/shiprocket/settings', (req, res) => {
+app.post('/api/shiprocket/settings', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.settings) db.settings = {};
 
@@ -1182,28 +1778,30 @@ app.post('/api/shiprocket/settings', (req, res) => {
 // ----------------------------------------------------
 // 5. PAYMENTS & TRANSACTIONS API
 // ----------------------------------------------------
-app.get('/api/payments', (req, res) => {
+app.get('/api/payments', authenticateToken, (req, res) => {
   const db = readData();
-  if (!db.payments) db.payments = [];
+  const payments = db.payments || [];
 
-  const totalVolume = db.payments.reduce((sum, p) => p.status === 'Completed' ? sum + p.amount : sum, 0);
-  const totalRefunded = db.payments.reduce((sum, p) => p.status === 'Refunded' ? sum + (p.refundedAmount || p.amount) : sum, 0);
-  const pendingCount = db.payments.filter(p => p.status === 'Pending').length;
-  const completedCount = db.payments.filter(p => p.status === 'Completed').length;
+  if (req.user.role === 'admin') {
+    const totalVolume = payments.reduce((sum, p) => p.status === 'Completed' ? sum + p.amount : sum, 0);
+    const totalRefunded = payments.reduce((sum, p) => p.status === 'Refunded' ? sum + (p.refundedAmount || p.amount) : sum, 0);
+    const pendingCount = payments.filter(p => p.status === 'Pending').length;
+    const completedCount = payments.filter(p => p.status === 'Completed').length;
+    return res.json({
+      success: true,
+      data: payments,
+      stats: { totalVolume, totalRefunded, pendingCount, completedCount }
+    });
+  }
 
+  const customerPayments = payments.filter(p => p.customerEmail && p.customerEmail.toLowerCase() === req.user.email.toLowerCase());
   res.json({
     success: true,
-    data: db.payments,
-    stats: {
-      totalVolume,
-      totalRefunded,
-      pendingCount,
-      completedCount
-    }
+    data: customerPayments
   });
 });
 
-app.put('/api/payments/:id/status', (req, res) => {
+app.put('/api/payments/:id/status', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.payments) db.payments = [];
   const payment = db.payments.find(p => p.id === req.params.id);
@@ -1220,7 +1818,7 @@ app.put('/api/payments/:id/status', (req, res) => {
   res.json({ success: true, message: 'Payment status updated', data: payment });
 });
 
-app.post('/api/payments/:id/refund', (req, res) => {
+app.post('/api/payments/:id/refund', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.payments) db.payments = [];
   const payment = db.payments.find(p => p.id === req.params.id);
@@ -1249,22 +1847,35 @@ app.post('/api/payments/:id/refund', (req, res) => {
 // ----------------------------------------------------
 // 6. RETURNS & EXCHANGES API
 // ----------------------------------------------------
-app.get('/api/returns', (req, res) => {
+app.get('/api/returns', authenticateToken, (req, res) => {
   const db = readData();
-  if (!db.returns) db.returns = [];
-  res.json({ success: true, count: db.returns.length, data: db.returns });
+  const returns = db.returns || [];
+
+  if (req.user.role === 'admin') {
+    return res.json({ success: true, count: returns.length, data: returns });
+  }
+
+  const customerReturns = returns.filter(r => r.customerEmail && r.customerEmail.toLowerCase() === req.user.email.toLowerCase());
+  res.json({ success: true, count: customerReturns.length, data: customerReturns });
 });
 
-app.post('/api/returns', (req, res) => {
+app.post('/api/returns', authenticateToken, (req, res) => {
   const db = readData();
   if (!db.returns) db.returns = [];
-  const { orderId, reason, notes, items, customerName, customerEmail, customerPhone, refundAmount } = req.body;
+  const { orderId, reason, notes, items, refundAmount } = req.body;
 
   if (!orderId || !reason) {
     return res.status(400).json({ success: false, message: 'Order ID and reason are required' });
   }
 
-  const order = db.orders.find(o => o.id === orderId);
+  const order = (db.orders || []).find(o => o.id === orderId);
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Order not found' });
+  }
+
+  if (req.user.role !== 'admin' && (!order.email || order.email.toLowerCase() !== req.user.email.toLowerCase())) {
+    return res.status(403).json({ success: false, message: 'Access forbidden: you do not own this order' });
+  }
   const newReturn = {
     id: `RET-${Math.floor(1000 + Math.random() * 9000)}`,
     orderId,
@@ -1288,7 +1899,7 @@ app.post('/api/returns', (req, res) => {
   res.status(201).json({ success: true, message: 'Return initiated', data: newReturn });
 });
 
-app.put('/api/returns/:id/status', (req, res) => {
+app.put('/api/returns/:id/status', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   if (!db.returns) db.returns = [];
   const ret = db.returns.find(r => r.id === req.params.id);
@@ -1320,13 +1931,14 @@ app.put('/api/returns/:id/status', (req, res) => {
 // ----------------------------------------------------
 // 7. CUSTOMERS / USERS MANAGEMENT API
 // ----------------------------------------------------
-app.get('/api/customers', (req, res) => {
+app.get('/api/customers', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const customers = (db.users || []).map(u => {
     const userOrders = (db.orders || []).filter(o => o.email.toLowerCase() === u.email.toLowerCase());
     const totalSpent = userOrders.reduce((sum, o) => o.status !== 'Cancelled' ? sum + o.totalAmount : sum, 0);
+    const { password, ...safeUser } = u;
     return {
-      ...u,
+      ...safeUser,
       totalOrders: userOrders.length,
       totalSpent,
       lastOrderDate: userOrders[0]?.createdAt || u.joinedAt || '2026-08-01',
@@ -1337,7 +1949,7 @@ app.get('/api/customers', (req, res) => {
   res.json({ success: true, count: customers.length, data: customers });
 });
 
-app.put('/api/customers/:id/status', (req, res) => {
+app.put('/api/customers/:id/status', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const user = (db.users || []).find(u => u.id === req.params.id);
   if (!user) return res.status(404).json({ success: false, message: 'Customer not found' });
@@ -1367,7 +1979,7 @@ app.get('/api/reviews', (req, res) => {
   res.json({ success: true, count: allReviews.length, data: allReviews });
 });
 
-app.delete('/api/reviews/:id', (req, res) => {
+app.delete('/api/reviews/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   let found = false;
   (db.products || []).forEach(p => {
@@ -1394,7 +2006,7 @@ app.get('/api/settings', (req, res) => {
   res.json({ success: true, data: db.settings });
 });
 
-app.put('/api/settings', (req, res) => {
+app.put('/api/settings', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   db.settings = { ...db.settings, ...req.body };
   writeData(db);
@@ -1404,7 +2016,7 @@ app.put('/api/settings', (req, res) => {
 // ----------------------------------------------------
 // 10. ANALYTICS API (Comprehensive Executive Summary)
 // ----------------------------------------------------
-app.get('/api/analytics', (req, res) => {
+app.get('/api/analytics', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   const totalRevenue = (db.orders || []).reduce((sum, o) => sum + (o.status !== 'Cancelled' ? o.totalAmount : 0), 0);
   const totalOrders = (db.orders || []).length;
@@ -1645,13 +2257,13 @@ const initWhatsAppDefaults = (db) => {
   }
 };
 
-app.get('/api/whatsapp/conversations', (req, res) => {
+app.get('/api/whatsapp/conversations', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   res.json({ success: true, data: db.whatsapp.conversations });
 });
 
-app.post('/api/whatsapp/conversations/:id/messages', (req, res) => {
+app.post('/api/whatsapp/conversations/:id/messages', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   const conv = db.whatsapp.conversations.find(c => c.id === req.params.id);
@@ -1676,13 +2288,13 @@ app.post('/api/whatsapp/conversations/:id/messages', (req, res) => {
   res.json({ success: true, data: conv, message: newMsg });
 });
 
-app.get('/api/whatsapp/automations', (req, res) => {
+app.get('/api/whatsapp/automations', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   res.json({ success: true, data: db.whatsapp.automations });
 });
 
-app.put('/api/whatsapp/automations/:id', (req, res) => {
+app.put('/api/whatsapp/automations/:id', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   const idx = db.whatsapp.automations.findIndex(a => a.id === req.params.id);
@@ -1695,7 +2307,7 @@ app.put('/api/whatsapp/automations/:id', (req, res) => {
   res.json({ success: true, data: db.whatsapp.automations[idx], message: 'Automation updated' });
 });
 
-app.post('/api/whatsapp/automations/:id/test', (req, res) => {
+app.post('/api/whatsapp/automations/:id/test', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   const auto = db.whatsapp.automations.find(a => a.id === req.params.id);
@@ -1714,13 +2326,13 @@ app.post('/api/whatsapp/automations/:id/test', (req, res) => {
   });
 });
 
-app.get('/api/whatsapp/campaigns', (req, res) => {
+app.get('/api/whatsapp/campaigns', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   res.json({ success: true, data: db.whatsapp.campaigns });
 });
 
-app.post('/api/whatsapp/campaigns', (req, res) => {
+app.post('/api/whatsapp/campaigns', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   const newCamp = {
@@ -1740,13 +2352,13 @@ app.post('/api/whatsapp/campaigns', (req, res) => {
   res.json({ success: true, data: newCamp, message: 'Campaign dispatched successfully!' });
 });
 
-app.get('/api/whatsapp/config', (req, res) => {
+app.get('/api/whatsapp/config', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   res.json({ success: true, data: db.whatsapp.config });
 });
 
-app.put('/api/whatsapp/config', (req, res) => {
+app.put('/api/whatsapp/config', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initWhatsAppDefaults(db);
   db.whatsapp.config = { ...db.whatsapp.config, ...req.body };
@@ -2008,13 +2620,13 @@ const initVendorDefaults = (db) => {
   }
 };
 
-app.get('/api/vendors', (req, res) => {
+app.get('/api/vendors', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   res.json({ success: true, data: db.vendors });
 });
 
-app.post('/api/vendors', (req, res) => {
+app.post('/api/vendors', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   const newVendor = {
@@ -2038,13 +2650,13 @@ app.post('/api/vendors', (req, res) => {
   res.json({ success: true, data: newVendor, message: 'Vendor added successfully' });
 });
 
-app.get('/api/vendors/inward', (req, res) => {
+app.get('/api/vendors/inward', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   res.json({ success: true, data: db.vendorInward });
 });
 
-app.post('/api/vendors/inward', (req, res) => {
+app.post('/api/vendors/inward', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   const totalAmount = Number(req.body.quantityReceived) * Number(req.body.ratePerUnit);
@@ -2080,13 +2692,13 @@ app.post('/api/vendors/inward', (req, res) => {
   res.json({ success: true, data: newInward, message: 'Inward stock receipt recorded successfully' });
 });
 
-app.get('/api/vendors/payouts', (req, res) => {
+app.get('/api/vendors/payouts', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   res.json({ success: true, data: db.vendorPayouts });
 });
 
-app.post('/api/vendors/payouts', (req, res) => {
+app.post('/api/vendors/payouts', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initVendorDefaults(db);
   const amount = Number(req.body.amount);
@@ -2279,13 +2891,13 @@ const initMarketingDefaults = (db) => {
   }
 };
 
-app.get('/api/marketing/influencers', (req, res) => {
+app.get('/api/marketing/influencers', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   res.json({ success: true, data: db.influencers });
 });
 
-app.post('/api/marketing/influencers', (req, res) => {
+app.post('/api/marketing/influencers', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   const agreedFee = Number(req.body.agreedFee) || 0;
@@ -2319,7 +2931,7 @@ app.post('/api/marketing/influencers', (req, res) => {
   res.json({ success: true, data: newInf, message: 'Influencer collaboration added' });
 });
 
-app.put('/api/marketing/influencers/:id/payout', (req, res) => {
+app.put('/api/marketing/influencers/:id/payout', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   const inf = db.influencers.find(i => i.id === req.params.id);
@@ -2338,13 +2950,13 @@ app.put('/api/marketing/influencers/:id/payout', (req, res) => {
   res.json({ success: true, data: inf, message: 'Influencer payout updated' });
 });
 
-app.get('/api/marketing/expenses', (req, res) => {
+app.get('/api/marketing/expenses', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   res.json({ success: true, data: db.marketingExpenses });
 });
 
-app.post('/api/marketing/expenses', (req, res) => {
+app.post('/api/marketing/expenses', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   const amount = Number(req.body.amount);
@@ -2367,7 +2979,7 @@ app.post('/api/marketing/expenses', (req, res) => {
   res.json({ success: true, data: newExp, message: 'Marketing expense recorded successfully' });
 });
 
-app.get('/api/marketing/summary', (req, res) => {
+app.get('/api/marketing/summary', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
   initMarketingDefaults(db);
   const totalMarketingSpend = (db.marketingExpenses || []).reduce((sum, e) => sum + e.amount, 0);

@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
               <img 
                 src="/logo.png" 
                 alt="BRIVOO" 
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-contain shadow-sm border border-[#C5A059]/30 group-hover:scale-105 transition-transform shrink-0" 
+                className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-contain shadow-sm border border-[#C5A059]/30 group-hover:scale-105 transition-transform shrink-0" 
               />
               <div className="flex flex-col">
                 <span className="font-sans text-xl sm:text-2xl tracking-[0.24em] font-extrabold text-[#1A1A1A] group-hover:text-[#C5A059] transition-colors leading-tight">

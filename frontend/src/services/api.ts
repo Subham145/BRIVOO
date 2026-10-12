@@ -2,10 +2,33 @@ import { Product, Category, Coupon, Offer, Order, SiteSettings, User, Vendor, Ve
 
 const API_BASE = '/api';
 
+async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('brivoo_token') : null;
+  const headers = new Headers(options.headers || {});
+  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const res = await fetch(url, { ...options, headers });
+  if (res.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/register')) {
+    if (typeof window !== 'undefined') {
+      const currentToken = localStorage.getItem('brivoo_token');
+      if (currentToken) {
+        localStorage.removeItem('brivoo_token');
+        localStorage.removeItem('brivoo_user');
+        window.dispatchEvent(new Event('brivoo_auth_cleared'));
+      }
+    }
+  }
+  return res;
+}
+
 export const api = {
   // Auth API
   async login(email: string, password: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await authFetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -14,7 +37,7 @@ export const api = {
   },
 
   async register(name: string, email: string, password: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
-    const res = await fetch(`${API_BASE}/auth/register`, {
+    const res = await authFetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -22,34 +45,46 @@ export const api = {
     return res.json();
   },
 
-  async googleLogin(name?: string, email?: string, avatar?: string, role?: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
-    const res = await fetch(`${API_BASE}/auth/google`, {
+  async googleLogin(idTokenOrCredential?: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
+    const res = await authFetch(`${API_BASE}/auth/google`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        name: name || 'Google User', 
-        email: email || 'google_user@gmail.com',
-        avatar,
-        role
+        idToken: idTokenOrCredential,
+        credential: idTokenOrCredential
       })
     });
     return res.json();
   },
 
-  async forgotPassword(email: string): Promise<{ success: boolean; message?: string; otp?: string }> {
-    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+  async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+    const res = await authFetch(`${API_BASE}/auth/forgot-password`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
     return res.json();
   },
 
   async resetPassword(email: string, otp: string, newPassword: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
-    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+    const res = await authFetch(`${API_BASE}/auth/reset-password`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp, newPassword })
+    });
+    return res.json();
+  },
+
+  // Razorpay Gateway
+  async createRazorpayOrder(items: any[], couponCode?: string): Promise<{ success: boolean; orderId?: string; amount?: number; currency?: string; keyId?: string; calculatedTotal?: number; message?: string }> {
+    const res = await authFetch(`${API_BASE}/payments/razorpay/order`, {
+      method: 'POST',
+      body: JSON.stringify({ items, couponCode })
+    });
+    return res.json();
+  },
+
+  async verifyRazorpayPayment(payload: any): Promise<{ success: boolean; data?: Order; message?: string }> {
+    const res = await authFetch(`${API_BASE}/payments/razorpay/verify`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
     return res.json();
   },
@@ -57,17 +92,17 @@ export const api = {
   // Products
   async getProducts(params?: Record<string, string>): Promise<{ success: boolean; data: Product[] }> {
     const query = params ? '?' + new URLSearchParams(params).toString() : '';
-    const res = await fetch(`${API_BASE}/products${query}`);
+    const res = await authFetch(`${API_BASE}/products${query}`);
     return res.json();
   },
 
   async getProduct(id: string): Promise<{ success: boolean; data: Product }> {
-    const res = await fetch(`${API_BASE}/products/${id}`);
+    const res = await authFetch(`${API_BASE}/products/${id}`);
     return res.json();
   },
 
   async createProduct(product: Partial<Product>): Promise<{ success: boolean; data: Product; message?: string }> {
-    const res = await fetch(`${API_BASE}/products`, {
+    const res = await authFetch(`${API_BASE}/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(product)
@@ -76,7 +111,7 @@ export const api = {
   },
 
   async bulkCreateProducts(products: Partial<Product>[]): Promise<{ success: boolean; count: number; data: Product[]; message?: string }> {
-    const res = await fetch(`${API_BASE}/products/bulk`, {
+    const res = await authFetch(`${API_BASE}/products/bulk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ products })
@@ -85,7 +120,7 @@ export const api = {
   },
 
   async updateProduct(id: string, product: Partial<Product>): Promise<{ success: boolean; data: Product }> {
-    const res = await fetch(`${API_BASE}/products/${id}`, {
+    const res = await authFetch(`${API_BASE}/products/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(product)
@@ -94,14 +129,14 @@ export const api = {
   },
 
   async deleteProduct(id: string): Promise<{ success: boolean; data: Product }> {
-    const res = await fetch(`${API_BASE}/products/${id}`, {
+    const res = await authFetch(`${API_BASE}/products/${id}`, {
       method: 'DELETE'
     });
     return res.json();
   },
 
   async addReview(id: string, review: { userName: string; rating: number; comment: string }): Promise<{ success: boolean; data: Product }> {
-    const res = await fetch(`${API_BASE}/products/${id}/reviews`, {
+    const res = await authFetch(`${API_BASE}/products/${id}/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(review)
@@ -111,12 +146,12 @@ export const api = {
 
   // Categories & Subcategories
   async getCategories(): Promise<{ success: boolean; data: Category[] }> {
-    const res = await fetch(`${API_BASE}/categories`);
+    const res = await authFetch(`${API_BASE}/categories`);
     return res.json();
   },
 
   async createCategory(cat: { name: string; description?: string }): Promise<{ success: boolean; data: Category }> {
-    const res = await fetch(`${API_BASE}/categories`, {
+    const res = await authFetch(`${API_BASE}/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cat)
@@ -125,14 +160,14 @@ export const api = {
   },
 
   async deleteCategory(id: string): Promise<{ success: boolean; data: Category }> {
-    const res = await fetch(`${API_BASE}/categories/${id}`, {
+    const res = await authFetch(`${API_BASE}/categories/${id}`, {
       method: 'DELETE'
     });
     return res.json();
   },
 
   async createSubcategory(categoryId: string, sub: { name: string; description?: string }): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/categories/${categoryId}/subcategories`, {
+    const res = await authFetch(`${API_BASE}/categories/${categoryId}/subcategories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sub)
@@ -141,7 +176,7 @@ export const api = {
   },
 
   async deleteSubcategory(categoryId: string, subId: string): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/categories/${categoryId}/subcategories/${subId}`, {
+    const res = await authFetch(`${API_BASE}/categories/${categoryId}/subcategories/${subId}`, {
       method: 'DELETE'
     });
     return res.json();
@@ -149,12 +184,12 @@ export const api = {
 
   // Coupons
   async getCoupons(): Promise<{ success: boolean; data: Coupon[] }> {
-    const res = await fetch(`${API_BASE}/coupons`);
+    const res = await authFetch(`${API_BASE}/coupons`);
     return res.json();
   },
 
   async validateCoupon(code: string, cartSubtotal: number): Promise<{ success: boolean; coupon?: Coupon; discount?: number; message?: string }> {
-    const res = await fetch(`${API_BASE}/coupons/validate`, {
+    const res = await authFetch(`${API_BASE}/coupons/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, cartSubtotal })
@@ -163,7 +198,7 @@ export const api = {
   },
 
   async createCoupon(coupon: Partial<Coupon>): Promise<{ success: boolean; data: Coupon }> {
-    const res = await fetch(`${API_BASE}/coupons`, {
+    const res = await authFetch(`${API_BASE}/coupons`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(coupon)
@@ -172,7 +207,7 @@ export const api = {
   },
 
   async deleteCoupon(id: string): Promise<{ success: boolean; data: Coupon }> {
-    const res = await fetch(`${API_BASE}/coupons/${id}`, {
+    const res = await authFetch(`${API_BASE}/coupons/${id}`, {
       method: 'DELETE'
     });
     return res.json();
@@ -180,12 +215,12 @@ export const api = {
 
   // Offers & Deals Campaigns
   async getOffers(): Promise<{ success: boolean; data: Offer[] }> {
-    const res = await fetch(`${API_BASE}/offers`);
+    const res = await authFetch(`${API_BASE}/offers`);
     return res.json();
   },
 
   async createOffer(offer: Partial<Offer>): Promise<{ success: boolean; data: Offer }> {
-    const res = await fetch(`${API_BASE}/offers`, {
+    const res = await authFetch(`${API_BASE}/offers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(offer)
@@ -194,7 +229,7 @@ export const api = {
   },
 
   async updateOffer(id: string, offer: Partial<Offer>): Promise<{ success: boolean; data: Offer }> {
-    const res = await fetch(`${API_BASE}/offers/${id}`, {
+    const res = await authFetch(`${API_BASE}/offers/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(offer)
@@ -203,14 +238,14 @@ export const api = {
   },
 
   async toggleOffer(id: string): Promise<{ success: boolean; data: Offer }> {
-    const res = await fetch(`${API_BASE}/offers/${id}/toggle`, {
+    const res = await authFetch(`${API_BASE}/offers/${id}/toggle`, {
       method: 'PATCH'
     });
     return res.json();
   },
 
   async deleteOffer(id: string): Promise<{ success: boolean; data: Offer }> {
-    const res = await fetch(`${API_BASE}/offers/${id}`, {
+    const res = await authFetch(`${API_BASE}/offers/${id}`, {
       method: 'DELETE'
     });
     return res.json();
@@ -218,12 +253,12 @@ export const api = {
 
   // Orders & Tracking
   async getOrders(): Promise<{ success: boolean; data: Order[] }> {
-    const res = await fetch(`${API_BASE}/orders`);
+    const res = await authFetch(`${API_BASE}/orders`);
     return res.json();
   },
 
   async createOrder(order: any): Promise<{ success: boolean; data: Order; message?: string }> {
-    const res = await fetch(`${API_BASE}/orders`, {
+    const res = await authFetch(`${API_BASE}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order)
@@ -232,7 +267,7 @@ export const api = {
   },
 
   async updateOrderStatus(id: string, status: string): Promise<{ success: boolean; data: Order }> {
-    const res = await fetch(`${API_BASE}/orders/${id}/status`, {
+    const res = await authFetch(`${API_BASE}/orders/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -241,7 +276,7 @@ export const api = {
   },
 
   async updateOrderTracking(id: string, trackingData: { carrier?: string; trackingNumber?: string; estimatedDelivery?: string; status?: string; location?: string; checkpointDescription?: string }): Promise<{ success: boolean; data: Order; message?: string }> {
-    const res = await fetch(`${API_BASE}/orders/${id}/tracking`, {
+    const res = await authFetch(`${API_BASE}/orders/${id}/tracking`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(trackingData)
@@ -250,13 +285,13 @@ export const api = {
   },
 
   async getTracking(query: string): Promise<{ success: boolean; data?: { order: Order; tracking: any; liveTracking?: any }; message?: string }> {
-    const res = await fetch(`${API_BASE}/tracking/${encodeURIComponent(query)}`);
+    const res = await authFetch(`${API_BASE}/tracking/${encodeURIComponent(query)}`);
     return res.json();
   },
 
   // Shiprocket Logistics API
   async getShiprocketStatus(): Promise<ShiprocketStatus> {
-    const res = await fetch(`${API_BASE}/shiprocket/status`);
+    const res = await authFetch(`${API_BASE}/shiprocket/status`);
     return res.json();
   },
 
@@ -267,12 +302,12 @@ export const api = {
       cod: cod ? '1' : '0'
     });
     if (pickupPincode) query.append('pickup_postcode', pickupPincode);
-    const res = await fetch(`${API_BASE}/shiprocket/serviceability?${query.toString()}`);
+    const res = await authFetch(`${API_BASE}/shiprocket/serviceability?${query.toString()}`);
     return res.json();
   },
 
   async dispatchWithShiprocket(orderId: string, courierId?: number): Promise<{ success: boolean; message: string; data?: Order; shiprocket?: any }> {
-    const res = await fetch(`${API_BASE}/shiprocket/orders/${orderId}/dispatch`, {
+    const res = await authFetch(`${API_BASE}/shiprocket/orders/${orderId}/dispatch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ courierId })
@@ -281,7 +316,7 @@ export const api = {
   },
 
   async assignShiprocketAwb(orderId: string, courierId?: number): Promise<{ success: boolean; message?: string; awbCode?: string; courierName?: string; requiresRecharge?: boolean }> {
-    const res = await fetch(`${API_BASE}/shiprocket/orders/${orderId}/assign-awb`, {
+    const res = await authFetch(`${API_BASE}/shiprocket/orders/${orderId}/assign-awb`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ courierId })
@@ -290,22 +325,22 @@ export const api = {
   },
 
   async getShiprocketLabel(orderId: string): Promise<{ success: boolean; labelUrl?: string; message?: string }> {
-    const res = await fetch(`${API_BASE}/shiprocket/orders/${orderId}/label`);
+    const res = await authFetch(`${API_BASE}/shiprocket/orders/${orderId}/label`);
     return res.json();
   },
 
   async getShiprocketInvoice(orderId: string): Promise<{ success: boolean; invoiceUrl?: string; message?: string }> {
-    const res = await fetch(`${API_BASE}/shiprocket/orders/${orderId}/invoice`);
+    const res = await authFetch(`${API_BASE}/shiprocket/orders/${orderId}/invoice`);
     return res.json();
   },
 
   async trackShiprocketAwb(awb: string): Promise<{ success: boolean; data?: any; message?: string }> {
-    const res = await fetch(`${API_BASE}/shiprocket/track/${encodeURIComponent(awb)}`);
+    const res = await authFetch(`${API_BASE}/shiprocket/track/${encodeURIComponent(awb)}`);
     return res.json();
   },
 
   async updateShiprocketSettings(settings: { email?: string; password?: string; channelId?: string; defaultPickupLocation?: string; autoPushToShiprocket?: boolean }): Promise<{ success: boolean; message: string }> {
-    const res = await fetch(`${API_BASE}/shiprocket/settings`, {
+    const res = await authFetch(`${API_BASE}/shiprocket/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings)
@@ -314,7 +349,7 @@ export const api = {
   },
 
   async addShiprocketPickupLocation(locationData: any): Promise<{ success: boolean; message?: string; address?: any }> {
-    const res = await fetch(`${API_BASE}/shiprocket/pickup-location`, {
+    const res = await authFetch(`${API_BASE}/shiprocket/pickup-location`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(locationData)
@@ -324,12 +359,12 @@ export const api = {
 
   // Payments & Financials
   async getPayments(): Promise<{ success: boolean; data: any[]; stats?: any }> {
-    const res = await fetch(`${API_BASE}/payments`);
+    const res = await authFetch(`${API_BASE}/payments`);
     return res.json();
   },
 
   async updatePaymentStatus(id: string, status: string): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/payments/${id}/status`, {
+    const res = await authFetch(`${API_BASE}/payments/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -338,7 +373,7 @@ export const api = {
   },
 
   async refundPayment(id: string, refundAmount?: number, refundReason?: string): Promise<{ success: boolean; message?: string; data: any }> {
-    const res = await fetch(`${API_BASE}/payments/${id}/refund`, {
+    const res = await authFetch(`${API_BASE}/payments/${id}/refund`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refundAmount, refundReason })
@@ -348,12 +383,12 @@ export const api = {
 
   // Returns & Exchanges
   async getReturns(): Promise<{ success: boolean; data: any[] }> {
-    const res = await fetch(`${API_BASE}/returns`);
+    const res = await authFetch(`${API_BASE}/returns`);
     return res.json();
   },
 
   async createReturn(returnData: any): Promise<{ success: boolean; data: any; message?: string }> {
-    const res = await fetch(`${API_BASE}/returns`, {
+    const res = await authFetch(`${API_BASE}/returns`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(returnData)
@@ -362,7 +397,7 @@ export const api = {
   },
 
   async updateReturnStatus(id: string, statusData: { status: string; adminRemark?: string; pickupCarrier?: string; pickupTrackingNumber?: string }): Promise<{ success: boolean; data: any; message?: string }> {
-    const res = await fetch(`${API_BASE}/returns/${id}/status`, {
+    const res = await authFetch(`${API_BASE}/returns/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(statusData)
@@ -372,12 +407,12 @@ export const api = {
 
   // Customers & Users
   async getCustomers(): Promise<{ success: boolean; data: User[] }> {
-    const res = await fetch(`${API_BASE}/customers`);
+    const res = await authFetch(`${API_BASE}/customers`);
     return res.json();
   },
 
   async updateCustomerStatus(id: string, status?: string): Promise<{ success: boolean; data: User }> {
-    const res = await fetch(`${API_BASE}/customers/${id}/status`, {
+    const res = await authFetch(`${API_BASE}/customers/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -387,12 +422,12 @@ export const api = {
 
   // Reviews Moderation
   async getAllReviews(): Promise<{ success: boolean; data: any[] }> {
-    const res = await fetch(`${API_BASE}/reviews`);
+    const res = await authFetch(`${API_BASE}/reviews`);
     return res.json();
   },
 
   async deleteReview(id: string): Promise<{ success: boolean; message?: string }> {
-    const res = await fetch(`${API_BASE}/reviews/${id}`, {
+    const res = await authFetch(`${API_BASE}/reviews/${id}`, {
       method: 'DELETE'
     });
     return res.json();
@@ -400,12 +435,12 @@ export const api = {
 
   // Settings & Analytics
   async getSettings(): Promise<{ success: boolean; data: SiteSettings }> {
-    const res = await fetch(`${API_BASE}/settings`);
+    const res = await authFetch(`${API_BASE}/settings`);
     return res.json();
   },
 
   async updateSettings(settings: Partial<SiteSettings>): Promise<{ success: boolean; data: SiteSettings }> {
-    const res = await fetch(`${API_BASE}/settings`, {
+    const res = await authFetch(`${API_BASE}/settings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings)
@@ -414,18 +449,18 @@ export const api = {
   },
 
   async getAnalytics(): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/analytics`);
+    const res = await authFetch(`${API_BASE}/analytics`);
     return res.json();
   },
 
   // WhatsApp CRM & Bot Automations
   async getWhatsAppConversations(): Promise<{ success: boolean; data: any[] }> {
-    const res = await fetch(`${API_BASE}/whatsapp/conversations`);
+    const res = await authFetch(`${API_BASE}/whatsapp/conversations`);
     return res.json();
   },
 
   async sendWhatsAppMessage(conversationId: string, text: string, sender: string = 'admin'): Promise<{ success: boolean; data: any; message: any }> {
-    const res = await fetch(`${API_BASE}/whatsapp/conversations/${conversationId}/messages`, {
+    const res = await authFetch(`${API_BASE}/whatsapp/conversations/${conversationId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, sender })
@@ -434,12 +469,12 @@ export const api = {
   },
 
   async getWhatsAppAutomations(): Promise<{ success: boolean; data: any[] }> {
-    const res = await fetch(`${API_BASE}/whatsapp/automations`);
+    const res = await authFetch(`${API_BASE}/whatsapp/automations`);
     return res.json();
   },
 
   async updateWhatsAppAutomation(id: string, update: any): Promise<{ success: boolean; data: any; message?: string }> {
-    const res = await fetch(`${API_BASE}/whatsapp/automations/${id}`, {
+    const res = await authFetch(`${API_BASE}/whatsapp/automations/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(update)
@@ -448,7 +483,7 @@ export const api = {
   },
 
   async testWhatsAppAutomation(id: string, phone?: string): Promise<{ success: boolean; message: string; template: string }> {
-    const res = await fetch(`${API_BASE}/whatsapp/automations/${id}/test`, {
+    const res = await authFetch(`${API_BASE}/whatsapp/automations/${id}/test`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
@@ -457,12 +492,12 @@ export const api = {
   },
 
   async getWhatsAppCampaigns(): Promise<{ success: boolean; data: any[] }> {
-    const res = await fetch(`${API_BASE}/whatsapp/campaigns`);
+    const res = await authFetch(`${API_BASE}/whatsapp/campaigns`);
     return res.json();
   },
 
   async sendWhatsAppCampaign(campaignData: { name: string; audience: string; template?: string }): Promise<{ success: boolean; data: any; message: string }> {
-    const res = await fetch(`${API_BASE}/whatsapp/campaigns`, {
+    const res = await authFetch(`${API_BASE}/whatsapp/campaigns`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(campaignData)
@@ -471,12 +506,12 @@ export const api = {
   },
 
   async getWhatsAppConfig(): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/whatsapp/config`);
+    const res = await authFetch(`${API_BASE}/whatsapp/config`);
     return res.json();
   },
 
   async updateWhatsAppConfig(config: any): Promise<{ success: boolean; data: any; message?: string }> {
-    const res = await fetch(`${API_BASE}/whatsapp/config`, {
+    const res = await authFetch(`${API_BASE}/whatsapp/config`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
@@ -488,12 +523,12 @@ export const api = {
   // Vendor Procurement & Inward Stock Ledger
   // ----------------------------------------------------
   async getVendors(): Promise<{ success: boolean; data: Vendor[] }> {
-    const res = await fetch(`${API_BASE}/vendors`);
+    const res = await authFetch(`${API_BASE}/vendors`);
     return res.json();
   },
 
   async createVendor(vendor: Partial<Vendor>): Promise<{ success: boolean; data: Vendor; message: string }> {
-    const res = await fetch(`${API_BASE}/vendors`, {
+    const res = await authFetch(`${API_BASE}/vendors`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vendor)
@@ -502,12 +537,12 @@ export const api = {
   },
 
   async getVendorInward(): Promise<{ success: boolean; data: VendorInwardRecord[] }> {
-    const res = await fetch(`${API_BASE}/vendors/inward`);
+    const res = await authFetch(`${API_BASE}/vendors/inward`);
     return res.json();
   },
 
   async createVendorInward(record: Partial<VendorInwardRecord>): Promise<{ success: boolean; data: VendorInwardRecord; message: string }> {
-    const res = await fetch(`${API_BASE}/vendors/inward`, {
+    const res = await authFetch(`${API_BASE}/vendors/inward`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(record)
@@ -516,12 +551,12 @@ export const api = {
   },
 
   async getVendorPayouts(): Promise<{ success: boolean; data: VendorPayoutRecord[] }> {
-    const res = await fetch(`${API_BASE}/vendors/payouts`);
+    const res = await authFetch(`${API_BASE}/vendors/payouts`);
     return res.json();
   },
 
   async createVendorPayout(payout: Partial<VendorPayoutRecord>): Promise<{ success: boolean; data: VendorPayoutRecord; message: string }> {
-    const res = await fetch(`${API_BASE}/vendors/payouts`, {
+    const res = await authFetch(`${API_BASE}/vendors/payouts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payout)
@@ -533,12 +568,12 @@ export const api = {
   // Influencer Collabs & Marketing Spend
   // ----------------------------------------------------
   async getInfluencers(): Promise<{ success: boolean; data: InfluencerCollab[] }> {
-    const res = await fetch(`${API_BASE}/marketing/influencers`);
+    const res = await authFetch(`${API_BASE}/marketing/influencers`);
     return res.json();
   },
 
   async createInfluencer(influencer: Partial<InfluencerCollab>): Promise<{ success: boolean; data: InfluencerCollab; message: string }> {
-    const res = await fetch(`${API_BASE}/marketing/influencers`, {
+    const res = await authFetch(`${API_BASE}/marketing/influencers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(influencer)
@@ -547,7 +582,7 @@ export const api = {
   },
 
   async updateInfluencerPayout(id: string, payoutData: { amount: number; paymentDate?: string; paymentRef?: string }): Promise<{ success: boolean; data: InfluencerCollab; message: string }> {
-    const res = await fetch(`${API_BASE}/marketing/influencers/${id}/payout`, {
+    const res = await authFetch(`${API_BASE}/marketing/influencers/${id}/payout`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payoutData)
@@ -556,12 +591,12 @@ export const api = {
   },
 
   async getMarketingExpenses(): Promise<{ success: boolean; data: MarketingExpense[] }> {
-    const res = await fetch(`${API_BASE}/marketing/expenses`);
+    const res = await authFetch(`${API_BASE}/marketing/expenses`);
     return res.json();
   },
 
   async createMarketingExpense(expense: Partial<MarketingExpense>): Promise<{ success: boolean; data: MarketingExpense; message: string }> {
-    const res = await fetch(`${API_BASE}/marketing/expenses`, {
+    const res = await authFetch(`${API_BASE}/marketing/expenses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(expense)
@@ -570,7 +605,7 @@ export const api = {
   },
 
   async getMarketingSummary(): Promise<{ success: boolean; data: any }> {
-    const res = await fetch(`${API_BASE}/marketing/summary`);
+    const res = await authFetch(`${API_BASE}/marketing/summary`);
     return res.json();
   },
 
@@ -584,7 +619,7 @@ export const api = {
     bodyType?: string;
     currentProductId?: string;
   }): Promise<{ success: boolean; data: AIStylistRecommendation }> {
-    const res = await fetch(`${API_BASE}/ai/ask`, {
+    const res = await authFetch(`${API_BASE}/ai/ask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
@@ -601,7 +636,7 @@ export const api = {
     weight?: string;
     bodyType?: string;
   }): Promise<{ success: boolean; data: AITryOnResult }> {
-    const res = await fetch(`${API_BASE}/ai/try-on`, {
+    const res = await authFetch(`${API_BASE}/ai/try-on`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)

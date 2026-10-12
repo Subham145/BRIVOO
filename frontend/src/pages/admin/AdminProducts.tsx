@@ -523,7 +523,7 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                         <img 
                           src={p.image} 
                           alt={p.title} 
-                          className="w-11 h-13 object-cover rounded-lg bg-[#F3EEE7] border border-[#E6DFC5]" 
+                          className="w-11 h-14 object-cover rounded-lg bg-[#F3EEE7] border border-[#E6DFC5]" 
                         />
                         <div>
                           <p className="font-bold text-[#1A1A1A] text-xs">{p.title}</p>

@@ -67,12 +67,12 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
     setErrorMsg('');
 
     try {
-      const res = await api.googleLogin(name, email, avatar, role);
+      const res = await api.googleLogin();
       if (res.success && res.user && res.token) {
         onSuccess(res.user, res.token);
         onClose();
       } else {
-        setErrorMsg(res.message || 'Google authentication was declined');
+        setErrorMsg(res.message || 'Google authentication requires server-side Google ID token verification (missing GOOGLE_CLIENT_ID configuration)');
       }
     } catch (err) {
       setErrorMsg('Failed to connect to Google Auth service');

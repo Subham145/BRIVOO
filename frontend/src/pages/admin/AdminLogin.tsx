@@ -10,8 +10,8 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onCancel }) => {
-  const [email, setEmail] = useState('sujalrathore970@gmail.com');
-  const [password, setPassword] = useState('Suj@l0504');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
@@ -66,13 +66,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onC
               {errorMsg}
             </div>
           )}
-
-          {/* Preset Demo Credentials helper */}
-          <div className="p-3 bg-amber-50 text-amber-900 rounded-lg border border-amber-200 text-[11px] space-y-1">
-            <p className="font-bold flex items-center"><ShieldCheck className="w-4 h-4 mr-1 text-[#C5A059]" /> Admin Credentials:</p>
-            <p>Email: <code className="font-bold">sujalrathore970@gmail.com</code></p>
-            <p>Password: <code className="font-bold">Suj@l0504</code></p>
-          </div>
 
           <div>
             <label className="block font-bold mb-1 text-[#1A1A1A]">Admin Email *</label>

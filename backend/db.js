@@ -120,7 +120,7 @@ const INITIAL_DATA = {
       id: "usr-admin",
       name: "Sujal Rathore (Admin)",
       email: "sujalrathore970@gmail.com",
-      password: "Suj@l0504", // Hashed in production
+      password: "$2b$10$VsfLs5PhOGjLtaTyDIgddOYnJzZLhMT.gw.wgDTFLQmOhzMVma7cu", // Pre-hashed bcrypt
       role: "admin",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
     },
@@ -128,7 +128,7 @@ const INITIAL_DATA = {
       id: "usr-customer",
       name: "Hanuman Jogi",
       email: "customer@brivoo.com",
-      password: "user123",
+      password: "$2b$10$CcKV9.QCfNkGN4qYzS6YPuyPrn07wqqL.pq9XJuv8fkXQyFab9Zka", // Pre-hashed bcrypt
       role: "customer",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
     }

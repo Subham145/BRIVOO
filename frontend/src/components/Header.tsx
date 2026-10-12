@@ -108,18 +108,18 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Brand Logo */}
           <div 
             onClick={() => setActiveTab('home')} 
-            className="cursor-pointer flex items-center space-x-2.5 sm:space-x-3 group py-0.5 relative select-none"
+            className="cursor-pointer flex items-center space-x-2 sm:space-x-2.5 group py-0.5 relative select-none"
           >
             <img 
               src="/logo.png" 
               alt="BRIVOO Fashion" 
-              className="w-13 h-13 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] rounded-full object-contain shadow-xs transition-transform duration-300 group-hover:scale-105 border border-[#C5A059]/30 shrink-0" 
+              className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full object-contain shadow-xs transition-transform duration-300 group-hover:scale-105 border border-[#C5A059]/30 shrink-0" 
             />
             <div className="flex flex-col">
-              <span className="font-sans text-[18px] sm:text-[22px] md:text-[24px] tracking-[0.24em] font-black text-stone-900 group-hover:text-[#C5A059] transition-colors leading-tight">
+              <span className="font-sans text-base sm:text-lg md:text-xl tracking-[0.2em] sm:tracking-[0.22em] font-black text-stone-900 group-hover:text-[#C5A059] transition-colors leading-tight">
                 BRIVOO
               </span>
-              <span className="text-[7px] sm:text-[8px] md:text-[8.5px] tracking-[0.38em] text-[#B58A44] uppercase font-extrabold mt-0.5 leading-none">
+              <span className="text-[6.5px] sm:text-[7.5px] md:text-[8px] tracking-[0.3em] text-[#B58A44] uppercase font-extrabold mt-0.5 leading-none">
                 HAUTE ATELIER
               </span>
             </div>
@@ -308,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="p-4 sm:p-5 border-b border-[#E6DFC5] flex items-center justify-between bg-[#F7F3EE]">
                 <div className="flex items-center space-x-3">
-                  <img src="/logo.png" alt="BRIVOO" className="w-12 h-12 rounded-full object-contain border border-[#C5A059]/30 shrink-0" />
+                  <img src="/logo.png" alt="BRIVOO" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain border border-[#C5A059]/30 shrink-0" />
                   <div>
                     <span className="font-sans text-lg font-black tracking-[0.25em] text-stone-900 block leading-none">BRIVOO</span>
                     <span className="text-[7.5px] font-extrabold uppercase text-[#B58A44] tracking-widest block mt-0.5">

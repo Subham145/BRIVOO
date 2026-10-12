@@ -1,17 +1,16 @@
 /**
  * Shiprocket Logistics Integration Service for BRIVOO
- * Credentials: brivo0504@gmail.com
- * Custom Channel: brivoo (CUSTOM) (ID: 8083356)
- * Primary Pickup: BRIVOO Atelier Mumbai (400050)
+ * Configuration via environment variables:
+ * SHIPROCKET_EMAIL, SHIPROCKET_PASSWORD, SHIPROCKET_CHANNEL_ID, SHIPROCKET_PICKUP_LOCATION
  */
 
 const SHIPROCKET_BASE_URL = 'https://apiv2.shiprocket.in/v1/external';
 
 class ShiprocketService {
   constructor() {
-    this.email = process.env.SHIPROCKET_EMAIL || 'brivo0504@gmail.com';
-    this.password = process.env.SHIPROCKET_PASSWORD || 'SflMA^8rx9NF7vbtnxCNvyTDCIv#WvIg';
-    this.channelId = process.env.SHIPROCKET_CHANNEL_ID || '8083356';
+    this.email = process.env.SHIPROCKET_EMAIL || null;
+    this.password = process.env.SHIPROCKET_PASSWORD || null;
+    this.channelId = process.env.SHIPROCKET_CHANNEL_ID || null;
     this.defaultPickupLocation = process.env.SHIPROCKET_PICKUP_LOCATION || 'BRIVOO Atelier Mumbai';
     this.defaultPickupPincode = '400050';
     
@@ -29,6 +28,9 @@ class ShiprocketService {
   }
 
   async getToken(forceRefresh = false) {
+    if (!this.email || !this.password) {
+      throw new Error('Shiprocket credentials are not configured in environment variables (SHIPROCKET_EMAIL, SHIPROCKET_PASSWORD)');
+    }
     const now = Date.now();
     if (!forceRefresh && this.token && this.tokenExpiry && now < this.tokenExpiry) {
       return this.token;
