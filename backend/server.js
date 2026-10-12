@@ -1862,7 +1862,7 @@ app.get('/api/returns', authenticateToken, (req, res) => {
 app.post('/api/returns', authenticateToken, (req, res) => {
   const db = readData();
   if (!db.returns) db.returns = [];
-  const { orderId, reason, notes, items, refundAmount } = req.body;
+  const { orderId, reason, notes, items, refundAmount, customerName, customerEmail, customerPhone } = req.body;
 
   if (!orderId || !reason) {
     return res.status(400).json({ success: false, message: 'Order ID and reason are required' });
