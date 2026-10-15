@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Trash2, ArrowRight, ShoppingBag, Tag, Check, Truck } from 'lucide-react';
-import { CartItem, Coupon } from '../types';
+import { X, Trash2, ArrowRight, ShoppingBag, Tag, Check, Truck, Sparkles } from 'lucide-react';
+import { CartItem, Coupon, SiteSettings } from '../types';
 import { api } from '../services/api';
 
 interface CartDrawerProps {
@@ -11,6 +11,7 @@ interface CartDrawerProps {
   onRemoveItem: (cartItemId: string) => void;
   onProceedToCheckout: (appliedDiscount: number, couponCode: string) => void;
   freeShippingThreshold: number;
+  settings?: SiteSettings;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -20,16 +21,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onProceedToCheckout,
-  freeShippingThreshold
+  freeShippingThreshold,
+  settings
 }) => {
-  if (!isOpen) return null;
-
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
   const [validating, setValidating] = useState(false);
+
+  if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
@@ -231,6 +233,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span className="text-base text-[#1A1A1A] tabular-nums">₹{grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
+
+              {/* Prepaid Online Payment Savings Teaser */}
+              {settings?.prepaidDiscountEnabled !== false && (
+                <div className="bg-emerald-50/90 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-emerald-900 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-[11px] sm:text-xs">
+                      Save extra ₹{settings?.prepaidDiscount ?? 50} on online payment at checkout
+                    </span>
+                  </div>
+                  <span className="text-[9.5px] uppercase font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">
+                    Prepaid
+                  </span>
+                </div>
+              )}
 
               {/* Checkout Action Button */}
               <button

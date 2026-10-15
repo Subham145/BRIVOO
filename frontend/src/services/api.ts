@@ -45,13 +45,17 @@ export const api = {
     return res.json();
   },
 
-  async googleLogin(idTokenOrCredential?: string): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
+  async googleLogin(params?: string | { idToken?: string; credential?: string; email?: string; name?: string; avatar?: string; role?: string }): Promise<{ success: boolean; token?: string; user?: User; message?: string }> {
+    let payload = {};
+    if (typeof params === 'string') {
+      payload = { idToken: params, credential: params };
+    } else if (params && typeof params === 'object') {
+      payload = params;
+    }
     const res = await authFetch(`${API_BASE}/auth/google`, {
       method: 'POST',
-      body: JSON.stringify({ 
-        idToken: idTokenOrCredential,
-        credential: idTokenOrCredential
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
     return res.json();
   },
@@ -253,8 +257,15 @@ export const api = {
 
   // Orders & Tracking
   async getOrders(): Promise<{ success: boolean; data: Order[] }> {
-    const res = await authFetch(`${API_BASE}/orders`);
-    return res.json();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('brivoo_token') : null;
+    if (!token) return { success: false, data: [] };
+    try {
+      const res = await authFetch(`${API_BASE}/orders`);
+      if (!res.ok) return { success: false, data: [] };
+      return await res.json();
+    } catch {
+      return { success: false, data: [] };
+    }
   },
 
   async createOrder(order: any): Promise<{ success: boolean; data: Order; message?: string }> {
@@ -449,8 +460,15 @@ export const api = {
   },
 
   async getAnalytics(): Promise<{ success: boolean; data: any }> {
-    const res = await authFetch(`${API_BASE}/analytics`);
-    return res.json();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('brivoo_token') : null;
+    if (!token) return { success: false, data: null };
+    try {
+      const res = await authFetch(`${API_BASE}/analytics`);
+      if (!res.ok) return { success: false, data: null };
+      return await res.json();
+    } catch {
+      return { success: false, data: null };
+    }
   },
 
   // WhatsApp CRM & Bot Automations

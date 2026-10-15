@@ -24,10 +24,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onReviewSubmitted,
   onOpenAITryOn
 }) => {
-  if (!product) return null;
-
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.name || 'Standard');
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || 'M');
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || 'Standard');
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'M');
   const [quantity, setQuantity] = useState(1);
 
   // Review Form state
@@ -36,6 +34,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [comment, setComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  // Handle Escape key to close modal
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  if (!product) return null;
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,21 +70,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1)
     : '5.0';
 
-  // Handle Escape key to close modal
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md overflow-y-auto p-2 sm:p-4 md:p-8 flex justify-center items-start"
     >
-      <div className="bg-[#FAF7F2] w-full max-w-4xl rounded-2xl sm:rounded-3xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-2 sm:my-8 pb-20 md:pb-0 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#FAF7F2] w-full max-w-4xl rounded-2xl sm:rounded-3xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-2 sm:my-8 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Prominent High-Contrast Close Button */}
         <button 
@@ -225,10 +225,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             {/* Action Buttons */}
             <div className="space-y-2.5 sm:space-y-3 pt-3 sm:pt-4 border-t border-[#E6DFC5]">
-              
-              {/* Virtual AI Try-On Quick Launcher */}
               {onOpenAITryOn && (
                 <button
+                  type="button"
                   onClick={() => onOpenAITryOn(product)}
                   className="w-full bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 hover:from-stone-900 hover:to-stone-800 text-[#E6DFC5] border border-[#C5A059]/60 hover:border-[#C5A059] py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-xs group"
                 >
@@ -237,10 +236,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 </button>
               )}
 
+
               <div className="flex space-x-2 sm:space-x-3">
                 <button
                   onClick={() => onAddToCart(product, selectedColor, selectedSize, quantity)}
-                  disabled={!product.inStock}
+                  disabled={product.inStock === false}
                   className="flex-1 bg-[#141414] hover:bg-[#C5A059] disabled:bg-gray-300 text-white py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl font-bold text-xs uppercase tracking-wider sm:tracking-widest transition-colors flex items-center justify-center space-x-2 shadow-md"
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -262,7 +262,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
               <button
                 onClick={() => onBuyNow(product, selectedColor, selectedSize, quantity)}
-                disabled={!product.inStock}
+                disabled={product.inStock === false}
                 className="w-full bg-[#C5A059] hover:bg-[#A6823C] disabled:bg-gray-300 text-stone-950 font-black py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl text-xs uppercase tracking-wider sm:tracking-widest transition-colors shadow-md"
               >
                 Buy Now (Instant Checkout)
@@ -282,36 +282,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               <RefreshCw className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
               <span>7-Day Atelier Doorstep Return & Exchange</span>
             </div>
-          </div>
-        </div>
-
-        {/* Mobile Sticky Bottom Purchase Bar (Requirement 6) */}
-        <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-xl border-t border-[#E6DFC5] p-3 shadow-[0_-8px_25px_rgba(0,0,0,0.12)] pb-safe flex items-center justify-between gap-2">
-          <div className="min-w-0 pr-1">
-            <span className="text-[10px] text-[#66625D] uppercase tracking-wider block leading-tight">Total Price</span>
-            <span className="font-sans text-base font-black text-stone-900 tabular-nums">
-              ₹{product.price.toLocaleString('en-IN')}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-1.5 shrink-0">
-            <button
-              onClick={() => onAddToCart(product, selectedColor, selectedSize, quantity)}
-              disabled={!product.inStock}
-              className="bg-stone-900 hover:bg-[#C5A059] text-white p-2.5 sm:px-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5 active:scale-95 transition-all shadow-md min-h-[42px]"
-              aria-label="Add to Cart"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#C5A059]" />
-              <span className="hidden xs:inline">Add to Bag</span>
-            </button>
-
-            <button
-              onClick={() => onBuyNow(product, selectedColor, selectedSize, quantity)}
-              disabled={!product.inStock}
-              className="bg-[#C5A059] hover:bg-[#A6823C] text-stone-950 font-black px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider active:scale-95 transition-all shadow-md min-h-[42px]"
-            >
-              Buy Now
-            </button>
           </div>
         </div>
 

@@ -144,6 +144,8 @@ export interface Order {
   items: OrderItem[];
   totalAmount: number;
   discountAmount: number;
+  prepaidDiscount?: number;
+  couponCode?: string | null;
   paymentMethod: string;
   paymentStatus?: 'Completed' | 'Pending' | 'Refunded' | 'Failed';
   paymentRef?: string;
@@ -239,6 +241,11 @@ export interface SiteSettings {
   storePhone?: string;
   currency?: string;
   enableCod?: boolean;
+  prepaidDiscountEnabled?: boolean;
+  prepaidDiscount?: number;
+  prepaidDiscountType?: 'fixed' | 'percentage';
+  codSurchargeEnabled?: boolean;
+  codSurcharge?: number;
   returnWindowDays?: number;
   shiprocketEmail?: string;
   shiprocketChannelId?: string;

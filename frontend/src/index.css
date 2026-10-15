@@ -46,6 +46,35 @@
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
 
+/* Smooth Drawer & Modal Keyframes for Mobile & Desktop */
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-drawer-in {
+  animation: drawerSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal-in {
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Custom Luxury Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

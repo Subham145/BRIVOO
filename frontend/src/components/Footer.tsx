@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Instagram, Facebook, Twitter, Youtube, ArrowRight, Check } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Youtube, ArrowRight, Check, Lock } from 'lucide-react';
 
 interface FooterProps {
   onCategoryClick: (category: string) => void;
   onTrackOrderClick: () => void;
+  onAdminClick?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderClick }) => {
+export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderClick, onAdminClick }) => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [agreed, setAgreed] = useState(true);
@@ -83,6 +84,17 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
               <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Returns & Exchanges</a></li>
               <li><button onClick={onTrackOrderClick} className="hover:text-[#C5A059] font-bold text-[#1A1A1A] py-1">Track Order</button></li>
               <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Size Guide</a></li>
+              {onAdminClick && (
+                <li className="pt-1 border-t border-[#E6DFC5]/60">
+                  <button 
+                    onClick={onAdminClick} 
+                    className="hover:text-[#C5A059] font-bold text-[#8C6D2D] py-1 flex items-center gap-1 transition-colors"
+                  >
+                    <Lock className="w-3 h-3 text-[#C5A059]" />
+                    <span>Admin Portal</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

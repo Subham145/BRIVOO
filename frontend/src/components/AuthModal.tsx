@@ -19,8 +19,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialMode = 'login',
   promptMessage
 }) => {
-  if (!isOpen) return null;
-
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   
@@ -42,6 +40,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  if (!isOpen) return null;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -19,12 +19,22 @@ import {
   Settings as SettingsIcon,
   Truck,
   AlertTriangle,
-  ShieldCheck
+  ShieldCheck,
+  CreditCard,
+  Banknote,
+  Percent,
+  DollarSign,
+  ArrowRight,
+  TrendingDown,
+  TrendingUp,
+  Info,
+  Zap
 } from 'lucide-react';
 
 interface AdminSettingsProps {
   settings: SiteSettings;
   onRefresh: () => void;
+  initialTab?: 'pricing' | 'slider' | 'store' | 'shiprocket';
 }
 
 const PRESET_IMAGES = [
@@ -50,8 +60,8 @@ const PRESET_IMAGES = [
   }
 ];
 
-export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefresh }) => {
-  const [activeTab, setActiveTab] = useState<'slider' | 'store' | 'shiprocket'>('slider');
+export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefresh, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<'pricing' | 'slider' | 'store' | 'shiprocket'>(initialTab || 'pricing');
 
   // General settings
   const [announcement, setAnnouncement] = useState(settings?.announcement || 'FREE SHIPPING ON ALL ORDERS ABOVE ₹1999');
@@ -59,6 +69,14 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
   const [storeEmail, setStoreEmail] = useState(settings?.storeEmail || 'concierge@brivoo.com');
   const [storePhone, setStorePhone] = useState(settings?.storePhone || '+91 8000 554 999');
   const [enableCod, setEnableCod] = useState(settings?.enableCod !== false);
+
+  // Prepaid Payment Discount & COD Surcharge Settings
+  const [prepaidDiscountEnabled, setPrepaidDiscountEnabled] = useState(settings?.prepaidDiscountEnabled !== false);
+  const [prepaidDiscount, setPrepaidDiscount] = useState(settings?.prepaidDiscount?.toString() || '50');
+  const [prepaidDiscountType, setPrepaidDiscountType] = useState<'fixed' | 'percentage'>(settings?.prepaidDiscountType || 'fixed');
+  const [codSurchargeEnabled, setCodSurchargeEnabled] = useState(settings?.codSurchargeEnabled === true);
+  const [codSurcharge, setCodSurcharge] = useState(settings?.codSurcharge?.toString() || '0');
+  const [simulatedPrice, setSimulatedPrice] = useState<number>(1000);
 
   // Shiprocket API Settings
   const [srEmail, setSrEmail] = useState(settings?.shiprocketEmail || 'brivo0504@gmail.com');
@@ -118,7 +136,24 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
         }
       ]);
     }
+
+    if (settings) {
+      if (settings.announcement !== undefined) setAnnouncement(settings.announcement);
+      if (settings.freeShippingThreshold !== undefined) setFreeShippingThreshold(settings.freeShippingThreshold.toString());
+      if (settings.storeEmail !== undefined) setStoreEmail(settings.storeEmail);
+      if (settings.storePhone !== undefined) setStorePhone(settings.storePhone);
+      if (settings.enableCod !== undefined) setEnableCod(settings.enableCod !== false);
+      if (settings.prepaidDiscountEnabled !== undefined) setPrepaidDiscountEnabled(settings.prepaidDiscountEnabled !== false);
+      if (settings.prepaidDiscount !== undefined) setPrepaidDiscount(settings.prepaidDiscount.toString());
+      if (settings.prepaidDiscountType !== undefined) setPrepaidDiscountType(settings.prepaidDiscountType);
+      if (settings.codSurchargeEnabled !== undefined) setCodSurchargeEnabled(settings.codSurchargeEnabled === true);
+      if (settings.codSurcharge !== undefined) setCodSurcharge(settings.codSurcharge.toString());
+    }
   }, [settings]);
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
 
   const currentSlide = slides[selectedSlideIndex] || slides[0];
 
@@ -164,8 +199,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
     setSelectedSlideIndex(Math.max(0, index - 1));
   };
 
-  const handleSaveAll = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveAll = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSaving(true);
     try {
       await api.updateSettings({
@@ -174,6 +209,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
         storeEmail,
         storePhone,
         enableCod,
+        prepaidDiscountEnabled,
+        prepaidDiscount: Number(prepaidDiscount) || 0,
+        prepaidDiscountType,
+        codSurchargeEnabled,
+        codSurcharge: Number(codSurcharge) || 0,
         heroSlides: slides,
         // Also keep primary heroImage synced with first slide
         heroImage: slides[0]?.image || '/images/hero_slide_1.jpg',
@@ -265,7 +305,23 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
         </div>
 
         {/* Tab switch */}
-        <div className="flex items-center bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E6DFC5] text-xs font-semibold">
+        <div className="flex flex-wrap items-center bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E6DFC5] text-xs font-semibold gap-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('pricing')}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 ${
+              activeTab === 'pricing'
+                ? 'bg-[#141414] text-white shadow-sm'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <Banknote className="w-4 h-4 text-[#C5A059]" />
+            <span>Prepaid vs COD Pricing</span>
+            <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-[#C5A059] text-stone-950 uppercase tracking-wider">
+              ₹ Difference
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('slider')}
@@ -276,7 +332,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
             }`}
           >
             <ImageIcon className="w-4 h-4 text-[#C5A059]" />
-            <span>Hero Slider Posters ({slides.length})</span>
+            <span>Hero Slider ({slides.length})</span>
           </button>
 
           <button
@@ -314,9 +370,569 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
         <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl text-xs font-semibold flex items-center justify-between shadow-sm animate-fade-in">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Hero Slider & Settings saved successfully! The storefront has been updated live.</span>
+            <span>Settings saved successfully! The storefront has been updated live.</span>
           </div>
           <span className="text-[11px] font-mono text-emerald-700">Live on Storefront</span>
+        </div>
+      )}
+
+      {/* DEDICATED PREPAID VS COD PRICING & SURCHARGE MANAGER */}
+      {activeTab === 'pricing' && (
+        <div className="space-y-6">
+          {(() => {
+            const currentSimPrice = Number(simulatedPrice) || 1000;
+            const numPrepaidDiscount = Number(prepaidDiscount) || 0;
+            const numCodSurcharge = Number(codSurcharge) || 0;
+
+            const simPrepaidDiscountAmount = prepaidDiscountEnabled 
+              ? (prepaidDiscountType === 'percentage' 
+                  ? Math.round((currentSimPrice * Math.min(100, Math.max(0, numPrepaidDiscount))) / 100) 
+                  : Math.min(numPrepaidDiscount, currentSimPrice))
+              : 0;
+            const simPrepaidFinal = Math.max(0, currentSimPrice - simPrepaidDiscountAmount);
+
+            const simCodFeeAmount = (enableCod && codSurchargeEnabled) ? Math.max(0, numCodSurcharge) : 0;
+            const simCodFinal = currentSimPrice + simCodFeeAmount;
+
+            const simTotalSavings = simPrepaidDiscountAmount + simCodFeeAmount;
+
+            return (
+              <>
+                {/* 1-Click Strategy Presets Bar */}
+                <div className="bg-white p-5 rounded-2xl border border-[#E6DFC5] shadow-xs space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E6DFC5] pb-3">
+                    <div>
+                      <h3 className="font-bold text-sm text-stone-900 flex items-center gap-1.5">
+                        <Zap className="w-4 h-4 text-[#C5A059]" />
+                        <span>Quick Strategy Presets (1-Click Application)</span>
+                      </h3>
+                      <p className="text-xs text-stone-500">
+                        Choose a proven D2C pricing strategy to automatically set Prepaid discounts & COD fees.
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#8C6D2D] bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 self-start sm:self-auto">
+                      Click to auto-apply rules
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(true);
+                        setPrepaidDiscount('50');
+                        setPrepaidDiscountType('fixed');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(true);
+                        setCodSurcharge('50');
+                      }}
+                      className="p-3 text-left rounded-xl border border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-emerald-950">🌟 Recommended D2C</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-emerald-600 text-white">₹100 Difference</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800 mt-1">Prepaid: <strong>₹50 OFF</strong> | COD: <strong>+₹50 Extra</strong></p>
+                      <p className="text-[10px] text-emerald-700 opacity-80 mt-0.5">Perfect balance of online savings & RTO protection.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(true);
+                        setPrepaidDiscount('100');
+                        setPrepaidDiscountType('fixed');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(true);
+                        setCodSurcharge('80');
+                      }}
+                      className="p-3 text-left rounded-xl border border-[#C5A059]/40 bg-amber-50/50 hover:bg-amber-100/60 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-stone-900">🔥 Aggressive Prepaid</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-amber-700 text-white">₹180 Difference</span>
+                      </div>
+                      <p className="text-[11px] text-stone-700 mt-1">Prepaid: <strong>₹100 OFF</strong> | COD: <strong>+₹80 Extra</strong></p>
+                      <p className="text-[10px] text-stone-500 mt-0.5">Drives 80%+ shoppers straight to UPI and Cards.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(true);
+                        setPrepaidDiscount('5');
+                        setPrepaidDiscountType('percentage');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(true);
+                        setCodSurcharge('60');
+                      }}
+                      className="p-3 text-left rounded-xl border border-stone-200 bg-[#FAF7F2] hover:bg-stone-200/60 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-stone-900">📊 5% Percentage Rule</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-stone-800 text-white">Dynamic %</span>
+                      </div>
+                      <p className="text-[11px] text-stone-700 mt-1">Prepaid: <strong>5% OFF</strong> | COD: <strong>+₹60 Extra</strong></p>
+                      <p className="text-[10px] text-stone-500 mt-0.5">Bigger discounts for larger luxury cart values.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(true);
+                        setPrepaidDiscount('50');
+                        setPrepaidDiscountType('fixed');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(false);
+                        setCodSurcharge('0');
+                      }}
+                      className="p-3 text-left rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-stone-900">💳 Prepaid Discount Only</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-stone-200 text-stone-800">Discount Only</span>
+                      </div>
+                      <p className="text-[11px] text-stone-700 mt-1">Prepaid: <strong>₹50 OFF</strong> | COD: <strong>₹0 Extra</strong></p>
+                      <p className="text-[10px] text-stone-500 mt-0.5">Reward online payers without penalizing COD users.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(false);
+                        setPrepaidDiscount('0');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(true);
+                        setCodSurcharge('75');
+                      }}
+                      className="p-3 text-left rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-stone-900">📦 COD Surcharge Only</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-stone-200 text-stone-800">Fee Only</span>
+                      </div>
+                      <p className="text-[11px] text-stone-700 mt-1">Prepaid: <strong>₹0 OFF</strong> | COD: <strong>+₹75 Extra</strong></p>
+                      <p className="text-[10px] text-stone-500 mt-0.5">Purely covers logistics courier cash collection cost.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPrepaidDiscountEnabled(false);
+                        setPrepaidDiscount('0');
+                        setEnableCod(true);
+                        setCodSurchargeEnabled(false);
+                        setCodSurcharge('0');
+                      }}
+                      className="p-3 text-left rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-xs text-stone-900">⚖️ Flat Equal Pricing</span>
+                        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">Zero Diff</span>
+                      </div>
+                      <p className="text-[11px] text-stone-700 mt-1">Prepaid: <strong>₹0</strong> | COD: <strong>₹0</strong></p>
+                      <p className="text-[10px] text-stone-500 mt-0.5">Same payable amount regardless of payment method.</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* LIVE INTERACTIVE PRICE DIFFERENCE SIMULATOR */}
+                <div className="bg-gradient-to-br from-[#141414] to-stone-900 text-white p-6 rounded-3xl border border-stone-800 shadow-2xl relative overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#C5A059]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                  <div className="relative z-10 space-y-5">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="p-1.5 bg-[#C5A059]/20 text-[#C5A059] rounded-lg border border-[#C5A059]/30">
+                            <Sparkles className="w-4 h-4" />
+                          </span>
+                          <h3 className="font-extrabold text-base tracking-tight text-white">
+                            Live Customer Price Difference Simulator
+                          </h3>
+                        </div>
+                        <p className="text-xs text-stone-400 mt-1">
+                          Test how the price difference behaves in real-time on any product value.
+                        </p>
+                      </div>
+
+                      {/* Test Product Amount Selector */}
+                      <div className="flex items-center space-x-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
+                        <span className="text-xs text-stone-400 pl-2">Sample Product:</span>
+                        <div className="relative w-28">
+                          <span className="absolute left-2.5 top-2 text-stone-400 font-bold text-xs">₹</span>
+                          <input
+                            type="number"
+                            min="100"
+                            step="50"
+                            value={simulatedPrice}
+                            onChange={e => setSimulatedPrice(Number(e.target.value) || 0)}
+                            className="w-full bg-stone-800 text-white font-bold pl-6 pr-2 py-1.5 rounded-lg text-xs focus:outline-none border border-white/10 focus:border-[#C5A059]"
+                          />
+                        </div>
+                        <div className="hidden sm:flex space-x-1">
+                          {[500, 1000, 2000].map(amt => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setSimulatedPrice(amt)}
+                              className={`px-2 py-1 rounded text-[10px] font-bold transition-colors ${
+                                simulatedPrice === amt
+                                  ? 'bg-[#C5A059] text-stone-950 font-black'
+                                  : 'bg-white/10 text-stone-300 hover:bg-white/20'
+                              }`}
+                            >
+                              ₹{amt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Side-by-side Visual Comparison Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                      {/* PREPAID COLUMN (KAM AMOUNT) */}
+                      <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                                💳
+                              </div>
+                              <div>
+                                <h4 className="font-extrabold text-sm text-emerald-300">Online Prepaid</h4>
+                                <p className="text-[10px] text-emerald-400/80">UPI / Card / NetBanking</p>
+                              </div>
+                            </div>
+                            <span className="text-[9.5px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-emerald-950 font-black">
+                              Kam Amount
+                            </span>
+                          </div>
+
+                          <div className="pt-2">
+                            <p className="text-3xl font-extrabold text-white tracking-tight">
+                              ₹{simPrepaidFinal.toLocaleString('en-IN')}
+                            </p>
+                            <p className="text-xs text-emerald-400 font-semibold mt-1">
+                              {simPrepaidDiscountAmount > 0 ? (
+                                <span className="flex items-center gap-1">
+                                  <TrendingDown className="w-3.5 h-3.5" />
+                                  <span>-₹{simPrepaidDiscountAmount} Instant Online Savings</span>
+                                </span>
+                              ) : (
+                                <span className="text-stone-400">Standard Price (₹0 Discount)</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-emerald-900/30 p-2.5 rounded-xl border border-emerald-500/20 text-[11px] text-emerald-300/90 leading-relaxed">
+                          {prepaidDiscountEnabled ? (
+                            <span>Customer pays <strong>₹{simPrepaidDiscountAmount} less</strong> than original item price.</span>
+                          ) : (
+                            <span className="text-stone-400">Prepaid discount is currently disabled.</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* COD COLUMN (ZADA AMOUNT) */}
+                      <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                                📦
+                              </div>
+                              <div>
+                                <h4 className="font-extrabold text-sm text-amber-300">Cash on Delivery</h4>
+                                <p className="text-[10px] text-amber-400/80">Doorstep Cash Payment</p>
+                              </div>
+                            </div>
+                            <span className="text-[9.5px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-amber-950 font-black">
+                              Zada Amount
+                            </span>
+                          </div>
+
+                          <div className="pt-2">
+                            <p className="text-3xl font-extrabold text-white tracking-tight">
+                              ₹{simCodFinal.toLocaleString('en-IN')}
+                            </p>
+                            <p className="text-xs text-amber-400 font-semibold mt-1">
+                              {simCodFeeAmount > 0 ? (
+                                <span className="flex items-center gap-1">
+                                  <TrendingUp className="w-3.5 h-3.5" />
+                                  <span>+₹{simCodFeeAmount} Extra COD Handling Fee</span>
+                                </span>
+                              ) : (
+                                <span className="text-stone-400">Standard Price (₹0 Extra Fee)</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-amber-900/30 p-2.5 rounded-xl border border-amber-500/20 text-[11px] text-amber-300/90 leading-relaxed">
+                          {!enableCod ? (
+                            <span className="text-rose-400 font-bold">COD option is completely disabled for shoppers.</span>
+                          ) : codSurchargeEnabled && simCodFeeAmount > 0 ? (
+                            <span>Customer pays <strong>₹{simCodFeeAmount} extra</strong> for Cash on Delivery service.</span>
+                          ) : (
+                            <span className="text-stone-400">No extra surcharge fee is charged for COD.</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* SUMMARY BENEFIT COLUMN */}
+                      <div className="bg-stone-800/80 border border-[#C5A059]/40 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-extrabold text-sm text-[#C5A059]">Net Benefit to Customer</h4>
+                            <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30">
+                              Conversion Impact
+                            </span>
+                          </div>
+
+                          <div className="pt-2">
+                            <p className="text-3xl font-extrabold text-[#D4AF37] tracking-tight">
+                              ₹{simTotalSavings.toLocaleString('en-IN')}
+                            </p>
+                            <p className="text-xs text-stone-300 mt-1 font-medium">
+                              Cheaper online than COD!
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 text-xs text-stone-300 border-t border-white/10 pt-3">
+                          <div className="flex justify-between">
+                            <span className="text-stone-400">Online Discount:</span>
+                            <span className="text-emerald-400 font-bold">-₹{simPrepaidDiscountAmount}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-stone-400">COD Avoided Fee:</span>
+                            <span className="text-amber-400 font-bold">+₹{simCodFeeAmount}</span>
+                          </div>
+                          <div className="flex justify-between font-extrabold text-[#C5A059] pt-1 border-t border-white/5">
+                            <span>Total Motivation:</span>
+                            <span>Save ₹{simTotalSavings}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* TWO-COLUMN CONFIGURATION FORMS */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* CARD 1: PREPAID SETTINGS (AMOUNT KAM RAKHNA) */}
+                  <div className="bg-white p-6 rounded-2xl border border-[#E6DFC5] shadow-xs space-y-5">
+                    <div className="flex items-center justify-between border-b border-[#E6DFC5] pb-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+                          <TrendingDown className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <h3 className="font-extrabold text-sm text-stone-900">Prepaid Online Discount</h3>
+                          <p className="text-[11px] text-stone-500">Amount kam rakhna hai (Incentive for UPI / Cards)</p>
+                        </div>
+                      </div>
+                      
+                      {/* Master Toggle */}
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={prepaidDiscountEnabled}
+                          onChange={e => setPrepaidDiscountEnabled(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Discount Mode Selector: Fixed vs Percentage */}
+                      <div>
+                        <label className="block text-xs font-bold mb-1.5 text-stone-800">
+                          Discount Calculation Mode
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 bg-[#FAF7F2] p-1 rounded-xl border border-[#E6DFC5]">
+                          <button
+                            type="button"
+                            onClick={() => setPrepaidDiscountType('fixed')}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                              prepaidDiscountType === 'fixed'
+                                ? 'bg-[#141414] text-white shadow-xs'
+                                : 'text-stone-600 hover:text-stone-900'
+                            }`}
+                          >
+                            <span>Fixed Amount (₹)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPrepaidDiscountType('percentage')}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                              prepaidDiscountType === 'percentage'
+                                ? 'bg-[#141414] text-white shadow-xs'
+                                : 'text-stone-600 hover:text-stone-900'
+                            }`}
+                          >
+                            <span>Percentage (%)</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Discount Value */}
+                      <div>
+                        <label className="block text-xs font-bold mb-1 text-stone-800">
+                          {prepaidDiscountType === 'percentage' ? 'Prepaid Discount Percentage (%)' : 'Prepaid Discount Amount (₹)'}
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-3 text-stone-500 font-bold text-xs">
+                            {prepaidDiscountType === 'percentage' ? '%' : '₹'}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            max={prepaidDiscountType === 'percentage' ? 100 : 5000}
+                            value={prepaidDiscount}
+                            onChange={e => setPrepaidDiscount(e.target.value)}
+                            disabled={!prepaidDiscountEnabled}
+                            className={`w-full p-2.5 pl-8 bg-white border border-[#E6DFC5] rounded-xl text-xs font-extrabold focus:outline-none focus:border-[#C5A059] ${
+                              !prepaidDiscountEnabled ? 'opacity-40 cursor-not-allowed bg-stone-100' : ''
+                            }`}
+                          />
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">
+                          {prepaidDiscountType === 'percentage'
+                            ? `Deducts ${prepaidDiscount || 0}% from the subtotal when paying with UPI/Card.`
+                            : `Deducts flat ₹${prepaidDiscount || 0} once per order on online payments.`}
+                        </p>
+                      </div>
+
+                      {/* Customer Checkout Teaser Preview */}
+                      <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1.5">
+                        <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-emerald-600" />
+                          <span>Customer Checkout Preview</span>
+                        </span>
+                        <div className="flex items-center justify-between text-xs font-semibold text-emerald-900">
+                          <span>You save with online payment:</span>
+                          <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px]">
+                            {prepaidDiscountType === 'percentage' ? `${prepaidDiscount}% OFF` : `-₹${prepaidDiscount} OFF`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CARD 2: CASH ON DELIVERY SETTINGS (AMOUNT ZADA RAKHNA / EXTRA FEE) */}
+                  <div className="bg-white p-6 rounded-2xl border border-[#E6DFC5] shadow-xs space-y-5">
+                    <div className="flex items-center justify-between border-b border-[#E6DFC5] pb-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="p-2 bg-amber-100 text-amber-900 rounded-xl">
+                          <TrendingUp className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <h3 className="font-extrabold text-sm text-stone-900">Cash on Delivery (COD) Rules</h3>
+                          <p className="text-[11px] text-stone-500">Amount thoda zada rakhna hai (Extra Handling / Surcharge)</p>
+                        </div>
+                      </div>
+
+                      {/* Master Toggle */}
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={codSurchargeEnabled}
+                          onChange={e => setCodSurchargeEnabled(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Enable/Disable COD Completely */}
+                      <label className="flex items-start space-x-3 p-3 rounded-xl border border-stone-200 bg-[#FAF7F2] cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={enableCod}
+                          onChange={e => setEnableCod(e.target.checked)}
+                          className="w-4 h-4 mt-0.5 text-[#C5A059] rounded focus:ring-[#C5A059]"
+                        />
+                        <div>
+                          <span className="text-xs font-bold text-stone-900 block">Offer Cash on Delivery to Customers</span>
+                          <span className="text-[11px] text-stone-500">Uncheck to disable COD storewide (Strictly Prepaid Online Only).</span>
+                        </div>
+                      </label>
+
+                      {/* COD Surcharge Fee (Zada Amount) */}
+                      <div>
+                        <label className="block text-xs font-bold mb-1 text-stone-800">
+                          COD Surcharge / Extra Handling Fee (₹)
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-3 text-stone-500 font-bold text-xs">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="10"
+                            value={codSurcharge}
+                            onChange={e => setCodSurcharge(e.target.value)}
+                            disabled={!codSurchargeEnabled || !enableCod}
+                            className={`w-full p-2.5 pl-8 bg-white border border-[#E6DFC5] rounded-xl text-xs font-extrabold focus:outline-none focus:border-[#C5A059] ${
+                              !codSurchargeEnabled || !enableCod ? 'opacity-40 cursor-not-allowed bg-stone-100' : ''
+                            }`}
+                          />
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">
+                          Added as an extra fee on top of the subtotal only when Cash on Delivery is selected.
+                        </p>
+                      </div>
+
+                      {/* Customer Checkout COD Badge Preview */}
+                      <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 space-y-1.5">
+                        <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider flex items-center gap-1">
+                          <Info className="w-3 h-3 text-amber-700" />
+                          <span>Customer Checkout Preview</span>
+                        </span>
+                        <div className="flex items-center justify-between text-xs font-semibold text-amber-950">
+                          <span>COD Selection Badge:</span>
+                          <span className="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-bold text-[10px] border border-amber-300">
+                            {Number(codSurcharge) > 0 ? `+₹${codSurcharge} Fee` : 'Standard (₹0 Fee)'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* SAVE BUTTON BANNER */}
+                <div className="bg-white p-5 rounded-2xl border border-[#E6DFC5] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] border border-[#E6DFC5] flex items-center justify-center text-[#C5A059]">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-sm text-stone-900">Apply Pricing Rules Immediately</p>
+                      <p className="text-xs text-stone-500">
+                        Settings are updated instantaneously across Cart Drawer, Checkout Modal, and Order placement.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSaveAll()}
+                    disabled={saving}
+                    className="w-full sm:w-auto bg-[#141414] hover:bg-[#C5A059] text-white hover:text-stone-950 px-8 py-3.5 rounded-xl font-bold uppercase tracking-wider transition-all shadow-lg flex items-center justify-center space-x-2 shrink-0 active:scale-98"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{saving ? 'Saving Rules...' : 'Save Payment Pricing Rules Live'}</span>
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -737,6 +1353,29 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ settings, onRefres
               />
               <span className="font-bold text-stone-900">Enable Cash on Delivery (COD) Option</span>
             </label>
+          </div>
+
+          {/* Prepaid vs COD Pricing Quick Banner */}
+          <div className="bg-[#FAF7F2] p-4 rounded-xl border border-[#E6DFC5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-3">
+              <span className="p-2 bg-[#C5A059]/20 text-[#C5A059] rounded-lg">
+                <Banknote className="w-5 h-5" />
+              </span>
+              <div>
+                <h4 className="font-bold text-xs text-stone-900">Prepaid vs Cash on Delivery (COD) Price Difference</h4>
+                <p className="text-[11px] text-stone-500">
+                  Prepaid: {prepaidDiscountEnabled ? `-${prepaidDiscountType === 'percentage' ? `${prepaidDiscount}%` : `₹${prepaidDiscount}`} OFF` : 'Disabled'} | COD Fee: {codSurchargeEnabled ? `+₹${codSurcharge} Extra` : '₹0 Extra'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('pricing')}
+              className="bg-[#141414] hover:bg-[#C5A059] text-white hover:text-stone-950 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs shrink-0 flex items-center space-x-1"
+            >
+              <span>Manage Pricing Rules & Simulator</span>
+              <span>→</span>
+            </button>
           </div>
 
           <button

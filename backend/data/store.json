@@ -63,7 +63,12 @@
     "shiprocketEmail": "brivo0504@gmail.com",
     "shiprocketChannelId": "8083356",
     "shiprocketPickupLocation": "BRIVOO Atelier Mumbai",
-    "autoPushToShiprocket": false
+    "autoPushToShiprocket": false,
+    "prepaidDiscountEnabled": true,
+    "prepaidDiscount": 50,
+    "prepaidDiscountType": "fixed",
+    "codSurchargeEnabled": true,
+    "codSurcharge": 50
   },
   "categories": [
     {
@@ -361,6 +366,39 @@
   ],
   "products": [
     {
+      "id": "prod-1792053041472",
+      "title": "shirt ",
+      "subtitle": "",
+      "category": "Shirts",
+      "gender": "Men",
+      "price": 1799,
+      "originalPrice": 2499,
+      "tag": "NEW",
+      "image": "/images/linen_resort_shirt.png",
+      "colors": [
+        {
+          "name": "Ivory",
+          "hex": "#F5F2EB"
+        },
+        {
+          "name": "Black",
+          "hex": "#1C1C1C"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 25,
+      "description": "je dedekj",
+      "specs": "100% Premium Fabric. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
       "id": "prod-1",
       "title": "Linen Resort Shirt",
       "subtitle": "Ivory",
@@ -392,7 +430,7 @@
         "XL",
         "XXL"
       ],
-      "stock": 37,
+      "stock": 22,
       "description": "Elevated short-sleeve resort shirt cut from premium breathable linen. Designed with a classic camp collar and a relaxed silhouette for effortless summer elegance.",
       "specs": "100% European Flax Linen. Pre-washed for soft feel. Machine wash cold.",
       "inStock": true,
@@ -446,7 +484,7 @@
         "L",
         "XL"
       ],
-      "stock": 30,
+      "stock": 24,
       "description": "Relaxed oversized button-down shirt featuring dropped shoulders and chest pocket detail. Made from ultra-lightweight organic linen blend.",
       "specs": "80% Linen, 20% Organic Cotton. Dry clean or hand wash cold.",
       "inStock": true,
@@ -597,8 +635,770 @@
       ]
     }
   ],
-  "orders": [],
-  "payments": [],
+  "orders": [
+    {
+      "id": "BRV-46257",
+      "customerName": "Tamper Attacker",
+      "email": "attacker@brivoo.com",
+      "phone": "9876543210",
+      "address": "Hacker Lane, Pune, Maharashtra 411001",
+      "shippingCity": "Pune",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "411001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1899,
+      "discountAmount": 0,
+      "prepaidDiscount": 50,
+      "couponCode": null,
+      "paymentMethod": "UPI",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_022285",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-83754170",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:40:22.285Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791924022285",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:10 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:40:22.285Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:40:22.286Z"
+      }
+    },
+    {
+      "id": "BRV-20566",
+      "customerName": "Test Coupon Prepaid",
+      "email": "test_coupon@brivoo.com",
+      "phone": "9876543210",
+      "address": "789 Luxury Rd, Bangalore, Karnataka 560001",
+      "shippingCity": "Bangalore",
+      "shippingState": "Karnataka",
+      "shippingPincode": "560001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1719,
+      "discountAmount": 180,
+      "prepaidDiscount": 50,
+      "couponCode": "LUXE10",
+      "paymentMethod": "NetBanking",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_022281",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-82200101",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:40:22.281Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791924022281",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:10 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:40:22.281Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:40:22.282Z"
+      }
+    },
+    {
+      "id": "BRV-52418",
+      "customerName": "Test COD User",
+      "email": "test_cod@brivoo.com",
+      "phone": "9876543210",
+      "address": "456 COD St, Delhi, Delhi 110001",
+      "shippingCity": "Delhi",
+      "shippingState": "Delhi",
+      "shippingPincode": "110001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "prepaidDiscount": 0,
+      "couponCode": null,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "Pending",
+      "paymentRef": "TXN_COD_022277",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-40680018",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:40:22.277Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791924022277",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:10 am",
+            "description": "Order confirmed with Cash on Delivery."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:40:22.277Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:40:22.278Z"
+      }
+    },
+    {
+      "id": "BRV-18203",
+      "customerName": "Test Online Multi",
+      "email": "test_multi@brivoo.com",
+      "phone": "9876543210",
+      "address": "123 Test St, Mumbai, Maharashtra 400001",
+      "shippingCity": "Mumbai",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "400001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 2,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        },
+        {
+          "id": "prod-2",
+          "title": "Oversized Linen Shirt",
+          "price": 1899,
+          "quantity": 3,
+          "selectedSize": "L",
+          "selectedColor": "Navy",
+          "image": "/images/oversized_shirt.png"
+        }
+      ],
+      "subtotal": 9295,
+      "deliveryCharge": 0,
+      "totalAmount": 9245,
+      "discountAmount": 0,
+      "prepaidDiscount": 50,
+      "couponCode": null,
+      "paymentMethod": "Card",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_022271",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-55580511",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:40:22.271Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791924022271",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:10 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:40:22.271Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:40:22.272Z"
+      }
+    },
+    {
+      "id": "BRV-62061",
+      "customerName": "Test Online Single",
+      "email": "test_single@brivoo.com",
+      "phone": "9876543210",
+      "address": "123 Test St, Mumbai, Maharashtra 400001",
+      "shippingCity": "Mumbai",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "400001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1899,
+      "discountAmount": 0,
+      "prepaidDiscount": 50,
+      "couponCode": null,
+      "paymentMethod": "UPI",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_022256",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-30529103",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:40:22.256Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791924022256",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:10 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:40:22.266Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:40:22.268Z"
+      }
+    },
+    {
+      "id": "BRV-47964",
+      "customerName": "Tamper Attacker",
+      "email": "attacker@brivoo.com",
+      "phone": "9876543210",
+      "address": "Hacker Lane, Pune, Maharashtra 411001",
+      "shippingCity": "Pune",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "411001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "couponCode": null,
+      "paymentMethod": "UPI",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_842088",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-53453163",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:37:22.088Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923842088",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:07 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:37:22.088Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:37:22.089Z"
+      }
+    },
+    {
+      "id": "BRV-61188",
+      "customerName": "Test Coupon Prepaid",
+      "email": "test_coupon@brivoo.com",
+      "phone": "9876543210",
+      "address": "789 Luxury Rd, Bangalore, Karnataka 560001",
+      "shippingCity": "Bangalore",
+      "shippingState": "Karnataka",
+      "shippingPincode": "560001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1769,
+      "discountAmount": 180,
+      "couponCode": "LUXE10",
+      "paymentMethod": "NetBanking",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_842079",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-47545824",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:37:22.079Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923842079",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:07 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:37:22.079Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:37:22.082Z"
+      }
+    },
+    {
+      "id": "BRV-96130",
+      "customerName": "Test COD User",
+      "email": "test_cod@brivoo.com",
+      "phone": "9876543210",
+      "address": "456 COD St, Delhi, Delhi 110001",
+      "shippingCity": "Delhi",
+      "shippingState": "Delhi",
+      "shippingPincode": "110001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "couponCode": null,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "Pending",
+      "paymentRef": "TXN_COD_842069",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-40866334",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:37:22.069Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923842069",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:07 am",
+            "description": "Order confirmed with Cash on Delivery."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:37:22.070Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:37:22.072Z"
+      }
+    },
+    {
+      "id": "BRV-60946",
+      "customerName": "Test Online Multi",
+      "email": "test_multi@brivoo.com",
+      "phone": "9876543210",
+      "address": "123 Test St, Mumbai, Maharashtra 400001",
+      "shippingCity": "Mumbai",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "400001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 2,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        },
+        {
+          "id": "prod-2",
+          "title": "Oversized Linen Shirt",
+          "price": 1899,
+          "quantity": 3,
+          "selectedSize": "L",
+          "selectedColor": "Navy",
+          "image": "/images/oversized_shirt.png"
+        }
+      ],
+      "subtotal": 9295,
+      "deliveryCharge": 0,
+      "totalAmount": 9295,
+      "discountAmount": 0,
+      "couponCode": null,
+      "paymentMethod": "Card",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_842049",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-26514528",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:37:22.049Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923842049",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:07 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:37:22.050Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:37:22.058Z"
+      }
+    },
+    {
+      "id": "BRV-34479",
+      "customerName": "Test Online Single",
+      "email": "test_single@brivoo.com",
+      "phone": "9876543210",
+      "address": "123 Test St, Mumbai, Maharashtra 400001",
+      "shippingCity": "Mumbai",
+      "shippingState": "Maharashtra",
+      "shippingPincode": "400001",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "M",
+          "selectedColor": "White",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "couponCode": null,
+      "paymentMethod": "UPI",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_842039",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-45249354",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:37:22.039Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923842039",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:07 am",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:37:22.039Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:37:22.040Z"
+      }
+    },
+    {
+      "id": "BRV-56683",
+      "customerName": "Vikramaditya Rao",
+      "email": "vikramaditya.rao@example.com",
+      "phone": "+91 98111 22334",
+      "address": "Villa 9, Palm Meadows, Whitefield, Bengaluru, Karnataka 560066",
+      "shippingCity": "Bengaluru",
+      "shippingState": "Karnataka",
+      "shippingPincode": "560066",
+      "items": [
+        {
+          "id": "prod-1",
+          "title": "Linen Resort Shirt",
+          "price": 1799,
+          "quantity": 1,
+          "selectedSize": "XL",
+          "selectedColor": "Midnight Black",
+          "image": "/images/linen_resort_shirt.png"
+        }
+      ],
+      "subtotal": 1799,
+      "deliveryCharge": 150,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "couponCode": null,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "Pending",
+      "paymentRef": "TXN_COD_727892",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-42686080",
+        "estimatedDelivery": "2026-10-17",
+        "dispatchedAt": "2026-10-13T20:35:27.892Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1791923727892",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "14 Oct 2026, 02:05 am",
+            "description": "Order confirmed with Cash on Delivery."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-13T20:35:27.905Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-13T20:35:27.907Z"
+      }
+    }
+  ],
+  "payments": [
+    {
+      "id": "PAY-930202",
+      "orderId": "BRV-52726",
+      "customerName": "Test Price Difference",
+      "customerEmail": "test@brivoo.com",
+      "amount": 1899,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_930202",
+      "createdAt": "2026-10-15T08:45:30.202Z"
+    },
+    {
+      "id": "PAY-930198",
+      "orderId": "BRV-51709",
+      "customerName": "Test Price Difference",
+      "customerEmail": "test@brivoo.com",
+      "amount": 1999,
+      "method": "Cash on Delivery",
+      "status": "Pending",
+      "transactionRef": "TXN_COD_930182",
+      "createdAt": "2026-10-15T08:45:30.198Z"
+    },
+    {
+      "id": "PAY-022285",
+      "orderId": "BRV-46257",
+      "customerName": "Tamper Attacker",
+      "customerEmail": "attacker@brivoo.com",
+      "amount": 1899,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_022285",
+      "createdAt": "2026-10-13T20:40:22.285Z"
+    },
+    {
+      "id": "PAY-022281",
+      "orderId": "BRV-20566",
+      "customerName": "Test Coupon Prepaid",
+      "customerEmail": "test_coupon@brivoo.com",
+      "amount": 1719,
+      "method": "NetBanking",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_022281",
+      "createdAt": "2026-10-13T20:40:22.281Z"
+    },
+    {
+      "id": "PAY-022277",
+      "orderId": "BRV-52418",
+      "customerName": "Test COD User",
+      "customerEmail": "test_cod@brivoo.com",
+      "amount": 1949,
+      "method": "Cash on Delivery",
+      "status": "Pending",
+      "transactionRef": "TXN_COD_022277",
+      "createdAt": "2026-10-13T20:40:22.277Z"
+    },
+    {
+      "id": "PAY-022271",
+      "orderId": "BRV-18203",
+      "customerName": "Test Online Multi",
+      "customerEmail": "test_multi@brivoo.com",
+      "amount": 9245,
+      "method": "Card",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_022271",
+      "createdAt": "2026-10-13T20:40:22.271Z"
+    },
+    {
+      "id": "PAY-022266",
+      "orderId": "BRV-62061",
+      "customerName": "Test Online Single",
+      "customerEmail": "test_single@brivoo.com",
+      "amount": 1899,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_022256",
+      "createdAt": "2026-10-13T20:40:22.266Z"
+    },
+    {
+      "id": "PAY-842088",
+      "orderId": "BRV-47964",
+      "customerName": "Tamper Attacker",
+      "customerEmail": "attacker@brivoo.com",
+      "amount": 1949,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_842088",
+      "createdAt": "2026-10-13T20:37:22.088Z"
+    },
+    {
+      "id": "PAY-842079",
+      "orderId": "BRV-61188",
+      "customerName": "Test Coupon Prepaid",
+      "customerEmail": "test_coupon@brivoo.com",
+      "amount": 1769,
+      "method": "NetBanking",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_842079",
+      "createdAt": "2026-10-13T20:37:22.079Z"
+    },
+    {
+      "id": "PAY-842070",
+      "orderId": "BRV-96130",
+      "customerName": "Test COD User",
+      "customerEmail": "test_cod@brivoo.com",
+      "amount": 1949,
+      "method": "Cash on Delivery",
+      "status": "Pending",
+      "transactionRef": "TXN_COD_842069",
+      "createdAt": "2026-10-13T20:37:22.070Z"
+    },
+    {
+      "id": "PAY-842050",
+      "orderId": "BRV-60946",
+      "customerName": "Test Online Multi",
+      "customerEmail": "test_multi@brivoo.com",
+      "amount": 9295,
+      "method": "Card",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_842049",
+      "createdAt": "2026-10-13T20:37:22.050Z"
+    },
+    {
+      "id": "PAY-842039",
+      "orderId": "BRV-34479",
+      "customerName": "Test Online Single",
+      "customerEmail": "test_single@brivoo.com",
+      "amount": 1949,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_842039",
+      "createdAt": "2026-10-13T20:37:22.039Z"
+    },
+    {
+      "id": "PAY-727905",
+      "orderId": "BRV-56683",
+      "customerName": "Vikramaditya Rao",
+      "customerEmail": "vikramaditya.rao@example.com",
+      "amount": 1949,
+      "method": "Cash on Delivery",
+      "status": "Pending",
+      "transactionRef": "TXN_COD_727892",
+      "createdAt": "2026-10-13T20:35:27.905Z"
+    }
+  ],
   "returns": [],
   "users": [
     {
@@ -612,6 +1412,20 @@
       "totalOrders": 0,
       "totalSpent": 0,
       "tier": "Platinum Luxe",
+      "status": "Active",
+      "joinedAt": "2026-01-01"
+    },
+    {
+      "id": "usr-admin-brivoo",
+      "name": "Brivoo Administrator",
+      "email": "admin@brivoo.com",
+      "password": "$2b$10$V3HeMOtI8xKPMW2g6Ni2ge61J4SjaYpdnXpQr6fXbj2tceSNF.PA6",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
+      "phone": "+91 98000 12345",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "tier": "Executive Elite",
       "status": "Active",
       "joinedAt": "2026-01-01"
     }

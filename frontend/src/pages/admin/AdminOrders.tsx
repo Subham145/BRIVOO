@@ -285,7 +285,12 @@ export const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, onRefresh, onN
                       <p className="font-bold text-[#1A1A1A]">₹{o.totalAmount.toLocaleString('en-IN')}</p>
                       {o.discountAmount > 0 && (
                         <p className="text-[10px] text-emerald-600 font-semibold">
-                          Disc: -₹{o.discountAmount}
+                          Coupon: -₹{o.discountAmount}
+                        </p>
+                      )}
+                      {Boolean(o.prepaidDiscount && o.prepaidDiscount > 0) && (
+                        <p className="text-[10px] text-teal-700 font-semibold">
+                          Prepaid: -₹{o.prepaidDiscount}
                         </p>
                       )}
                     </td>

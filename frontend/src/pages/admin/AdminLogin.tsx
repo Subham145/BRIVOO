@@ -10,19 +10,18 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onCancel }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('sujalrathore970@gmail.com');
+  const [password, setPassword] = useState('Suj@l0504');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const performLogin = async (loginEmail: string, loginPass: string) => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await api.login(email, password);
+      const res = await api.login(loginEmail, loginPass);
       if (res.success && res.user && res.token) {
         if (res.user.role !== 'admin') {
           setErrorMsg('Access denied. Account is not an Admin user.');
@@ -37,6 +36,17 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onC
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performLogin(email, password);
+  };
+
+  const handleQuickFill = (targetEmail: string, targetPass: string) => {
+    setEmail(targetEmail);
+    setPassword(targetPass);
+    performLogin(targetEmail, targetPass);
   };
 
   return (
@@ -66,6 +76,34 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminLoginSuccess, onC
               {errorMsg}
             </div>
           )}
+
+          {/* Quick 1-Click Login Helper */}
+          <div className="p-3.5 bg-amber-50/80 border border-[#E6DFC5] rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#8C6D2D] flex items-center text-[11px]">
+                <ShieldCheck className="w-3.5 h-3.5 mr-1 text-[#C5A059]" /> Quick Admin Access:
+              </span>
+              <span className="text-[9px] text-[#66625D] font-medium">1-Click Auto Login</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => handleQuickFill('sujalrathore970@gmail.com', 'Suj@l0504')}
+                className="bg-white hover:bg-stone-900 hover:text-white border border-[#C5A059]/50 text-[#1A1A1A] py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all shadow-2xs text-left"
+              >
+                <div className="font-extrabold text-[#C5A059]">Super Admin</div>
+                <div className="text-[9px] opacity-75 truncate">sujalrathore970...</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('admin@brivoo.com', 'admin123')}
+                className="bg-white hover:bg-stone-900 hover:text-white border border-[#C5A059]/50 text-[#1A1A1A] py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all shadow-2xs text-left"
+              >
+                <div className="font-extrabold text-[#C5A059]">Default Admin</div>
+                <div className="text-[9px] opacity-75 truncate">admin@brivoo.com</div>
+              </button>
+            </div>
+          </div>
 
           <div>
             <label className="block font-bold mb-1 text-[#1A1A1A]">Admin Email *</label>

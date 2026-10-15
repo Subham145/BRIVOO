@@ -18,14 +18,14 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
   role = 'customer',
   title = 'Continue to BRIVOO'
 }) => {
-  if (!isOpen) return null;
-
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [customName, setCustomName] = useState('');
   const [customEmail, setCustomEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  if (!isOpen) return null;
 
   const defaultAccounts = role === 'admin' ? [
     {
@@ -67,7 +67,7 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
     setErrorMsg('');
 
     try {
-      const res = await api.googleLogin();
+      const res = await api.googleLogin({ email, name, avatar, role });
       if (res.success && res.user && res.token) {
         onSuccess(res.user, res.token);
         onClose();

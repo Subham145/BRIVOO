@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Product, AIStylistRecommendation, AITryOnResult } from '../types';
+import { Product, AITryOnResult } from '../types';
 import { api } from '../services/api';
 import {
   Sparkles,
@@ -9,12 +9,7 @@ import {
   ShoppingBag,
   CheckCircle2,
   Sliders,
-  ChevronRight,
-  ArrowRight,
   X,
-  Send,
-  Zap,
-  Tag,
   Palette,
   Maximize2,
   Eye,
@@ -26,7 +21,6 @@ import {
   Flame,
   Star,
   Share2,
-  Layers,
   Wand2,
   Maximize,
   CheckCheck,
@@ -51,28 +45,9 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
   onClose,
   products,
   initialProduct,
-  initialMode = 'ask',
   onAddToCart,
   onOpenProductDetail
 }) => {
-  const [activeTab, setActiveTab] = useState<'ask' | 'tryon'>(initialMode);
-
-  // ASK AI STATES
-  const [prompt, setPrompt] = useState('');
-  const [selectedOccasion, setSelectedOccasion] = useState('Resort & Beachside');
-  const [selectedGender, setSelectedGender] = useState<'All' | 'Men' | 'Women'>('All');
-  const [bodyType, setBodyType] = useState('Athletic Fit');
-  const [isAsking, setIsAsking] = useState(false);
-  const [aiRecommendation, setAiRecommendation] = useState<AIStylistRecommendation | null>(null);
-
-  // Chat message history
-  const [chatMessages, setChatMessages] = useState<Array<{
-    sender: 'user' | 'ai';
-    text: string;
-    recommendation?: AIStylistRecommendation;
-    time: string;
-  }>>([]);
-
   // TRY-ON STATES
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || products[0] || null);
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -107,7 +82,6 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
   const [faceOffsetX, setFaceOffsetX] = useState<number>(0); // -30px to +30px
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   // Standing Model Presets
   const modelPresets = [
@@ -175,10 +149,7 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
         setSelectedColor(products[0].colors[0].name);
       }
     }
-    if (initialMode) {
-      setActiveTab(initialMode);
-    }
-  }, [initialProduct, initialMode, products]);
+  }, [initialProduct, products]);
 
   // Cleanup camera stream on close or unmount
   useEffect(() => {
@@ -191,25 +162,6 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
     stopCamera();
     onClose();
   };
-
-  // Occasions list
-  const occasions = [
-    'Resort & Beachside',
-    'Summer Wedding Soirée',
-    'Boardroom Quiet Luxury',
-    'Cocktail & Gala Evening',
-    'Weekend Riviera Brunch',
-    'Art Gallery Opening'
-  ];
-
-  // Quick Prompt Pills
-  const quickPrompts = [
-    'What is the ideal luxury linen ensemble for a beach resort?',
-    'What should I pair with a linen shirt for a summer wedding soirée?',
-    'How do I style a quiet luxury look for an executive meeting?',
-    'Suggest a breathable, sophisticated outfit for warm weather.',
-    'Which tailored trousers best complement a crisp white linen shirt?'
-  ];
 
   // =========================================================================
   // LIVE CAMERA CONTROLS (WEBCAM / SELFIE)
@@ -389,7 +341,7 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
         size: size || selectedSize,
         height: userHeight,
         weight: userWeight,
-        bodyType
+        bodyType: 'Athletic Fit'
       });
 
       setGenerationProgress(55);
@@ -427,59 +379,12 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
     }
   };
 
-  // Trigger synthesis when modal opens in try-on tab
+  // Trigger synthesis when modal opens in try-on mode
   useEffect(() => {
-    if (isOpen && activeTab === 'tryon' && selectedProduct) {
+    if (isOpen && selectedProduct) {
       synthesizeTryOnLook(userImage, selectedProduct, selectedColor, selectedSize, isUserCustomPhoto, faceScale, faceOffsetY, faceOffsetX);
     }
-  }, [isOpen, activeTab, selectedProduct]);
-
-  // Handle Ask AI
-  const handleAskAI = async (queryText?: string) => {
-    const textToQuery = queryText || prompt;
-    if (!textToQuery.trim()) return;
-
-    setIsAsking(true);
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    setChatMessages(prev => [
-      ...prev,
-      { sender: 'user', text: textToQuery, time: now }
-    ]);
-    setPrompt('');
-
-    try {
-      const res = await api.askAI({
-        prompt: textToQuery,
-        occasion: selectedOccasion,
-        gender: selectedGender,
-        bodyType,
-        currentProductId: selectedProduct?.id
-      });
-
-      if (res.success) {
-        setAiRecommendation(res.data);
-        setChatMessages(prev => [
-          ...prev,
-          {
-            sender: 'ai',
-            text: res.data.stylistAdvice,
-            recommendation: res.data,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsAsking(false);
-      setTimeout(() => {
-        if (chatScrollRef.current) {
-          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-        }
-      }, 100);
-    }
-  };
+  }, [isOpen, selectedProduct]);
 
   // Download Generated Photo
   const handleDownload = () => {
@@ -528,326 +433,29 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
           </button>
         </div>
 
-        {/* Master Navigation Tabs */}
-        <div className="bg-white border-b border-stone-200 px-4 sm:px-6 py-2 flex items-center justify-between shrink-0 shadow-2xs">
+        {/* Atelier Mode Header Bar */}
+        <div className="bg-white border-b border-stone-200 px-4 sm:px-6 py-2.5 flex items-center justify-between shrink-0 shadow-2xs">
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                stopCamera();
-                setActiveTab('ask');
-              }}
-              className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all flex items-center space-x-1.5 ${
-                activeTab === 'ask'
-                  ? 'bg-[#141414] text-white shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-              }`}
-            >
-              <Zap className={`w-3.5 h-3.5 ${activeTab === 'ask' ? 'text-[#C5A059]' : ''}`} />
-              <span>Ask AI Stylist</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveTab('tryon');
-                if (selectedProduct) {
-                  synthesizeTryOnLook(userImage, selectedProduct, selectedColor, selectedSize, isUserCustomPhoto, faceScale, faceOffsetY, faceOffsetX);
-                }
-              }}
-              className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all flex items-center space-x-1.5 ${
-                activeTab === 'tryon'
-                  ? 'bg-[#141414] text-white shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-              }`}
-            >
-              <Camera className={`w-3.5 h-3.5 ${activeTab === 'tryon' ? 'text-[#C5A059]' : ''}`} />
+            <div className="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold tracking-wide flex items-center space-x-2 bg-[#141414] text-white shadow-sm">
+              <Camera className="w-3.5 h-3.5 text-[#C5A059]" />
               <span>Virtual AI Try-On</span>
               <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] rounded-full bg-[#C5A059] text-stone-950 font-black">
                 LIVE CAMERA & FACE-SWAP
               </span>
-            </button>
+            </div>
           </div>
 
-          <div className="hidden md:flex items-center space-x-2 text-xs text-stone-500 font-mono">
+          <div className="flex items-center space-x-2 text-xs text-stone-500 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Neural Face-Garment Engine</span>
+            <span className="hidden sm:inline">Neural Face-Garment Engine</span>
+            <span className="sm:hidden">AI Active</span>
           </div>
         </div>
 
         {/* ========================================================================= */}
-        {/* TAB 1: ASK AI STYLIST (DECISION COPILOT)                                   */}
+        {/* VIRTUAL AI TRY-ON (REAL IMAGE SYNTHESIS WITH LIVE CAMERA)                 */}
         {/* ========================================================================= */}
-        {activeTab === 'ask' && (
-          <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-            
-            {/* Left Sidebar: Decision Parameters */}
-            <div className="w-full md:w-80 bg-white border-b md:border-b-0 md:border-r border-stone-200 p-3.5 sm:p-4 max-h-48 md:max-h-none overflow-y-auto space-y-3 sm:space-y-4 shrink-0 text-xs">
-              <div>
-                <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-[#C5A059]" />
-                  <span>Occasion / Dress Code</span>
-                </label>
-                <select
-                  value={selectedOccasion}
-                  onChange={(e) => setSelectedOccasion(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-stone-300 bg-[#FAF8F5] text-stone-800 font-semibold focus:outline-none focus:border-[#C5A059]"
-                >
-                  {occasions.map(occ => (
-                    <option key={occ} value={occ}>{occ}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Department
-                  </label>
-                  <select
-                    value={selectedGender}
-                    onChange={(e) => setSelectedGender(e.target.value as any)}
-                    className="w-full p-2 rounded-lg border border-stone-300 bg-[#FAF8F5] font-medium focus:outline-none focus:border-[#C5A059]"
-                  >
-                    <option value="All">All / Unisex</option>
-                    <option value="Men">Men's Atelier</option>
-                    <option value="Women">Women's Atelier</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Body Profile
-                  </label>
-                  <select
-                    value={bodyType}
-                    onChange={(e) => setBodyType(e.target.value)}
-                    className="w-full p-2 rounded-lg border border-stone-300 bg-[#FAF8F5] font-medium focus:outline-none focus:border-[#C5A059]"
-                  >
-                    <option value="Athletic Fit">Athletic Build</option>
-                    <option value="Slim European">Slim European</option>
-                    <option value="Classic Relaxed">Classic Relaxed</option>
-                    <option value="Broad Sartorial">Broad Sartorial</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Quick Prompts List */}
-              <div>
-                <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-                  <span>Popular Styling Decisions</span>
-                </label>
-                <div className="space-y-1.5">
-                  {quickPrompts.map((q, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleAskAI(q)}
-                      className="w-full text-left p-2.5 rounded-xl bg-stone-50 hover:bg-[#C5A059]/10 hover:border-[#C5A059]/40 border border-stone-200/60 transition-all text-[11px] text-stone-700 hover:text-stone-900 leading-snug flex items-center justify-between group"
-                    >
-                      <span className="line-clamp-2">{q}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-[#C5A059] shrink-0 ml-1" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Try-On Switch Box */}
-              <div className="p-3 bg-gradient-to-br from-stone-900 to-stone-800 text-stone-200 rounded-2xl shadow-sm space-y-2 border border-white/10">
-                <div className="flex items-center space-x-2 text-[#C5A059] font-bold text-xs">
-                  <Camera className="w-4 h-4" />
-                  <span>See How It Looks On You</span>
-                </div>
-                <p className="text-[10.5px] text-stone-300 leading-relaxed">
-                  Apne camera se selfie lein aur dekhein ki ye dress aapke face par kaisi lag rahi hai!
-                </p>
-                <button
-                  onClick={() => {
-                    setActiveTab('tryon');
-                    if (selectedProduct) {
-                      synthesizeTryOnLook(userImage, selectedProduct, selectedColor, selectedSize, isUserCustomPhoto, faceScale, faceOffsetY, faceOffsetX);
-                    }
-                  }}
-                  className="w-full py-1.5 rounded-lg bg-[#C5A059] text-stone-950 font-bold text-[11px] hover:bg-[#d6af63] transition-colors"
-                >
-                  Open Camera & Try-On →
-                </button>
-              </div>
-
-            </div>
-
-            {/* Right Chat Stream */}
-            <div className="flex-1 flex flex-col justify-between overflow-hidden bg-[#FAF8F5]">
-              <div ref={chatScrollRef} className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-5">
-                {chatMessages.length === 0 ? (
-                  <div className="max-w-md mx-auto text-center py-10 space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-white shadow-md mx-auto flex items-center justify-center border border-[#E6DFC5]">
-                      <Sparkles className="w-8 h-8 text-[#C5A059] animate-pulse" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif font-bold text-lg text-stone-900">
-                        Ask Your Personal Atelier AI Stylist
-                      </h3>
-                      <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                        Occasions, color matching, wedding outfits, ya size selection me confusion hai? AI se poochhein aur decisions lein.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  chatMessages.map((msg, mIdx) => (
-                    <div
-                      key={mIdx}
-                      className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} space-y-1.5`}
-                    >
-                      <div className="flex items-center space-x-2 text-[10px] text-stone-400 font-mono px-1">
-                        <span>{msg.sender === 'user' ? 'You' : 'BRIVOO AI Stylist'}</span>
-                        <span>•</span>
-                        <span>{msg.time}</span>
-                      </div>
-
-                      {msg.sender === 'user' ? (
-                        <div className="bg-[#141414] text-white p-3.5 sm:p-4 rounded-2xl rounded-tr-xs max-w-lg text-xs leading-relaxed shadow-sm">
-                          {msg.text}
-                        </div>
-                      ) : (
-                        <div className="bg-white border border-stone-200/90 text-stone-800 p-4 sm:p-5 rounded-2xl rounded-tl-xs max-w-2xl text-xs space-y-4 shadow-sm">
-                          <div className="leading-relaxed font-sans text-stone-800 text-[12.5px]">
-                            {msg.text}
-                          </div>
-
-                          {msg.recommendation && (
-                            <div className="space-y-4 pt-3 border-t border-stone-100">
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200/60">
-                                <div>
-                                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">
-                                    Occasion Compatibility
-                                  </span>
-                                  <div className="flex items-center space-x-2">
-                                    <span className="font-mono font-bold text-base text-emerald-700">
-                                      {msg.recommendation.dressCodeScore}% Match
-                                    </span>
-                                    <span className="text-[11px] text-stone-600">
-                                      ({msg.recommendation.occasion})
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">
-                                    Color Palette
-                                  </span>
-                                  <div className="flex items-center space-x-2">
-                                    {msg.recommendation.colorPalette.map((col, cIdx) => (
-                                      <div key={cIdx} className="flex items-center space-x-1" title={col.name}>
-                                        <span 
-                                          className="w-4 h-4 rounded-full border border-stone-300 shadow-2xs" 
-                                          style={{ backgroundColor: col.hex }} 
-                                        />
-                                        <span className="text-[10px] text-stone-600 font-medium">{col.name}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {msg.recommendation.recommendedProducts && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  {msg.recommendation.recommendedProducts.map((prod) => (
-                                    <div
-                                      key={prod.id}
-                                      className="bg-white rounded-xl border border-stone-200 p-2.5 flex space-x-3 hover:border-[#C5A059] transition-all shadow-2xs group"
-                                    >
-                                      <img
-                                        src={prod.image}
-                                        alt={prod.title}
-                                        className="w-16 h-20 object-cover rounded-lg shrink-0 cursor-pointer"
-                                        onClick={() => onOpenProductDetail(prod)}
-                                      />
-                                      <div className="flex-1 flex flex-col justify-between py-0.5">
-                                        <div>
-                                          <h4 
-                                            onClick={() => onOpenProductDetail(prod)}
-                                            className="font-bold text-[11.5px] text-stone-900 group-hover:text-[#C5A059] transition-colors cursor-pointer line-clamp-1"
-                                          >
-                                            {prod.title}
-                                          </h4>
-                                          <div className="font-mono font-bold text-xs text-stone-900 mt-0.5">
-                                            ₹{prod.price.toLocaleString('en-IN')}
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center space-x-1.5 pt-1">
-                                          <button
-                                            onClick={() => {
-                                              setSelectedProduct(prod);
-                                              setActiveTab('tryon');
-                                              synthesizeTryOnLook(userImage, prod, prod.colors?.[0]?.name, 'M', isUserCustomPhoto, faceScale, faceOffsetY, faceOffsetX);
-                                            }}
-                                            className="px-2 py-1 rounded-md bg-stone-900 text-white text-[10px] font-bold hover:bg-[#C5A059] transition-colors flex items-center space-x-1"
-                                          >
-                                            <Camera className="w-2.5 h-2.5" />
-                                            <span>Try On</span>
-                                          </button>
-                                          <button
-                                            onClick={() => onAddToCart(prod, prod.colors?.[0]?.name || 'Standard', 'M')}
-                                            className="px-2 py-1 rounded-md bg-[#FAF8F5] hover:bg-[#E6DFC5] border border-stone-300 text-stone-800 text-[10px] font-bold transition-colors"
-                                          >
-                                            Add
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-
-                {isAsking && (
-                  <div className="flex items-center space-x-2 text-stone-400 text-xs font-medium p-3 bg-white rounded-xl border border-stone-200/60 w-fit animate-pulse">
-                    <Sparkles className="w-4 h-4 text-[#C5A059] animate-spin" />
-                    <span>Analyzing body proportion & occasion dress code...</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-3 sm:p-4 bg-white border-t border-stone-200 shrink-0">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleAskAI();
-                  }}
-                  className="flex items-center space-x-2"
-                >
-                  <input
-                    type="text"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ask AI Stylist (e.g. 'Wedding party ke liye linen shirt aur pants suggest karo')..."
-                    className="flex-1 bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#C5A059]"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isAsking || !prompt.trim()}
-                    className="p-2.5 sm:p-3 rounded-xl bg-[#141414] hover:bg-[#C5A059] disabled:bg-stone-300 text-white transition-colors shadow-sm shrink-0"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 2: VIRTUAL AI TRY-ON (REAL IMAGE SYNTHESIS WITH LIVE CAMERA)           */}
-        {/* ========================================================================= */}
-        {activeTab === 'tryon' && (
-          <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden bg-[#F7F4EE]">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden bg-[#F7F4EE]">
             
             {/* Left Main Viewport: The Live Camera OR Synthesized Photo */}
             <div className="w-full lg:flex-1 p-3 sm:p-5 flex flex-col justify-between overflow-visible lg:overflow-y-auto shrink-0">
@@ -1311,7 +919,6 @@ export const AIStylistModal: React.FC<AIStylistModalProps> = ({
             </div>
 
           </div>
-        )}
 
       </div>
     </div>

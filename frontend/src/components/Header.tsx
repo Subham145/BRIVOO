@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Heart, User as UserIcon, ShoppingBag, X, Menu, Lock, LogOut, ChevronDown, Sparkles } from 'lucide-react';
 import { SiteSettings, User } from '../types';
 
@@ -43,6 +44,17 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  // Lock body scroll when mobile drawer or search modal is open
+  useEffect(() => {
+    if (mobileMenuOpen || showSearchModal) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [mobileMenuOpen, showSearchModal]);
+
   // Rotating fashion & atelier craftsmanship perks
   const fashionPerks = [
     { text: settings?.announcement || "COMPLIMENTARY EXPRESS SHIPPING OVER ₹1,999", icon: "✨", code: "LUXE10" },
@@ -52,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
   const [perkIndex, setPerkIndex] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setPerkIndex(prev => (prev + 1) % fashionPerks.length);
     }, 4200);
@@ -171,13 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
               %
             </span>
           </button>
-          <button 
-            onClick={() => onOpenAIStylist && onOpenAIStylist('ask')} 
-            className="group flex items-center space-x-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-[#E6DFC5] hover:text-white border border-[#C5A059]/50 hover:border-[#C5A059] transition-all shadow-xs hover:shadow-md ml-1"
-          >
-            <Sparkles className="w-3 h-3 text-[#C5A059] group-hover:scale-125 transition-transform animate-pulse" />
-            <span className="font-extrabold tracking-widest text-[10px] text-[#C5A059] group-hover:text-white">ASK WITH AI & TRY-ON</span>
-          </button>
+
         </nav>
 
         {/* Right: Utility Icons */}
@@ -240,17 +246,16 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     My Profile & Orders
                   </button>
-                  {currentUser.role === 'admin' && (
-                    <button
-                      onClick={() => {
-                        onOpenAdmin();
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-[#FAF7F2] font-bold text-[#C5A059]"
-                    >
-                      Admin Dashboard
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      onOpenAdmin();
+                      setUserDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-[#FAF7F2] font-bold text-[#C5A059] flex items-center justify-between"
+                  >
+                    <span>Admin Dashboard</span>
+                    <Lock className="w-3 h-3 text-[#C5A059]" />
+                  </button>
                   <button
                     onClick={() => {
                       onLogout();
@@ -273,6 +278,17 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
+          {/* Dedicated Admin Portal Button on Desktop */}
+          <button
+            onClick={onOpenAdmin}
+            className="hidden md:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border border-[#C5A059]/50 bg-stone-900 hover:bg-[#C5A059] text-[#E6DFC5] hover:text-black transition-all text-[9.5px] font-bold tracking-wider uppercase shadow-xs group"
+            title="BRIVOO Command Suite"
+            aria-label="Admin Portal"
+          >
+            <Lock className="w-3 h-3 text-[#C5A059] group-hover:text-black transition-colors" />
+            <span>Admin</span>
+          </button>
+
           {/* Cart Button with Garment Tote Swing Animation */}
           <button 
             onClick={onOpenCart}
@@ -293,20 +309,20 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Luxury Boutique Mobile Menu Overlay Drawer */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
-          {/* Backdrop */}
+      {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] md:hidden">
+          {/* Full Screen Backdrop */}
           <div 
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            className="fixed inset-0 bg-black/65 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
           />
 
-          {/* Slide-over Drawer Panel */}
-          <div className="relative w-[85vw] max-w-xs sm:max-w-sm bg-[#FAF7F2] h-full shadow-2xl border-r border-[#E6DFC5] flex flex-col justify-between z-10 animate-in slide-in-from-left duration-300 overflow-y-auto">
+          {/* Full Height Slide-over Drawer Panel */}
+          <div className="fixed inset-y-0 left-0 w-[85vw] max-w-xs sm:max-w-sm bg-[#FAF7F2] h-full shadow-2xl border-r border-[#E6DFC5] flex flex-col justify-between z-10 animate-drawer-in overflow-y-auto">
             
             {/* Drawer Top Header */}
             <div>
-              <div className="p-4 sm:p-5 border-b border-[#E6DFC5] flex items-center justify-between bg-[#F7F3EE]">
+              <div className="p-4 sm:p-5 border-b border-[#E6DFC5] flex items-center justify-between bg-[#F7F3EE] sticky top-0 z-10">
                 <div className="flex items-center space-x-3">
                   <img src="/logo.png" alt="BRIVOO" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain border border-[#C5A059]/30 shrink-0" />
                   <div>
@@ -318,7 +334,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 -mr-1 rounded-lg text-stone-600 hover:text-stone-950 hover:bg-stone-200/60 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2 -mr-1 rounded-lg text-stone-600 hover:text-stone-950 hover:bg-stone-200/60 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center active:scale-95"
                   aria-label="Close navigation menu"
                 >
                   <X className="w-5 h-5" />
@@ -349,7 +365,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="p-4 space-y-1.5 font-bold text-xs tracking-wider uppercase">
                 <button 
                   onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'home' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
@@ -358,7 +374,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
                 <button 
                   onClick={() => { setActiveTab('shop-all'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'shop-all' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
@@ -367,7 +383,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
                 <button 
                   onClick={() => { setActiveTab('men'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'men' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
@@ -376,7 +392,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
                 <button 
                   onClick={() => { setActiveTab('women'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'women' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
@@ -385,7 +401,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
                 <button 
                   onClick={() => { setActiveTab('collections'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'collections' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
@@ -394,42 +410,52 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
                 <button 
                   onClick={() => { setActiveTab('offers'); setMobileMenuOpen(false); }}
-                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'offers' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
                 >
                   <span className="flex items-center gap-2">
                     <span>Special Offers</span>
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#C5A059] text-stone-950 text-[9px] font-black">%</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-[#C5A059] text-stone-950 text-[9px] font-black">%</span>
                   </span>
                   {activeTab === 'offers' && <span className="text-[#C5A059]">●</span>}
                 </button>
-                <button 
-                  onClick={() => { onOpenAIStylist && onOpenAIStylist('ask'); setMobileMenuOpen(false); }}
-                  className="flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-stone-900 to-stone-800 text-white font-bold shadow-xs border border-[#C5A059]/40 mt-2"
-                >
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#C5A059] animate-pulse" />
-                    <span className="text-[11px]">AI Stylist & Try-On</span>
-                  </span>
-                  <span className="text-[9px] bg-[#C5A059] text-stone-950 px-2 py-0.5 rounded-full font-black">AI FIT</span>
-                </button>
+
               </div>
             </div>
 
             {/* Bottom Actions: Account & Admin Portal */}
-            <div className="p-4 border-t border-[#E6DFC5] space-y-2 bg-[#F7F3EE] pb-safe">
-              <button
-                onClick={() => { onOpenAccount(); setMobileMenuOpen(false); }}
-                className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-white border border-[#E6DFC5] text-stone-900 font-bold flex items-center justify-between text-xs"
-              >
-                <span>{currentUser ? `Signed in as ${currentUser.name}` : 'My Account & Orders'}</span>
-                <span className="text-[#C5A059]">→</span>
-              </button>
+            <div className="p-4 border-t border-[#E6DFC5] space-y-2 bg-[#F7F3EE] pb-safe sticky bottom-0 z-10">
+              {currentUser ? (
+                <>
+                  <button
+                    onClick={() => { onOpenAccount(); setMobileMenuOpen(false); }}
+                    className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-white border border-[#E6DFC5] text-stone-900 font-bold flex items-center justify-between text-xs active:scale-[0.98] transition-transform"
+                  >
+                    <span className="truncate">Signed in as {currentUser.name}</span>
+                    <span className="text-[#C5A059]">→</span>
+                  </button>
+                  <button
+                    onClick={() => { onLogout(); setMobileMenuOpen(false); }}
+                    className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-bold flex items-center justify-between text-xs active:scale-[0.98] transition-transform"
+                  >
+                    <span>Sign Out</span>
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { onOpenAuthModal(); setMobileMenuOpen(false); }}
+                  className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-[#141414] text-white font-bold flex items-center justify-between text-xs active:scale-[0.98] transition-transform shadow-sm"
+                >
+                  <span>Sign In / Create Account</span>
+                  <span className="text-[#C5A059]">→</span>
+                </button>
+              )}
 
               <button 
                 onClick={() => { onOpenAdmin(); setMobileMenuOpen(false); }}
-                className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-stone-900 text-[#D4AF37] font-bold flex items-center justify-between text-xs shadow-xs"
+                className="w-full min-h-[44px] text-left py-2.5 px-3.5 rounded-xl bg-stone-900 text-[#D4AF37] font-bold flex items-center justify-between text-xs shadow-xs active:scale-[0.98] transition-transform"
               >
                 <span>{isAdmin ? "Exit Admin Portal" : "Admin Portal Suite"}</span>
                 <Lock className="w-3.5 h-3.5" />
@@ -437,20 +463,22 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Search Modal */}
-      {showSearchModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-20 px-4">
-          <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-xl p-6 shadow-2xl border border-[#C5A059]/30 relative animate-in fade-in zoom-in duration-200">
+      {showSearchModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4">
+          <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl p-5 sm:p-6 shadow-2xl border border-[#C5A059]/40 relative animate-modal-in">
             <button 
               onClick={() => setShowSearchModal(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-black"
+              className="absolute top-4 right-4 text-stone-500 hover:text-black p-1.5 rounded-lg hover:bg-stone-100 min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors"
+              aria-label="Close search"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="font-sans text-xl font-extrabold text-stone-900 mb-4 tracking-tight">Search BRIVOO Collections</h3>
+            <h3 className="font-sans text-lg sm:text-xl font-extrabold text-stone-900 mb-3 sm:mb-4 tracking-tight">Search BRIVOO Collections</h3>
             <div className="relative">
               <input 
                 type="text" 
@@ -463,10 +491,10 @@ export const Header: React.FC<HeaderProps> = ({
                     setShowSearchModal(false);
                   }
                 }}
-                className="w-full px-4 py-3 pl-11 bg-white border border-[#E6DFC5] rounded-lg focus:outline-none focus:border-[#C5A059] text-sm"
+                className="w-full px-4 py-3 pl-11 bg-white border border-[#E6DFC5] rounded-xl focus:outline-none focus:border-[#C5A059] text-xs sm:text-sm font-medium shadow-2xs"
                 autoFocus
               />
-              <Search className="w-5 h-5 absolute left-3.5 top-3.5 text-gray-400" />
+              <Search className="w-5 h-5 absolute left-3.5 top-3.5 text-stone-400" />
             </div>
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 text-xs text-[#66625D]">
               <span className="text-[11px] sm:text-xs">Popular searches: Linen Shirt, Knit Polo, Tailored Vest</span>
@@ -475,13 +503,14 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveTab('shop-all');
                   setShowSearchModal(false);
                 }}
-                className="w-full sm:w-auto text-center bg-[#141414] text-white px-4 py-2 rounded-lg text-xs uppercase tracking-wider hover:bg-[#C5A059] transition-colors"
+                className="w-full sm:w-auto text-center bg-[#141414] text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-[#C5A059] transition-colors font-bold shadow-sm"
               >
                 Search Catalog →
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

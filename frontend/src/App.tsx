@@ -6,13 +6,13 @@ import { Hero } from './components/Hero';
 import { FeaturedCollection } from './components/FeaturedCollection';
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { OffersBanner } from './components/OffersBanner';
-import { ArtisanStory } from './components/ArtisanStory';
+
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { AuthModal } from './components/AuthModal';
-import { AIStylistModal } from './components/AIStylistModal';
+
 import { Footer } from './components/Footer';
 import { ShopPage } from './pages/ShopPage';
 import { AccountPage } from './pages/AccountPage';
@@ -68,6 +68,18 @@ export function App() {
     return false;
   });
   const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      if (path === '/admin' || hash === '#admin' || search.includes('tab=admin') || search.includes('page=admin')) {
+        return 'admin';
+      }
+      if (path === '/account' || hash === '#account') return 'account';
+      if (path === '/offers' || hash === '#offers') return 'offers';
+      if (path === '/men' || hash === '#men') return 'men';
+      if (path === '/women' || hash === '#women') return 'women';
+    }
     try {
       const saved = localStorage.getItem('brivoo_user');
       if (saved) {
@@ -93,10 +105,7 @@ export function App() {
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
   const [trackOrderId, setTrackOrderId] = useState<string>('');
 
-  // AI Stylist & Virtual Try-On Modal States
-  const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
-  const [aiModalProduct, setAiModalProduct] = useState<Product | null>(null);
-  const [aiModalMode, setAiModalMode] = useState<'ask' | 'tryon'>('ask');
+
 
   // Add Product Quick Launch from Admin Dashboard
   const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false);
@@ -104,23 +113,40 @@ export function App() {
   // Load all initial store data from backend
   const fetchAllData = async () => {
     try {
-      const [prodRes, catRes, coupRes, offRes, ordRes, setRes, anaRes] = await Promise.all([
+      const [prodRes, catRes, coupRes, offRes, setRes] = await Promise.all([
         api.getProducts(),
         api.getCategories(),
         api.getCoupons(),
         api.getOffers(),
-        api.getOrders(),
-        api.getSettings(),
-        api.getAnalytics()
+        api.getSettings()
       ]);
 
-      if (prodRes.success) setProducts(prodRes.data);
-      if (catRes.success) setCategories(catRes.data);
-      if (coupRes.success) setCoupons(coupRes.data);
-      if (offRes && offRes.success) setOffers(offRes.data);
-      if (ordRes.success) setOrders(ordRes.data);
-      if (setRes.success) setSettings(setRes.data);
-      if (anaRes.success) setAnalytics(anaRes.data);
+      if (prodRes?.success) setProducts(prodRes.data);
+      if (catRes?.success) setCategories(catRes.data);
+      if (coupRes?.success) setCoupons(coupRes.data);
+      if (offRes?.success) setOffers(offRes.data);
+      if (setRes?.success) setSettings(setRes.data);
+
+      const token = localStorage.getItem('brivoo_token');
+      if (token) {
+        try {
+          const ordRes = await api.getOrders();
+          if (ordRes?.success) setOrders(ordRes.data);
+        } catch (e) {
+          console.warn('Orders fetch error:', e);
+        }
+
+        const savedUser = localStorage.getItem('brivoo_user');
+        const user = savedUser ? JSON.parse(savedUser) : null;
+        if (user?.role === 'admin') {
+          try {
+            const anaRes = await api.getAnalytics();
+            if (anaRes?.success) setAnalytics(anaRes.data);
+          } catch (e) {
+            console.warn('Analytics fetch error:', e);
+          }
+        }
+      }
     } catch (err) {
       console.error('Error connecting to BRIVOO backend:', err);
     }
@@ -128,7 +154,53 @@ export function App() {
 
   useEffect(() => {
     fetchAllData();
+
+    const handleAuthCleared = () => {
+      setCurrentUser(null);
+      setAuthToken(null);
+      setOrders([]);
+      setAnalytics(null);
+      setIsAdmin(false);
+    };
+    window.addEventListener('brivoo_auth_cleared', handleAuthCleared);
+
+    const handleUrlChange = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      if (path === '/admin' || hash === '#admin' || search.includes('tab=admin') || search.includes('page=admin')) {
+        setActiveTab('admin');
+      } else if (path === '/account' || hash === '#account') {
+        setActiveTab('account');
+      } else if (path === '/offers' || hash === '#offers') {
+        setActiveTab('offers');
+      } else if (path === '/' || hash === '' || hash === '#') {
+        setActiveTab('home');
+      }
+    };
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+
+    return () => {
+      window.removeEventListener('brivoo_auth_cleared', handleAuthCleared);
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
   }, []);
+
+  // Synchronize browser URL bar with activeTab
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (activeTab === 'admin') {
+      if (window.location.pathname !== '/admin' && window.location.hash !== '#admin') {
+        window.history.pushState(null, '', '/admin');
+      }
+    } else if (activeTab === 'home') {
+      if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
+        window.history.pushState(null, '', '/');
+      }
+    }
+  }, [activeTab]);
 
   // Auth Handlers
   const handleLoginSuccess = (user: User, token: string) => {
@@ -142,6 +214,8 @@ export function App() {
       setIsAdmin(true);
       setActiveTab('admin');
     }
+    // Refresh user-specific data (orders, analytics)
+    fetchAllData();
   };
 
   const handleLogout = () => {
@@ -149,6 +223,8 @@ export function App() {
     setAuthToken(null);
     localStorage.removeItem('brivoo_user');
     localStorage.removeItem('brivoo_token');
+    setOrders([]);
+    setAnalytics(null);
     setIsAdmin(false);
     setActiveTab('home');
   };
@@ -163,38 +239,59 @@ export function App() {
     actionCallback();
   };
 
-  // Cart Actions (Gated)
+  // Cart Actions
   const handleAddToCart = (product: Product, color: string, size: string, quantity: number = 1) => {
-    requireAuthForAction(() => {
-      const existingIndex = cartItems.findIndex(
-        item => item.product.id === product.id && item.selectedColor === color && item.selectedSize === size
-      );
+    const existingIndex = cartItems.findIndex(
+      item => item.product.id === product.id && item.selectedColor === color && item.selectedSize === size
+    );
 
-      if (existingIndex > -1) {
-        const updated = [...cartItems];
-        updated[existingIndex].quantity += quantity;
-        setCartItems(updated);
-      } else {
-        const newItem: CartItem = {
-          id: `${product.id}-${color}-${size}-${Date.now()}`,
-          product,
-          selectedColor: color,
-          selectedSize: size,
-          quantity
-        };
-        setCartItems([...cartItems, newItem]);
-      }
-      setIsCartOpen(true);
-      if (selectedProduct) setSelectedProduct(null);
-    }, "Sign in to add items to your shopping cart!");
+    if (existingIndex > -1) {
+      const updated = [...cartItems];
+      updated[existingIndex] = {
+        ...updated[existingIndex],
+        quantity: updated[existingIndex].quantity + quantity
+      };
+      setCartItems(updated);
+    } else {
+      const newItem: CartItem = {
+        id: `${product.id}-${color}-${size}-${Date.now()}`,
+        product,
+        selectedColor: color,
+        selectedSize: size,
+        quantity
+      };
+      setCartItems([...cartItems, newItem]);
+    }
+    setIsCartOpen(true);
+    if (selectedProduct) setSelectedProduct(null);
   };
 
   const handleBuyNow = (product: Product, color: string, size: string, quantity: number = 1) => {
-    requireAuthForAction(() => {
-      handleAddToCart(product, color, size, quantity);
-      setIsCartOpen(false);
-      setIsCheckoutOpen(true);
-    }, "Sign in to complete instant checkout!");
+    const existingIndex = cartItems.findIndex(
+      item => item.product.id === product.id && item.selectedColor === color && item.selectedSize === size
+    );
+
+    let updatedCart: CartItem[];
+    if (existingIndex > -1) {
+      updatedCart = [...cartItems];
+      updatedCart[existingIndex] = {
+        ...updatedCart[existingIndex],
+        quantity: updatedCart[existingIndex].quantity + quantity
+      };
+    } else {
+      const newItem: CartItem = {
+        id: `${product.id}-${color}-${size}-${Date.now()}`,
+        product,
+        selectedColor: color,
+        selectedSize: size,
+        quantity
+      };
+      updatedCart = [...cartItems, newItem];
+    }
+    setCartItems(updatedCart);
+    setSelectedProduct(null);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
   };
 
   const handleUpdateCartQuantity = (cartItemId: string, newQty: number) => {
@@ -209,25 +306,21 @@ export function App() {
     setCartItems(cartItems.filter(item => item.id !== cartItemId));
   };
 
-  // Wishlist Action (Gated)
+  // Wishlist Action
   const handleToggleWishlist = (product: Product) => {
-    requireAuthForAction(() => {
-      if (wishlistIds.includes(product.id)) {
-        setWishlistIds(wishlistIds.filter(id => id !== product.id));
-      } else {
-        setWishlistIds([...wishlistIds, product.id]);
-      }
-    }, "Sign in to save products to your personal wishlist!");
+    if (wishlistIds.includes(product.id)) {
+      setWishlistIds(wishlistIds.filter(id => id !== product.id));
+    } else {
+      setWishlistIds([...wishlistIds, product.id]);
+    }
   };
 
   // Checkout & Order Placement
   const handleProceedToCheckout = (discount: number, code: string) => {
-    requireAuthForAction(() => {
-      setAppliedDiscount(discount);
-      setAppliedCouponCode(code);
-      setIsCartOpen(false);
-      setIsCheckoutOpen(true);
-    }, "Sign in to proceed to secure checkout!");
+    setAppliedDiscount(discount);
+    setAppliedCouponCode(code);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
   };
 
   const handleOrderSuccess = (newOrder: Order) => {
@@ -321,10 +414,19 @@ export function App() {
           />
         )}
 
+        {adminTab === 'pricing' && (
+          <AdminSettings
+            settings={settings!}
+            onRefresh={fetchAllData}
+            initialTab="pricing"
+          />
+        )}
+
         {adminTab === 'payments' && (
           <AdminPayments
             orders={orders}
             onRefresh={fetchAllData}
+            onNavigateToPricing={() => setAdminTab('pricing')}
           />
         )}
 
@@ -412,11 +514,6 @@ export function App() {
         setActiveTab={setActiveTab}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onOpenAIStylist={(mode) => {
-          setAiModalMode(mode || 'ask');
-          setAiModalProduct(selectedProduct || products[0] || null);
-          setIsAIModalOpen(true);
-        }}
       />
 
       {/* Main Body Router Views */}
@@ -449,7 +546,6 @@ export function App() {
               wishlistIds={wishlistIds}
               onViewAll={() => setActiveTab('shop-all')}
             />
-            <ArtisanStory />
           </>
         )}
 
@@ -514,109 +610,72 @@ export function App() {
           else setActiveTab('shop-all');
         }}
         onTrackOrderClick={() => requireAuthForAction(() => setActiveTab('account'), "Sign in to track your orders!")}
+        onAdminClick={() => setActiveTab('admin')}
       />
 
       {/* Global Authentication Modal (Customer Login / Signup / Google Auth / Forgot Password) */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        promptMessage={authPromptMessage}
-      />
+      {isAuthModalOpen && (
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
+          promptMessage={authPromptMessage}
+        />
+      )}
 
       {/* Global Product Detail Modal */}
-      <ProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-        onToggleWishlist={handleToggleWishlist}
-        isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
-        onReviewSubmitted={fetchAllData}
-        onOpenAITryOn={(prod) => {
-          setAiModalProduct(prod);
-          setAiModalMode('tryon');
-          setIsAIModalOpen(true);
-        }}
-      />
+      {selectedProduct && (
+        <ProductModal
+          key={selectedProduct.id}
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
+          onToggleWishlist={handleToggleWishlist}
+          isWishlisted={wishlistIds.includes(selectedProduct.id)}
+          onReviewSubmitted={fetchAllData}
+        />
+      )}
 
       {/* Slide-over Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={handleUpdateCartQuantity}
-        onRemoveItem={handleRemoveCartItem}
-        onProceedToCheckout={handleProceedToCheckout}
-        freeShippingThreshold={settings?.freeShippingThreshold || 1999}
-      />
+      {isCartOpen && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          items={cartItems}
+          onUpdateQuantity={handleUpdateCartQuantity}
+          onRemoveItem={handleRemoveCartItem}
+          onProceedToCheckout={handleProceedToCheckout}
+          freeShippingThreshold={settings?.freeShippingThreshold || 1999}
+          settings={settings || undefined}
+        />
+      )}
 
       {/* Multi-step Checkout Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        items={cartItems}
-        appliedDiscount={appliedDiscount}
-        couponCode={appliedCouponCode}
-        onOrderSuccess={handleOrderSuccess}
-      />
+      {isCheckoutOpen && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          items={cartItems}
+          appliedDiscount={appliedDiscount}
+          couponCode={appliedCouponCode}
+          onOrderSuccess={handleOrderSuccess}
+          settings={settings || undefined}
+        />
+      )}
 
       {/* Order Confirmation Receipt Modal */}
-      <OrderConfirmationModal
-        order={confirmedOrder}
-        onClose={() => setConfirmedOrder(null)}
-        onTrackOrder={(id) => {
-          setTrackOrderId(id);
-          setActiveTab('account');
-        }}
-      />
-
-      {/* Global AI Fashion Stylist & Virtual Try-On Studio Modal */}
-      <AIStylistModal
-        isOpen={isAIModalOpen}
-        onClose={() => setIsAIModalOpen(false)}
-        products={products}
-        initialProduct={aiModalProduct}
-        initialMode={aiModalMode}
-        onAddToCart={handleAddToCart}
-        onOpenProductDetail={(prod) => {
-          setSelectedProduct(prod);
-          setIsAIModalOpen(false);
-        }}
-      />
-
-      {/* Floating AI Stylist & Virtual Try-On Quick Concierge Pill */}
-      {!isAdmin && (
-        <aside aria-label="Floating AI Stylist" className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-30">
-          <button
-            onClick={() => {
-              setAiModalMode('ask');
-              setAiModalProduct(selectedProduct || products[0] || null);
-              setIsAIModalOpen(true);
-            }}
-            className="group relative flex items-center space-x-2.5 bg-[#141414] hover:bg-[#C5A059] text-white hover:text-stone-950 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.35)] border border-[#C5A059]/40 hover:border-[#C5A059] transition-all transform hover:-translate-y-1 active:translate-y-0"
-          >
-            <div className="relative">
-              <span className="w-2 h-2 rounded-full bg-[#C5A059] group-hover:bg-stone-900 absolute -top-0.5 -right-0.5 animate-ping" />
-              <span className="w-2 h-2 rounded-full bg-[#C5A059] group-hover:bg-stone-900 absolute -top-0.5 -right-0.5" />
-              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#C5A059] to-[#E6DFC5] text-stone-950 flex items-center justify-center font-bold shadow-2xs">
-                ✨
-              </div>
-            </div>
-            <div className="text-left">
-              <div className="text-[11px] font-black tracking-wider uppercase flex items-center gap-1.5">
-                <span>Ask AI & Try-On</span>
-                <span className="text-[9px] bg-[#C5A059] group-hover:bg-stone-900 text-stone-950 group-hover:text-white px-1.5 py-0.2 rounded font-mono font-bold">
-                  LIVE
-                </span>
-              </div>
-              <div className="text-[9px] text-stone-400 group-hover:text-stone-800 hidden sm:block font-medium">
-                Styling advice & photo fit
-              </div>
-            </div>
-          </button>
-        </aside>
+      {confirmedOrder && (
+        <OrderConfirmationModal
+          order={confirmedOrder}
+          onClose={() => setConfirmedOrder(null)}
+          onTrackOrder={(id) => {
+            setTrackOrderId(id);
+            setActiveTab('account');
+          }}
+        />
       )}
+
 
     </div>
   );

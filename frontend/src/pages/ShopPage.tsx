@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { SlidersHorizontal, Search, X, Check } from 'lucide-react';
 import { Product, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
@@ -34,6 +35,16 @@ export const ShopPage: React.FC<ShopPageProps> = ({
   const [maxPrice, setMaxPrice] = useState<number>(5000);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useEffect(() => {
+    if (showMobileFilters) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [showMobileFilters]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -238,23 +249,23 @@ export const ShopPage: React.FC<ShopPageProps> = ({
           </aside>
 
           {/* Mobile Filter Slide-Over Drawer */}
-          {showMobileFilters && (
-            <div className="fixed inset-0 z-50 md:hidden flex justify-end">
+          {showMobileFilters && typeof document !== 'undefined' && createPortal(
+            <div className="fixed inset-0 z-[9999] md:hidden">
               <div 
                 onClick={() => setShowMobileFilters(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
+                className="fixed inset-0 bg-black/65 backdrop-blur-xs transition-opacity animate-in fade-in"
               />
-              <div className="relative w-[85vw] max-w-sm bg-[#FAF7F2] h-full shadow-2xl border-l border-[#E6DFC5] flex flex-col justify-between z-10 animate-in slide-in-from-right duration-300">
+              <div className="fixed inset-y-0 right-0 w-[85vw] max-w-sm bg-[#FAF7F2] h-full shadow-2xl border-l border-[#E6DFC5] flex flex-col justify-between z-10 animate-drawer-in">
                 
                 {/* Header */}
-                <div className="p-4 border-b border-[#E6DFC5] flex items-center justify-between bg-white">
+                <div className="p-4 border-b border-[#E6DFC5] flex items-center justify-between bg-white sticky top-0 z-10">
                   <h3 className="font-sans font-bold text-base text-stone-900 flex items-center space-x-2">
                     <SlidersHorizontal className="w-4 h-4 text-[#C5A059]" />
                     <span>Filter Products</span>
                   </h3>
                   <button 
                     onClick={() => setShowMobileFilters(false)}
-                    className="p-2 -mr-1 rounded-lg text-gray-500 hover:text-black hover:bg-stone-100 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                    className="p-2 -mr-1 rounded-lg text-gray-500 hover:text-black hover:bg-stone-100 min-w-[40px] min-h-[40px] flex items-center justify-center active:scale-95 transition-transform"
                     aria-label="Close filters"
                   >
                     <X className="w-5 h-5" />
@@ -271,7 +282,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                         <button
                           key={g}
                           onClick={() => setSelectedGender(g)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
                             selectedGender.toLowerCase() === g.toLowerCase()
                               ? 'bg-[#141414] text-white shadow-sm'
                               : 'bg-white text-[#1A1A1A] border border-[#E6DFC5]'
@@ -321,7 +332,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                         <button
                           key={t}
                           onClick={() => setSelectedTag(t)}
-                          className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                          className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all active:scale-95 ${
                             selectedTag === t
                               ? 'bg-[#C5A059] text-white shadow-sm'
                               : 'bg-white text-gray-700 border border-[#E6DFC5]'
@@ -356,7 +367,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                 </div>
 
                 {/* Mobile Drawer Bottom Actions */}
-                <div className="p-4 border-t border-[#E6DFC5] bg-white flex space-x-3 pb-safe">
+                <div className="p-4 border-t border-[#E6DFC5] bg-white flex space-x-3 pb-safe sticky bottom-0 z-10">
                   <button
                     onClick={() => {
                       setSelectedGender('All');
@@ -365,20 +376,21 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                       setMaxPrice(5000);
                       setSearchQuery('');
                     }}
-                    className="flex-1 py-3 rounded-xl border border-stone-300 text-stone-800 text-xs font-bold uppercase tracking-wider hover:bg-stone-50"
+                    className="flex-1 py-3 rounded-xl border border-stone-300 text-stone-800 text-xs font-bold uppercase tracking-wider hover:bg-stone-50 active:scale-95 transition-transform"
                   >
                     Reset
                   </button>
                   <button
                     onClick={() => setShowMobileFilters(false)}
-                    className="flex-1 py-3 rounded-xl bg-[#141414] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#C5A059]"
+                    className="flex-1 py-3 rounded-xl bg-[#141414] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#C5A059] active:scale-95 transition-transform shadow-sm"
                   >
                     Apply ({filteredProducts.length})
                   </button>
                 </div>
 
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* Right Product Grid: 2 Columns on Mobile, 2 on Tablet, 3 on Desktop */}

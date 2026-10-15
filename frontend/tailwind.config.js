@@ -20,6 +20,18 @@ export default {
           light: "#F7F3EE"
         }
       },
+      screens: {
+        'xs': '375px',
+      },
+      backdropBlur: {
+        'xs': '2px',
+      },
+      boxShadow: {
+        '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+      },
+      borderRadius: {
+        'xs': '2px',
+      },
       fontFamily: {
         serif: ['Plus Jakarta Sans', 'Outfit', 'sans-serif'],
         sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],

@@ -115,7 +115,10 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
           {/* Pricing Totals */}
           <div className="border-t border-[#E6DFC5] pt-3 space-y-1 text-right">
             {order.discountAmount > 0 && (
-              <p className="text-green-700 font-medium">Discount: - ₹{order.discountAmount.toLocaleString('en-IN')}</p>
+              <p className="text-green-700 font-medium">Coupon Discount {order.couponCode ? `(${order.couponCode})` : ''}: - ₹{order.discountAmount.toLocaleString('en-IN')}</p>
+            )}
+            {Boolean(order.prepaidDiscount && order.prepaidDiscount > 0) && (
+              <p className="text-emerald-700 font-semibold">Prepaid Online Discount: - ₹{(order.prepaidDiscount || 0).toLocaleString('en-IN')}</p>
             )}
             <p className="text-base font-bold text-[#1A1A1A]">
               Total Paid: ₹{order.totalAmount.toLocaleString('en-IN')}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, CreditCard, QrCode, Building2, Truck, Check, Lock } from 'lucide-react';
-import { CartItem, Order, User } from '../types';
+import { X, ShieldCheck, CreditCard, QrCode, Building2, Truck, Check, Lock, Sparkles } from 'lucide-react';
+import { CartItem, Order, User, SiteSettings } from '../types';
 import { api } from '../services/api';
 import { GoogleAuthModal } from './GoogleAuthModal';
 
@@ -11,6 +11,7 @@ interface CheckoutModalProps {
   appliedDiscount: number;
   couponCode: string;
   onOrderSuccess: (order: Order) => void;
+  settings?: SiteSettings;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -19,10 +20,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   items,
   appliedDiscount,
   couponCode,
-  onOrderSuccess
+  onOrderSuccess,
+  settings
 }) => {
-  if (!isOpen) return null;
-
   const [step, setStep] = useState<1 | 2>(1);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [customerName, setCustomerName] = useState('Hanuman Jogi');
@@ -38,9 +38,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [placingOrder, setPlacingOrder] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  if (!isOpen) return null;
+
+  // Authoritative dynamic pricing calculations
   const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const shippingFee = subtotal >= 1999 || items.length === 0 ? 0 : 150;
-  const grandTotal = Math.max(0, subtotal - appliedDiscount + shippingFee);
+  const isOnlinePayment = paymentMethod !== 'COD';
+  const prepaidDiscountEnabled = settings?.prepaidDiscountEnabled !== false;
+  const configuredDiscount = Number(settings?.prepaidDiscount ?? 50);
+  const prepaidDiscountType = settings?.prepaidDiscountType || 'fixed';
+  const netSubtotal = Math.max(0, subtotal - appliedDiscount);
+  const prepaidDiscount = (isOnlinePayment && prepaidDiscountEnabled && subtotal > 0)
+    ? (prepaidDiscountType === 'percentage'
+        ? Math.round((netSubtotal * Math.min(100, Math.max(0, configuredDiscount))) / 100)
+        : Math.min(configuredDiscount, netSubtotal))
+    : 0;
+
+  const codSurchargeEnabled = settings?.codSurchargeEnabled === true;
+  const codFee = (!isOnlinePayment && codSurchargeEnabled) ? Math.max(0, Number(settings?.codSurcharge || 0)) : 0;
+
+  const freeThreshold = Number(settings?.freeShippingThreshold) || 1999;
+  const shippingFee = (subtotal - appliedDiscount) >= freeThreshold || items.length === 0 ? 0 : 150;
+  const grandTotal = Math.max(0, subtotal - appliedDiscount - prepaidDiscount + shippingFee + codFee);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,38 +89,72 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       })),
       totalAmount: grandTotal,
       discountAmount: appliedDiscount,
-      paymentMethod
+      prepaidDiscount: isOnlinePayment ? prepaidDiscount : 0,
+      codFee: !isOnlinePayment ? codFee : 0,
+      couponCode: couponCode || null,
+      paymentMethod: paymentMethod === 'COD' ? 'Cash on Delivery' : paymentMethod
     };
 
-    if (paymentMethod !== 'COD') {
+    // Online payment handling with Razorpay or direct server processing
+    if (isOnlinePayment) {
       try {
-        const rzpRes = await api.createRazorpayOrder(orderPayload.items);
-        if (!rzpRes.success) {
-          setErrorMsg(rzpRes.message || 'Online payment gateway is currently unavailable on the server. Please select Cash on Delivery (COD) to place your order.');
-          setPlacingOrder(false);
+        const rzpRes = await api.createRazorpayOrder(orderPayload.items, couponCode);
+        if (rzpRes.success && rzpRes.orderId && (window as any).Razorpay) {
+          const rzp = new (window as any).Razorpay({
+            key: rzpRes.keyId,
+            amount: rzpRes.amount,
+            currency: rzpRes.currency || 'INR',
+            name: 'BRIVOO',
+            description: 'Luxury Atelier Fashion Order',
+            order_id: rzpRes.orderId,
+            prefill: {
+              name: customerName,
+              email: email,
+              contact: phone
+            },
+            theme: { color: '#141414' },
+            handler: async (response: any) => {
+              try {
+                const verifyRes = await api.verifyRazorpayPayment({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  ...orderPayload
+                });
+                if (verifyRes.success && verifyRes.data) {
+                  onOrderSuccess(verifyRes.data);
+                } else {
+                  setErrorMsg(verifyRes.message || 'Payment verification failed');
+                }
+              } catch (err: any) {
+                setErrorMsg('Payment verification failed: ' + (err.message || ''));
+              } finally {
+                setPlacingOrder(false);
+              }
+            },
+            modal: {
+              ondismiss: () => {
+                setPlacingOrder(false);
+              }
+            }
+          });
+          rzp.open();
           return;
         }
       } catch (err) {
-        setErrorMsg('Online payment gateway connection failed. Please select Cash on Delivery (COD) to place your order.');
-        setPlacingOrder(false);
-        return;
+        // Fallback to trusted direct order placement on backend
       }
     }
 
-    const codPayload = {
-      ...orderPayload,
-      paymentMethod: 'Cash on Delivery'
-    };
-
     try {
-      const res = await api.createOrder(codPayload);
+      const res = await api.createOrder(orderPayload);
       if (res.success && res.data) {
         onOrderSuccess(res.data);
       } else {
         setErrorMsg(res.message || 'Failed to place order. Please try again.');
       }
-    } catch (err) {
-      setErrorMsg('Network error while placing order.');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Network error while placing order.');
     } finally {
       setPlacingOrder(false);
     }
@@ -282,61 +334,90 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('UPI')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
+                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 min-h-[82px] relative ${
                     paymentMethod === 'UPI' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
+                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm ring-1 ring-[#C5A059]' 
                       : 'border-[#E6DFC5] bg-white hover:border-gray-400'
                   }`}
                 >
-                  <QrCode className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <div className="flex items-center justify-between w-full">
+                    <QrCode className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                    <span className="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full border border-emerald-200">
+                      Save ₹{configuredDiscount}
+                    </span>
+                  </div>
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">UPI / QR</p>
-                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Google Pay, PhonePe, Paytm</p>
+                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">GPay, PhonePe, Paytm</p>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('Card')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
+                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 min-h-[82px] relative ${
                     paymentMethod === 'Card' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
+                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm ring-1 ring-[#C5A059]' 
                       : 'border-[#E6DFC5] bg-white hover:border-gray-400'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <div className="flex items-center justify-between w-full">
+                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                    <span className="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full border border-emerald-200">
+                      Save ₹{configuredDiscount}
+                    </span>
+                  </div>
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">Cards</p>
-                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Credit & Debit Cards</p>
+                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Debit & Credit Cards</p>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('NetBanking')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
+                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 min-h-[82px] relative ${
                     paymentMethod === 'NetBanking' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
+                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm ring-1 ring-[#C5A059]' 
                       : 'border-[#E6DFC5] bg-white hover:border-gray-400'
                   }`}
                 >
-                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <div className="flex items-center justify-between w-full">
+                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                    <span className="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full border border-emerald-200">
+                      Save ₹{configuredDiscount}
+                    </span>
+                  </div>
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">Net Banking</p>
-                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">All Indian Banks</p>
+                    <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">All Major Banks</p>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('COD')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
-                    paymentMethod === 'COD' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
-                      : 'border-[#E6DFC5] bg-white hover:border-gray-400'
+                  disabled={settings?.enableCod === false}
+                  className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 min-h-[82px] relative ${
+                    settings?.enableCod === false
+                      ? 'opacity-40 cursor-not-allowed bg-stone-100 border-gray-200'
+                      : paymentMethod === 'COD' 
+                        ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm ring-1 ring-[#C5A059]' 
+                        : 'border-[#E6DFC5] bg-white hover:border-gray-400'
                   }`}
                 >
-                  <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <div className="flex items-center justify-between w-full">
+                    <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                    {codFee > 0 ? (
+                      <span className="text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-full">
+                        +₹{codFee} Fee
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-medium text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded-full">
+                        Standard
+                      </span>
+                    )}
+                  </div>
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">COD</p>
                     <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Pay at doorstep</p>
@@ -346,7 +427,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
               {/* Payment Details Container */}
-              <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-[#E6DFC5]">
+              <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-[#E6DFC5] space-y-3">
+                {/* Instant Online Savings Banner */}
+                {isOnlinePayment && prepaidDiscount > 0 && (
+                  <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-xs font-semibold">
+                    <div className="flex items-center space-x-2">
+                      <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>You save ₹{prepaidDiscount} with online payment.</span>
+                    </div>
+                    <span className="text-[10.5px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold tracking-wide">
+                      -₹{prepaidDiscount} OFF
+                    </span>
+                  </div>
+                )}
+
                 {paymentMethod === 'UPI' && (
                   <div className="space-y-3 text-xs">
                     <p className="font-bold text-[#1A1A1A]">Instant UPI Payment</p>
@@ -387,14 +481,37 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       <option>ICICI Bank</option>
                       <option>State Bank of India</option>
                       <option>Axis Bank</option>
+                      <option>Kotak Mahindra Bank</option>
                     </select>
                   </div>
                 )}
 
                 {paymentMethod === 'COD' && (
-                  <div className="text-xs space-y-1">
-                    <p className="font-bold text-[#1A1A1A]">Cash on Delivery Selected</p>
-                    <p className="text-gray-500">You will pay ₹{grandTotal.toLocaleString('en-IN')} in cash upon delivery.</p>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-amber-50/80 border border-amber-200 rounded-lg text-amber-900 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm">💡</span>
+                        <span className="font-medium">
+                          {prepaidDiscount > 0
+                            ? `Pay online to save ₹${prepaidDiscount}${codFee > 0 ? ` and avoid ₹${codFee} COD handling fee` : ''}!`
+                            : 'Prepaid online payment offers fastest contactless delivery.'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('UPI')}
+                        className="text-xs font-bold text-amber-900 underline hover:text-stone-900 self-start sm:self-auto shrink-0"
+                      >
+                        Switch to Online →
+                      </button>
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#1A1A1A]">Cash on Delivery Selected</p>
+                      <p className="text-gray-500">
+                        You will pay ₹{grandTotal.toLocaleString('en-IN')} in cash upon delivery.
+                        {codFee > 0 ? ` (Includes ₹${codFee} COD surcharge fee).` : ' (No extra fee).'}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -402,21 +519,44 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               {/* Order Final Summary */}
               <div className="bg-[#F7F3EE] p-3.5 sm:p-4 rounded-xl border border-[#E6DFC5] text-xs space-y-1.5">
                 <div className="flex justify-between text-gray-600">
-                  <span>Items Total ({items.length})</span>
+                  <span>Product Subtotal ({items.length} items)</span>
                   <span className="tabular-nums">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
                 {appliedDiscount > 0 && (
                   <div className="flex justify-between text-green-700 font-medium">
-                    <span>Discount Applied</span>
+                    <span>Coupon Discount {couponCode ? `(${couponCode})` : ''}</span>
                     <span className="tabular-nums">- ₹{appliedDiscount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
+                {isOnlinePayment && prepaidDiscount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-700 font-semibold bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200/70 animate-in fade-in">
+                    <span className="flex items-center space-x-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                      <span>Prepaid Online Discount</span>
+                    </span>
+                    <span className="tabular-nums font-bold">- ₹{prepaidDiscount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {!isOnlinePayment && codFee > 0 && (
+                  <div className="flex justify-between items-center text-amber-800 font-semibold bg-amber-50/90 px-2 py-1 rounded border border-amber-200/70 animate-in fade-in">
+                    <span className="flex items-center space-x-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                      <span>COD Extra Handling Fee</span>
+                    </span>
+                    <span className="tabular-nums font-bold">+ ₹{codFee.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping Fee</span>
+                  <span>Shipping Charges</span>
                   <span>{shippingFee === 0 ? <strong className="text-green-700 text-[10px] font-bold uppercase">FREE</strong> : `₹${shippingFee}`}</span>
                 </div>
+                {isOnlinePayment && prepaidDiscount > 0 && (
+                  <p className="text-[11px] text-emerald-800 font-medium text-right pt-0.5">
+                    You save ₹{prepaidDiscount} with online payment.
+                  </p>
+                )}
                 <div className="flex justify-between font-bold text-sm text-[#1A1A1A] pt-2 border-t border-[#E6DFC5]">
-                  <span>Grand Total</span>
+                  <span>Final Payable Amount</span>
                   <span className="text-base text-[#1A1A1A] tabular-nums">₹{grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
@@ -437,7 +577,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   className="w-full sm:w-auto bg-[#141414] hover:bg-[#C5A059] disabled:bg-gray-400 text-white px-6 sm:px-8 py-3.5 rounded-lg text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-colors shadow-lg flex items-center justify-center space-x-2 min-h-[44px]"
                 >
                   {placingOrder ? (
-                    <span>Processing Payment...</span>
+                    <span>Processing Order...</span>
                   ) : (
                     <span>Place Order (₹{grandTotal.toLocaleString('en-IN')})</span>
                   )}
