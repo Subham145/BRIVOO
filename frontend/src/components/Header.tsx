@@ -278,16 +278,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Dedicated Admin Portal Button on Desktop */}
-          <button
-            onClick={onOpenAdmin}
-            className="hidden md:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border border-[#C5A059]/50 bg-stone-900 hover:bg-[#C5A059] text-[#E6DFC5] hover:text-black transition-all text-[9.5px] font-bold tracking-wider uppercase shadow-xs group"
-            title="BRIVOO Command Suite"
-            aria-label="Admin Portal"
-          >
-            <Lock className="w-3 h-3 text-[#C5A059] group-hover:text-black transition-colors" />
-            <span>Admin</span>
-          </button>
 
           {/* Cart Button with Garment Tote Swing Animation */}
           <button 
