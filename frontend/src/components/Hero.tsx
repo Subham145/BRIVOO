@@ -3,9 +3,7 @@ import {
   ArrowRight, 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles,
-  Flame,
-  ArrowUpRight
+  Sparkles
 } from 'lucide-react';
 import { SiteSettings } from '../types';
 
@@ -235,70 +233,8 @@ export const Hero: React.FC<HeroProps> = ({ settings, onShopMen, onShopWomen }) 
 
           </div>
 
-          {/* Right Column: Floating Luxury Interactive Poster Widget (Desktop) & Sleek Slider Controls (Mobile & Desktop) */}
-          <div className="lg:col-span-4 flex flex-col justify-end items-center lg:items-end space-y-3 sm:space-y-4 relative w-full pt-1 lg:pt-0">
-            
-            {/* Hanging Garment Swing Tag with Physics Sway Animation (Desktop only) */}
-            <div className="absolute -top-3.5 right-6 z-30 animate-tag-swing pointer-events-none hidden lg:block">
-              <div className="flex flex-col items-center">
-                {/* Gold Metallic Eyelet & Hanging Thread */}
-                <div className="w-2.5 h-2.5 rounded-full border border-[#D4AF37] bg-stone-900 shadow-xs flex items-center justify-center">
-                  <div className="w-0.5 h-0.5 rounded-full bg-[#D4AF37]"></div>
-                </div>
-                <div className="w-[1.5px] h-3.5 bg-gradient-to-b from-[#C5A059] to-stone-400"></div>
-                {/* Tag Body */}
-                <div className="bg-[#141414]/95 border border-[#C5A059]/70 px-2.5 py-1 rounded-sm shadow-2xl flex items-center space-x-1.5 backdrop-blur-md">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span>
-                  <span className="text-[8.5px] font-mono tracking-widest text-[#D4AF37] font-bold uppercase">100% PURE FLAX</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Featured Garment Capsule on Poster (Desktop only to prevent extreme mobile height) */}
-            <div 
-              onClick={onShopMen}
-              className="hidden lg:block group/card relative w-full max-w-[300px] bg-stone-950/80 hover:bg-stone-900/95 backdrop-blur-xl p-4 rounded-2xl border border-white/20 hover:border-[#C5A059]/60 shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5 overflow-hidden"
-            >
-              {/* Fabric Sheen Reflection across Card */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-fabric-sheen pointer-events-none" />
-
-              <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#D4AF37] bg-[#D4AF37]/15 px-2.5 py-0.5 rounded-full border border-[#D4AF37]/30">
-                  <Flame className="w-3 h-3 text-amber-400" />
-                  {active.garmentTag}
-                </span>
-                <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  In Stock
-                </span>
-              </div>
-
-              <h4 className="font-sans text-sm sm:text-[15px] font-bold text-white group-hover/card:text-[#D4AF37] transition-colors line-clamp-1">
-                {active.garmentName}
-              </h4>
-              <p className="text-[11px] text-stone-300 mt-0.5">{active.garmentSub}</p>
-
-              {/* Fabric Texture & Weave GSM Indicator */}
-              <div className="mt-2.5 flex items-center justify-between text-[10px] bg-white/5 px-3 py-1 rounded-lg border border-white/10">
-                <span className="text-stone-300 flex items-center gap-1.5 font-medium">
-                  <span>🧵</span> 180 GSM Pre-Washed
-                </span>
-                <span className="text-[#D4AF37] font-bold tracking-wider text-[9px] uppercase font-mono">
-                  Natural Drape
-                </span>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
-                <div>
-                  <span className="text-[9.5px] text-stone-400 uppercase tracking-wider block">Price</span>
-                  <span className="font-sans text-base font-black text-white tabular-nums">{active.garmentPrice}</span>
-                </div>
-                <div className="p-2 bg-white/10 group-hover/card:bg-[#C5A059] group-hover/card:text-stone-950 rounded-xl text-white transition-all shadow-xs">
-                  <ArrowUpRight className="w-4 h-4" />
-                </div>
-              </div>
-            </div>
-
+          {/* Right / Bottom Column: Sleek Slider Controls */}
+          <div className="lg:col-span-4 flex justify-center lg:justify-end items-end w-full pt-2 lg:pt-0">
             {/* Slider Controls Bar */}
             <div className="flex items-center space-x-2.5 bg-stone-950/75 backdrop-blur-xl p-1.5 sm:p-2 rounded-2xl border border-white/20 shadow-lg">
               
@@ -337,7 +273,6 @@ export const Hero: React.FC<HeroProps> = ({ settings, onShopMen, onShopWomen }) 
               </button>
 
             </div>
-
           </div>
 
         </div>
