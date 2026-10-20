@@ -51,8 +51,24 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
             </p>
 
             <div className="flex space-x-3 text-[#1A1A1A]">
-              <a href="#instagram" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" /></a>
-              <a href="#facebook" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Facebook"><Facebook className="w-4 h-4" /></a>
+              <a 
+                href="https://www.instagram.com/brivoo.in?cplk=aGdsZzdiN3BueWZn&utm_source=qr" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" 
+                aria-label="Instagram"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://www.facebook.com/share/1EpFAP9PMh/?mibextid=wwXIfr" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" 
+                aria-label="Facebook"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
               <a href="#twitter" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Twitter"><Twitter className="w-4 h-4" /></a>
               <a href="#youtube" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Youtube"><Youtube className="w-4 h-4" /></a>
             </div>
