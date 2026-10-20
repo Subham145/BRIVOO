@@ -88,9 +88,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8">
           
-          {/* Left Column - Image Preview (Compact on Mobile, High-Res on Desktop) */}
+          {/* Left Column - Image Preview (Full Natural 3:4 Aspect Ratio on Mobile & Desktop) */}
           <div className="md:col-span-6 space-y-3 sm:space-y-4">
-            <div className="h-64 sm:h-80 md:h-auto md:aspect-[3/4] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#F3EEE7] shadow-inner relative flex items-center justify-center">
+            <div className="w-full aspect-[3/4] rounded-xl sm:rounded-2xl overflow-hidden bg-[#F3EEE7] shadow-inner relative flex items-center justify-center">
               <img 
                 src={product.image} 
                 alt={product.title} 
