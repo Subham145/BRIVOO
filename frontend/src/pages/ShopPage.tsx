@@ -37,6 +37,20 @@ export const ShopPage: React.FC<ShopPageProps> = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
+    setSelectedGender(initialGender);
+  }, [initialGender]);
+
+  useEffect(() => {
+    setSelectedCategory(initialCategory);
+  }, [initialCategory]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [initialGender, initialCategory]);
+
+  useEffect(() => {
     if (showMobileFilters) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';

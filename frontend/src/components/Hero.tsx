@@ -194,7 +194,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onShopMen, onShopWomen }) 
           {/* CTAs Action Buttons - Balanced luxury proportions */}
           <div className="flex flex-row items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
             <button 
-              onClick={onShopMen}
+              onClick={() => { onShopMen(); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
               className="flex-1 sm:flex-initial min-h-[42px] sm:min-h-[46px] justify-center bg-[#C5A059] hover:bg-[#b58f44] text-stone-950 px-5 sm:px-8 py-2.5 sm:py-3 text-[11px] sm:text-xs tracking-[0.16em] sm:tracking-[0.2em] font-black uppercase rounded-xl transition-all duration-300 flex items-center space-x-2 sm:space-x-2.5 group shadow-xl shadow-[#C5A059]/25 hover:-translate-y-0.5 active:scale-95"
             >
               <span>{active.primaryCtaText}</span>
@@ -202,7 +202,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onShopMen, onShopWomen }) 
             </button>
 
             <button 
-              onClick={onShopWomen}
+              onClick={() => { onShopWomen(); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
               className="flex-1 sm:flex-initial min-h-[42px] sm:min-h-[46px] justify-center bg-white/10 hover:bg-white text-white hover:text-stone-950 border border-white/30 hover:border-white px-5 sm:px-8 py-2.5 sm:py-3 text-[11px] sm:text-xs tracking-[0.16em] sm:tracking-[0.2em] font-extrabold uppercase rounded-xl backdrop-blur-md transition-all duration-300 flex items-center space-x-2 sm:space-x-2.5 group shadow-md hover:-translate-y-0.5 active:scale-95"
             >
               <span>{active.secondaryCtaText}</span>

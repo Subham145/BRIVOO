@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Brand Logo */}
           <div 
-            onClick={() => setActiveTab('home')} 
+            onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className="cursor-pointer flex items-center space-x-2 sm:space-x-2.5 group py-0.5 relative select-none"
           >
             <img 
@@ -141,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Navigation Links with Tailor's Sewing Thread Stitch Animation */}
         <nav className="hidden md:flex items-center justify-center space-x-4 lg:space-x-6 xl:space-x-7 text-[11px] font-bold tracking-[0.16em] text-stone-800 uppercase flex-1 mx-2">
           <button 
-            onClick={() => setActiveTab('shop-all')} 
+            onClick={() => { setActiveTab('shop-all'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
               activeTab === 'shop-all' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
             }`}
@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
             Shop All
           </button>
           <button 
-            onClick={() => setActiveTab('men')} 
+            onClick={() => { setActiveTab('men'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
               activeTab === 'men' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
             }`}
@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
             Men
           </button>
           <button 
-            onClick={() => setActiveTab('women')} 
+            onClick={() => { setActiveTab('women'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
               activeTab === 'women' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
             }`}
@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
             Women
           </button>
           <button 
-            onClick={() => setActiveTab('collections')} 
+            onClick={() => { setActiveTab('collections'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
               activeTab === 'collections' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
             }`}
@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
             Collections
           </button>
           <button 
-            onClick={() => setActiveTab('offers')} 
+            onClick={() => { setActiveTab('offers'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
             className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] flex items-center gap-1.5 ${
               activeTab === 'offers' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
             }`}
@@ -354,7 +354,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Navigation Links */}
               <div className="p-4 space-y-1.5 font-bold text-xs tracking-wider uppercase">
                 <button 
-                  onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'home' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
@@ -363,7 +363,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {activeTab === 'home' && <span className="text-[#C5A059]">●</span>}
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('shop-all'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('shop-all'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'shop-all' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
@@ -372,7 +372,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {activeTab === 'shop-all' && <span className="text-[#C5A059]">●</span>}
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('men'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('men'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'men' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
@@ -381,7 +381,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {activeTab === 'men' && <span className="text-[#C5A059]">●</span>}
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('women'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('women'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'women' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
@@ -390,7 +390,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {activeTab === 'women' && <span className="text-[#C5A059]">●</span>}
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('collections'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('collections'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'collections' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}
@@ -399,7 +399,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {activeTab === 'collections' && <span className="text-[#C5A059]">●</span>}
                 </button>
                 <button 
-                  onClick={() => { setActiveTab('offers'); setMobileMenuOpen(false); }}
+                  onClick={() => { setActiveTab('offers'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
                   className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
                     activeTab === 'offers' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
                   }`}

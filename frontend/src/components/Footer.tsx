@@ -51,10 +51,10 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
             </p>
 
             <div className="flex space-x-3 text-[#1A1A1A]">
-              <a href="#" className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" /></a>
-              <a href="#" className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Facebook"><Facebook className="w-4 h-4" /></a>
-              <a href="#" className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Twitter"><Twitter className="w-4 h-4" /></a>
-              <a href="#" className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Youtube"><Youtube className="w-4 h-4" /></a>
+              <a href="#instagram" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" /></a>
+              <a href="#facebook" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Facebook"><Facebook className="w-4 h-4" /></a>
+              <a href="#twitter" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Twitter"><Twitter className="w-4 h-4" /></a>
+              <a href="#youtube" onClick={(e) => e.preventDefault()} className="p-2.5 sm:p-2 min-w-[38px] min-h-[38px] flex items-center justify-center bg-[#F7F3EE] rounded-full border border-[#E6DFC5] hover:text-[#C5A059] transition-colors" aria-label="Youtube"><Youtube className="w-4 h-4" /></a>
             </div>
           </div>
 
@@ -64,11 +64,11 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
               SHOP
             </h4>
             <ul className="space-y-1.5 sm:space-y-2.5 text-xs text-[#66625D]">
-              <li><button onClick={() => onCategoryClick('men')} className="hover:text-[#1A1A1A] py-1">Men</button></li>
-              <li><button onClick={() => onCategoryClick('women')} className="hover:text-[#1A1A1A] py-1">Women</button></li>
-              <li><button onClick={() => onCategoryClick('new')} className="hover:text-[#1A1A1A] py-1">New Arrivals</button></li>
-              <li><button onClick={() => onCategoryClick('collections')} className="hover:text-[#1A1A1A] py-1">Collections</button></li>
-              <li><button onClick={() => onCategoryClick('bestseller')} className="hover:text-[#1A1A1A] py-1">Best Sellers</button></li>
+              <li><button onClick={() => { onCategoryClick('men'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#1A1A1A] py-1">Men</button></li>
+              <li><button onClick={() => { onCategoryClick('women'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#1A1A1A] py-1">Women</button></li>
+              <li><button onClick={() => { onCategoryClick('new'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#1A1A1A] py-1">New Arrivals</button></li>
+              <li><button onClick={() => { onCategoryClick('collections'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#1A1A1A] py-1">Collections</button></li>
+              <li><button onClick={() => { onCategoryClick('bestseller'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#1A1A1A] py-1">Best Sellers</button></li>
             </ul>
           </div>
 
@@ -78,16 +78,16 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
               HELP & SUPPORT
             </h4>
             <ul className="space-y-1.5 sm:space-y-2.5 text-xs text-[#66625D]">
-              <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Contact Us</a></li>
-              <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">FAQs</a></li>
-              <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Shipping Policy</a></li>
-              <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Returns & Exchanges</a></li>
-              <li><button onClick={onTrackOrderClick} className="hover:text-[#C5A059] font-bold text-[#1A1A1A] py-1">Track Order</button></li>
-              <li><a href="#" className="hover:text-[#1A1A1A] py-1 inline-block">Size Guide</a></li>
+              <li><a href="#contact" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Contact Us</a></li>
+              <li><a href="#faqs" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">FAQs</a></li>
+              <li><a href="#shipping" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Shipping Policy</a></li>
+              <li><a href="#returns" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Returns & Exchanges</a></li>
+              <li><button onClick={() => { onTrackOrderClick(); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-[#C5A059] font-bold text-[#1A1A1A] py-1">Track Order</button></li>
+              <li><a href="#size-guide" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Size Guide</a></li>
               {onAdminClick && (
                 <li className="pt-1 border-t border-[#E6DFC5]/60">
                   <button 
-                    onClick={onAdminClick} 
+                    onClick={() => { onAdminClick(); window.scrollTo({ top: 0, behavior: 'instant' }); }} 
                     className="hover:text-[#C5A059] font-bold text-[#8C6D2D] py-1 flex items-center gap-1 transition-colors"
                   >
                     <Lock className="w-3 h-3 text-[#C5A059]" />

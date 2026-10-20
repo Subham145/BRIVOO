@@ -91,6 +91,7 @@ export function App() {
   });
   const [adminTab, setAdminTab] = useState<string>('dashboard');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('All');
 
   // Cart & Wishlist States
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -200,6 +201,13 @@ export function App() {
         window.history.pushState(null, '', '/');
       }
     }
+  }, [activeTab]);
+
+  // Scroll to top whenever activeTab changes so the user is never stuck at the footer
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [activeTab]);
 
   // Auth Handlers
@@ -530,13 +538,17 @@ export function App() {
             <CategoryShowcase
               categories={categories}
               onSelectCategory={(catName) => {
+                setSelectedCategoryFilter(catName);
                 setActiveTab('shop-all');
               }}
             />
             <OffersBanner
               offers={offers}
               onViewAllOffers={() => setActiveTab('offers')}
-              onShopCategory={(cat) => setActiveTab('shop-all')}
+              onShopCategory={(cat) => {
+                setSelectedCategoryFilter('All');
+                setActiveTab('shop-all');
+              }}
             />
             <FeaturedCollection
               products={products}
@@ -544,7 +556,10 @@ export function App() {
               onOpenModal={setSelectedProduct}
               onToggleWishlist={handleToggleWishlist}
               wishlistIds={wishlistIds}
-              onViewAll={() => setActiveTab('shop-all')}
+              onViewAll={() => {
+                setSelectedCategoryFilter('All');
+                setActiveTab('shop-all');
+              }}
             />
           </>
         )}
@@ -555,12 +570,14 @@ export function App() {
             offers={offers}
             onShopCategory={(category) => {
               if (category === 'Shirts' || category === 'Polos' || category === 'Vests' || category === 'Trousers') {
+                setSelectedCategoryFilter(category);
                 setActiveTab('shop-all');
               } else if (category === 'Men') {
                 setActiveTab('men');
               } else if (category === 'Women') {
                 setActiveTab('women');
               } else {
+                setSelectedCategoryFilter('All');
                 setActiveTab('shop-all');
               }
             }}
@@ -579,6 +596,7 @@ export function App() {
             onOpenModal={setSelectedProduct}
             onToggleWishlist={handleToggleWishlist}
             wishlistIds={wishlistIds}
+            initialCategory={selectedCategoryFilter}
             initialGender={activeTab === 'men' ? 'Men' : activeTab === 'women' ? 'Women' : 'All'}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
