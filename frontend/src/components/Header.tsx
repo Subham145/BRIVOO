@@ -183,7 +183,14 @@ export const Header: React.FC<HeaderProps> = ({
               %
             </span>
           </button>
-
+          <button 
+            onClick={() => { setActiveTab('about'); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }} 
+            className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
+              activeTab === 'about' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
+            }`}
+          >
+            About Us
+          </button>
         </nav>
 
         {/* Right: Utility Icons */}
@@ -409,6 +416,15 @@ export const Header: React.FC<HeaderProps> = ({
                     <span className="px-1.5 py-0.5 rounded-full bg-[#C5A059] text-stone-950 text-[9px] font-black">%</span>
                   </span>
                   {activeTab === 'offers' && <span className="text-[#C5A059]">●</span>}
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('about'); setMobileMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }}
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all active:scale-[0.98] ${
+                    activeTab === 'about' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
+                  }`}
+                >
+                  <span>About BRIVOO</span>
+                  {activeTab === 'about' && <span className="text-[#C5A059]">●</span>}
                 </button>
 
               </div>

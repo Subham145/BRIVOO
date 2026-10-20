@@ -4,10 +4,11 @@ import { Instagram, Facebook, Twitter, Youtube, ArrowRight, Check, Lock } from '
 interface FooterProps {
   onCategoryClick: (category: string) => void;
   onTrackOrderClick: () => void;
+  onAboutClick?: () => void;
   onAdminClick?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderClick, onAdminClick }) => {
+export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderClick, onAboutClick, onAdminClick }) => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [agreed, setAgreed] = useState(true);
@@ -30,7 +31,10 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
           
           {/* Column 1 - Brand Info */}
           <div className="sm:col-span-2 lg:col-span-4 space-y-4 sm:space-y-6">
-            <div className="flex items-center space-x-3 cursor-pointer group">
+            <div 
+              onClick={() => { onAboutClick?.(); window.scrollTo({ top: 0, behavior: 'instant' }); }}
+              className="flex items-center space-x-3 cursor-pointer group"
+            >
               <img 
                 src="/logo.png" 
                 alt="BRIVOO" 
@@ -47,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
             </div>
 
             <p className="text-xs text-[#66625D] leading-relaxed max-w-sm">
-              Timeless fashion crafted for the modern individual. Premium materials, refined designs, and effortless style.
+              Welcome to BRIVOO — where style meets comfort, quality, and affordability. Fashion for Every You.
             </p>
 
             <div className="flex space-x-3 text-[#1A1A1A]">
@@ -94,6 +98,15 @@ export const Footer: React.FC<FooterProps> = ({ onCategoryClick, onTrackOrderCli
               HELP & SUPPORT
             </h4>
             <ul className="space-y-1.5 sm:space-y-2.5 text-xs text-[#66625D]">
+              <li>
+                <button 
+                  onClick={() => { onAboutClick?.(); window.scrollTo({ top: 0, behavior: 'instant' }); }} 
+                  className="hover:text-[#1A1A1A] py-1 font-semibold text-[#1A1A1A] flex items-center gap-1.5 transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059]"></span>
+                  About Us
+                </button>
+              </li>
               <li><a href="#contact" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Contact Us</a></li>
               <li><a href="#faqs" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">FAQs</a></li>
               <li><a href="#shipping" onClick={(e) => e.preventDefault()} className="hover:text-[#1A1A1A] py-1 inline-block">Shipping Policy</a></li>

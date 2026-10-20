@@ -14,9 +14,11 @@ import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { AuthModal } from './components/AuthModal';
 
 import { Footer } from './components/Footer';
+import { ArtisanStory } from './components/ArtisanStory';
 import { ShopPage } from './pages/ShopPage';
 import { AccountPage } from './pages/AccountPage';
 import { OffersPage } from './pages/OffersPage';
+import { AboutPage } from './pages/AboutPage';
 
 // Admin Pages & Auth
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -77,6 +79,7 @@ export function App() {
       }
       if (path === '/account' || hash === '#account') return 'account';
       if (path === '/offers' || hash === '#offers') return 'offers';
+      if (path === '/about' || hash === '#about' || search.includes('tab=about') || search.includes('page=about')) return 'about';
       if (path === '/men' || hash === '#men') return 'men';
       if (path === '/women' || hash === '#women') return 'women';
     }
@@ -561,6 +564,16 @@ export function App() {
                 setActiveTab('shop-all');
               }}
             />
+            <ArtisanStory
+              onLearnMore={() => {
+                setActiveTab('about');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+              onShopAll={() => {
+                setActiveTab('shop-all');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+            />
           </>
         )}
 
@@ -583,6 +596,24 @@ export function App() {
             }}
             onApplyCouponToCart={(code) => {
               setAppliedCouponCode(code);
+            }}
+          />
+        )}
+
+        {/* CUSTOMER VIEW - ABOUT US */}
+        {activeTab === 'about' && !isAdmin && (
+          <AboutPage
+            onShopMen={() => {
+              setActiveTab('men');
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            }}
+            onShopWomen={() => {
+              setActiveTab('women');
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            }}
+            onShopAll={() => {
+              setActiveTab('shop-all');
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
             }}
           />
         )}
@@ -616,8 +647,6 @@ export function App() {
           />
         )}
 
-
-
       </main>
 
       {/* Footer */}
@@ -628,6 +657,10 @@ export function App() {
           else setActiveTab('shop-all');
         }}
         onTrackOrderClick={() => requireAuthForAction(() => setActiveTab('account'), "Sign in to track your orders!")}
+        onAboutClick={() => {
+          setActiveTab('about');
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }}
         onAdminClick={() => setActiveTab('admin')}
       />
 
