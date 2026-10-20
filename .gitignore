@@ -6,6 +6,8 @@ node_modules/
 # Production builds
 dist/
 build/
+!frontend/dist
+!frontend/dist/**
 
 # Environment and sensitive keys
 .env

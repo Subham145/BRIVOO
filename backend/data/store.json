@@ -576,7 +576,7 @@
         "M",
         "L"
       ],
-      "stock": 15,
+      "stock": 14,
       "description": "Sleek tailored waistcoat vest with subtle horn-button front and notched hem. Pair with matching trousers for a powerful luxury look.",
       "specs": "70% Viscose, 30% Linen with 100% Silk lining.",
       "inStock": true,
@@ -636,6 +636,62 @@
     }
   ],
   "orders": [
+    {
+      "id": "BRV-16639",
+      "customerName": "Hanuman Jogi",
+      "email": "hanuman@example.com",
+      "phone": "+91 98765 43210",
+      "address": "12, Luxury Palm Avenue, Jubilee Hills, Hyderabad, Telangana 500033",
+      "shippingCity": "Hyderabad",
+      "shippingState": "Telangana",
+      "shippingPincode": "500033",
+      "items": [
+        {
+          "id": "prod-4",
+          "title": "Tailored Vest",
+          "price": 1999,
+          "quantity": 1,
+          "selectedSize": "XS",
+          "selectedColor": "White",
+          "image": "/images/tailored_vest.png"
+        }
+      ],
+      "subtotal": 1999,
+      "deliveryCharge": 0,
+      "totalAmount": 1949,
+      "discountAmount": 0,
+      "prepaidDiscount": 50,
+      "codFee": 0,
+      "couponCode": null,
+      "paymentMethod": "UPI",
+      "paymentStatus": "Completed",
+      "paymentRef": "TXN_ONLINE_114213",
+      "status": "Processing",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-27841993",
+        "estimatedDelivery": "2026-10-23",
+        "dispatchedAt": "2026-10-19T15:18:34.213Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Processing",
+        "checkpoints": [
+          {
+            "id": "cp-1792423114213",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "19 Oct 2026, 08:48 pm",
+            "description": "Order paid and confirmed online."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-10-19T15:18:34.223Z",
+      "emailNotification": {
+        "status": "skipped",
+        "reason": "RESEND_API_KEY not configured",
+        "timestamp": "2026-10-19T15:18:34.224Z"
+      }
+    },
     {
       "id": "BRV-46257",
       "customerName": "Tamper Attacker",
@@ -1255,6 +1311,17 @@
     }
   ],
   "payments": [
+    {
+      "id": "PAY-114223",
+      "orderId": "BRV-16639",
+      "customerName": "Hanuman Jogi",
+      "customerEmail": "hanuman@example.com",
+      "amount": 1949,
+      "method": "UPI",
+      "status": "Completed",
+      "transactionRef": "TXN_ONLINE_114213",
+      "createdAt": "2026-10-19T15:18:34.223Z"
+    },
     {
       "id": "PAY-930202",
       "orderId": "BRV-52726",
