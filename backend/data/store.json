@@ -3,347 +3,1059 @@
     "announcement": "FREE SHIPPING ON ALL ORDERS ABOVE ₹1999",
     "freeShippingThreshold": 1999,
     "heroTitle": "TIMELESS STYLE.\nPREMIUM YOU.",
-    "heroSubtext": "Elevated essentials crafted for the modern wardrobe. Minimal. Premium. Effortless.",
-    "heroImage": "/images/hero.png"
+    "heroSubtext": "Celebrate the Festival of Lights with elegant ethnic styles. Discover beautiful embroidered outfits made for your festive moments.",
+    "heroImage": "/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.png",
+    "storeEmail": "concierge@brivoo.com",
+    "storePhone": "+91 8000 554 999",
+    "enableCod": true,
+    "prepaidDiscountEnabled": true,
+    "prepaidDiscount": 50,
+    "prepaidDiscountType": "fixed",
+    "codSurchargeEnabled": false,
+    "codSurcharge": 0,
+    "heroSlides": [
+      {
+        "id": "slide-2",
+        "image": "/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.webp",
+        "badge": "DIWALI 2026 • FESTIVE COLLECTION",
+        "titleLine1": "HAPPY",
+        "titleHighlight": "DIWALI",
+        "subtext": "Celebrate the Festival of Lights with elegant ethnic styles. Discover beautiful embroidered outfits made for your festive moments.",
+        "featurePill": "EMBROIDERED ETHNIC WEAR",
+        "garmentName": "Tailored Linen Waistcoat",
+        "garmentPrice": "₹2,199",
+        "garmentTag": "ATELIER SPECIAL",
+        "garmentSub": "Structured Linen Blend",
+        "primaryCtaText": "",
+        "secondaryCtaText": "SHOP COLLECTION",
+        "active": true,
+        "showBadge": true,
+        "showAtelierCard": false,
+        "showHangingTag": false,
+        "imagePosition": "center top",
+        "imageFit": "cover",
+        "showTitle": true,
+        "showSecondaryCta": true,
+        "showCraftsmanship": true,
+        "showSliderControls": false,
+        "showDescription": true
+      },
+      {
+        "id": "slide-1793718384788",
+        "image": "/images/product-156f959e-aefa-44d5-afe2-2fcb54f6d4f2.webp",
+        "badge": "DIWALI MEGA SALE • LIMITED TIME",
+        "titleLine1": "CELEBRATE",
+        "titleHighlight": "FLAT 40% OFF",
+        "subtext": "\tThis Diwali, upgrade your festive style! Shop elegant ethnic wear at exciting festive prices. Limited-period offer.",
+        "featurePill": "FESTIVE SPECIAL OFFERS",
+        "garmentName": "Minimalist Relaxed Fit Garment",
+        "garmentPrice": "₹1,999",
+        "garmentTag": "NEW ARRIVAL",
+        "garmentSub": "Relaxed Silhouette",
+        "primaryCtaText": "",
+        "secondaryCtaText": "EXPLORE",
+        "active": true,
+        "showHangingTag": false,
+        "imagePosition": "center top",
+        "imageFit": "cover",
+        "showSliderControls": false,
+        "showAtelierCard": false
+      }
+    ],
+    "heroSliderSpeedMs": 2000
   },
   "categories": [
     {
-      "id": "cat-1",
-      "name": "Shirts",
-      "slug": "shirts",
-      "description": "Linen & Cotton Essentials"
+      "id": "cat-1792752422553",
+      "name": "Women’s Kurtis",
+      "slug": "women’s-kurtis",
+      "description": "Discover stylish and comfortable kurtis for everyday wear, office looks, festive occasions, and casual outings. Explore beautiful designs, versatile colors, and fashionable styles at affordable prices."
     },
     {
-      "id": "cat-2",
-      "name": "Polos",
-      "slug": "polos",
-      "description": "Textured & Knit Polos"
+      "id": "cat-1792752477529",
+      "name": "Women’s Kurta Sets",
+      "slug": "women’s-kurta-sets",
+      "description": "Elevate your ethnic wardrobe with coordinated kurta sets featuring stylish designs and matching bottoms, with dupattas where included. Perfect for family gatherings, festive celebrations, and everyday elegance."
     },
     {
-      "id": "cat-3",
-      "name": "Vests",
-      "slug": "vests",
-      "description": "Tailored Waistcoats & Vests"
+      "id": "cat-1792752513580",
+      "name": "Women’s Long Kurtas",
+      "slug": "women’s-long-kurtas",
+      "description": "Find timeless ethnic styles with our collection of long kurtas. From simple everyday designs to elegant statement pieces, discover versatile outfits that combine comfort and style."
     },
     {
-      "id": "cat-4",
-      "name": "Trousers",
-      "slug": "trousers",
-      "description": "Relaxed Linen & Cotton Pants"
+      "id": "cat-1792752548275",
+      "name": "Women’s Tops",
+      "slug": "women’s-tops",
+      "description": "Refresh your everyday wardrobe with fashionable women’s tops. Explore versatile styles that are easy to pair with jeans, trousers, skirts, and your favorite accessories."
+    },
+    {
+      "id": "cat-1792934519645",
+      "name": "Co-Ord Sets",
+      "slug": "co-ord-sets",
+      "description": "Cotton Kurta Pant Set"
     }
   ],
-  "coupons": [
-    {
-      "id": "coup-1",
-      "code": "LUXE10",
-      "discountType": "percentage",
-      "value": 10,
-      "minSpend": 1000,
-      "active": true
-    },
-    {
-      "id": "coup-2",
-      "code": "BRIVOO500",
-      "discountType": "fixed",
-      "value": 500,
-      "minSpend": 2500,
-      "active": true
-    }
-  ],
+  "coupons": [],
   "products": [
     {
-      "id": "prod-1",
-      "title": "Linen Resort Shirt",
-      "subtitle": "Ivory",
-      "category": "Shirts",
-      "gender": "Men",
-      "price": 1799,
+      "id": "prod-1792939939076",
+      "title": "Brown Floral Printed Sleeveless Top for Women",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-14cc800a-70e9-418a-9a0c-2621abd30bcf.webp",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Bring effortless elegance to your everyday style with this beautiful brown floral printed top from BRIVOO. Featuring a delicate white floral pattern, a flattering scoop neckline, decorative white accents, and stylish tie-up shoulder straps, this top offers a fresh and feminine look. Its sleeveless design makes it perfect for casual outings, shopping trips, vacations, and everyday wear.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939854974",
+      "title": "Brown Floral Printed Sleeveless Top for Women",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-901e2935-d473-4100-aa10-507db7e3553e.webp",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 24,
+      "description": "Bring effortless elegance to your everyday style with this beautiful brown floral printed top from BRIVOO. Featuring a delicate white floral pattern, a flattering scoop neckline, decorative white accents, and stylish tie-up shoulder straps, this top offers a fresh and feminine look. Its sleeveless design makes it perfect for casual outings, shopping trips, vacations, and everyday wear.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939743217",
+      "title": "Grey Floral Print Sleeveless Top for Women",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-f39f7d73-2499-4949-a877-edabc33d56f9.webp",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Refresh your everyday wardrobe with this stylish grey floral print top from BRIVOO. Featuring an elegant white floral pattern, a flattering round neckline, and adjustable tie-up shoulder straps, this top brings a fresh and feminine touch to your casual style. Its sleeveless design makes it perfect for warm days, outings, shopping, and relaxed get-togethers",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939635070",
+      "title": "Teal Blue Embroidered Short Kurti for Women",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-52b661be-bc40-4666-98bc-719828a872de.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Add a touch of elegance to your everyday wardrobe with this beautiful teal blue short kurti from BRIVOO. Featuring delicate white floral embroidery around the neckline and a matching embroidered border at the hem, this kurti blends traditional charm with modern style. Its glossy finish, classic round neckline, and three-quarter sleeves make it a lovely choice for casual outings, office wear, and small festive gatherings.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939417592",
+      "title": "Black Embroidered Women’s Short Kurti",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-1be30248-1872-41b8-a030-78a53128c428.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Elevate your everyday style with this elegant black short kurti, featuring beautiful white floral embroidery on the neckline and hem. Its glossy finish, classic round neckline, and three-quarter sleeves create a sophisticated look that works perfectly for casual outings, office wear, and small festive gatherings.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939276937",
+      "title": "Mustard Yellow Embroidered Women's Short Kurti",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-b2d62838-54d6-4b84-8326-7109f8702129.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Brighten up your ethnic wardrobe with this elegant mustard yellow short kurti from BRIVOO. Featuring beautiful white leaf-pattern embroidery around the neckline and a floral embroidered border at the hem, this kurti blends traditional charm with contemporary style. Its rich, glossy finish and three-quarter sleeves create a graceful look, making it perfect for festive celebrations, family gatherings, and casual outings",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939115496",
+      "title": "Wine Purple Embroidered Women's Short Kurti",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-63145a9b-b93d-4464-8762-dacbaf5770dc.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Upgrade your ethnic wardrobe with this elegant wine purple short kurti from BRIVOO. Designed with beautiful white embroidered detailing on the neckline and hem, this kurti combines traditional charm with a modern silhouette. Its rich, glossy finish and three-quarter sleeves make it a stylish choice for festive occasions, family gatherings, casual outings, and evening wear.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792939015245",
+      "title": "Pink Embroidered Women's Short Kurti",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-24a9a36c-945c-4ee5-84c1-400100e9b7a3.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Elevate your ethnic wardrobe with this beautiful pink short kurti from BRIVOO. Featuring a rich, glossy finish, an intricately embroidered neckline, and elegant decorative detailing along the hem, this kurti adds a touch of sophistication to your everyday and festive looks. Its three-quarter sleeves and stylish silhouette make it perfect for family gatherings, festive celebrations, and casual outings.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938929186",
+      "title": "Lavender Purple Embellished Women's Short Kurti",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-03f67b0e-c05e-4a84-96e9-d0180f691bc2.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Add a touch of elegance to your everyday style with this beautiful lavender purple kurti. Featuring a stylish embroidered neckline, three-quarter sleeves, and decorative detailing along the hem, this kurti offers a graceful and sophisticated look. Its rich satin-like finish makes it perfect for festive gatherings, casual outings, family functions, and special occasions.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938829934",
+      "title": "Women’s Turquoise Blue Embroidered Top",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-4ce3e9da-b331-4375-ac65-129689550bc6.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Upgrade your wardrobe with this elegant turquoise blue top from BRIVOO. Designed with a beautiful geometric embroidered neckline and a decorative border at the hem, this top combines a rich, glossy finish with a sophisticated ethnic-inspired look. The three-quarter sleeves and comfortable straight silhouette make it perfect for casual outings, office wear, festive gatherings, and special occasions.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938722141",
+      "title": "Women’s Lime Green Embroidered Top",
+      "subtitle": "",
+      "category": "Women’s Tops",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "NEW",
+      "image": "/images/product-539b2e37-e4ec-494c-b42c-f414658baf6f.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Refresh your everyday wardrobe with this elegant lime green top from BRIVOO. Featuring beautiful white embroidery along the neckline and a delicate floral border at the hem, this top combines a modern silhouette with graceful ethnic-inspired detailing. The glossy finish, round neckline, and three-quarter sleeves give it a stylish look, making it perfect for casual outings, office wear, lunch dates, and everyday styling.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938479825",
+      "title": "Women’s Dark Green Floral Embroidered Straight Kurti",
+      "subtitle": "",
+      "category": "Women’s Long Kurtas",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 799,
+      "tag": "SALE",
+      "image": "/images/product-367c1bd8-73bb-4563-896d-b5bd28488e58.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Make a graceful style statement with this elegant dark green kurti from BRIVOO. Featuring beautiful floral embroidery with intricate decorative detailing, a stylish V-pattern neckline, and a unique layered design on the front, this kurti brings a modern touch to traditional ethnic fashion. Its rich green color and three-quarter sleeves make it a stylish choice for everyday wear, office outings, casual gatherings, and festive occasions.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938223289",
+      "title": "Women’s Purple Floral Embroidered Straight Kurti",
+      "subtitle": "",
+      "category": "Women’s Long Kurtas",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-060ebf62-fac6-4375-bdb6-197806e6e715.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Elevate your everyday style with this elegant purple straight-fit kurti from BRIVOO. Featuring beautiful floral embroidery on the front and a stylish V-shaped neckline with delicate detailing, this kurti blends traditional charm with a modern look. Its three-quarter sleeves and comfortable silhouette make it perfect for everyday wear, office styling, casual outings, and small family gatherings.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792938064128",
+      "title": "Women’s Red Embroidered Straight Kurta",
+      "subtitle": "",
+      "category": "Women’s Long Kurtas",
+      "gender": "Women",
+      "price": 322,
+      "originalPrice": 766,
+      "tag": "LIMITED",
+      "image": "/images/product-50580f70-e513-4982-925b-43e81bcb83e9.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Elevate your everyday ethnic style with this beautiful red embroidered kurta from BRIVOO. Featuring elegant golden V-shaped neckline detailing and intricate floral embroidery on the front, this kurta brings a perfect blend of traditional charm and modern simplicity. Its straight-cut silhouette and three-quarter sleeves make it a versatile addition to your wardrobe.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937858758",
+      "title": "Women’s Purple Floral Printed Kurta Pant Set",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 356,
+      "originalPrice": 1299,
+      "tag": "NEW",
+      "image": "/images/product-8ec559f6-dfda-42c5-bf48-9ac7dca5cedd.webp",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Refresh your everyday ethnic wardrobe with this beautiful purple floral kurta pant set from BRIVOO. Featuring an elegant all-over white floral print, a flattering round neckline, and three-quarter sleeves, this outfit offers a perfect blend of comfort and feminine style. The matching printed pants complete the coordinated look, making it a great choice for daily wear, casual outings, and relaxed family gatherings.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937743805",
+      "title": "Women’s Teal Blue Floral Printed Kurta Pant Co-Ord Set",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 356,
       "originalPrice": 2499,
       "tag": "NEW",
-      "image": "/images/linen_resort_shirt.png",
-      "colors": [
-        {
-          "name": "Ivory",
-          "hex": "#F5F2EB"
-        },
-        {
-          "name": "Sage",
-          "hex": "#5C6B5A"
-        },
-        {
-          "name": "Black",
-          "hex": "#1C1C1C"
-        }
+      "image": "/images/product-0bd82b1c-6ba5-4339-a487-843fc7c75349.webp",
+      "colors": [],
+      "sizes": [
+        "L"
       ],
+      "stock": 25,
+      "description": "Refresh your everyday wardrobe with this stylish teal blue floral co-ord set from BRIVOO. Featuring a beautiful all-over white floral print, this matching outfit combines a fresh, feminine look with effortless comfort. The round neckline, three-quarter sleeves, and straight-fit pants create a coordinated style perfect for everyday outings and casual occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937534644",
+      "title": "Women’s Dark Green Embroidered Straight Kurta Pant Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-db251c25-6bb2-42b0-b0e5-732ea1944b55.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Upgrade your ethnic wardrobe with this elegant dark green kurta pant set from BRIVOO. Featuring beautiful golden floral embroidery around the neckline and delicate golden motifs throughout, this kurta offers a graceful blend of traditional charm and modern style. Its straight silhouette and three-quarter sleeves create a timeless look, perfect for everyday wear and festive occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937438819",
+      "title": "Women’s Red Embroidered Straight Kurta Pant Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-7472fb0a-d8e1-4917-bcfa-f3314c6b581e.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add elegance to your everyday style with this beautiful red kurta pant set from BRIVOO. Featuring delicate golden floral embroidery on the neckline and front, this outfit combines traditional charm with a modern, graceful look. The straight-cut kurta, three-quarter sleeves, and matching pants create a comfortable and stylish ensemble for everyday wear and special occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937290707",
+      "title": "Charcoal Grey Embroidered Kurta Pant Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-b127780e-8675-4aeb-8f0f-dee62a3711c9.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Bring effortless elegance to your everyday wardrobe with this sophisticated charcoal grey kurta pant set. Designed with beautiful golden floral embroidery around the neckline and subtle diamond motifs across the kurta, this outfit offers a refined blend of traditional style and modern simplicity. The straight-cut silhouette, three-quarter sleeves, and matching pants make it a versatile choice for office wear, casual outings, and small festive gatherings.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937178006",
+      "title": "Chocolate Brown Embroidered Kurta Pant Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "NEW",
+      "image": "/images/product-aa5344af-f476-4208-9900-e8d7de7b9e07.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Refresh your ethnic wardrobe with this elegant chocolate brown kurta pant set. Featuring delicate golden floral embroidery on the neckline and chest, along with subtle diamond motifs throughout, this outfit offers a perfect blend of simplicity and traditional charm. The straight-cut kurta, three-quarter sleeves, and matching pants create a graceful and comfortable look for everyday wear, office outings, and casual festive occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792937036376",
+      "title": "Maroon Floral Embroidered Kurta Pant Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-7253dbe7-6795-46ce-a83f-8d19cd66f180.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add timeless elegance to your ethnic wardrobe with this beautiful maroon kurta pant set. Featuring delicate white floral embroidery across the front, stylish vertical patterns, and intricate detailing around the neckline, sleeves, and hem, this outfit creates a graceful traditional look. The matching pants with embroidered cuffs complete the ensemble, making it perfect for festive occasions, family gatherings, office wear, and everyday ethnic styling.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792935088447",
+      "title": "Emerald Green Embroidered Straight Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 459,
+      "originalPrice": 1299,
+      "tag": "BESTSELLER",
+      "image": "/images/product-700c8490-66fe-4729-a382-0a6fb3080e0d.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Elevate your everyday ethnic style with this elegant emerald green kurta set. Featuring beautiful white floral embroidery across the front, a stylish notch neckline, and delicate detailing on the three-quarter sleeves, this outfit blends traditional charm with modern elegance. Paired with matching straight-fit pants, it is perfect for festive gatherings, family functions, office wear, and casual outings.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792934910827",
+      "title": " Dark Green Embroidered Shirt-Style Cotton Co-Ord Set for Women",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 599,
+      "originalPrice": 1999,
+      "tag": "SALE",
+      "image": "/images/product-5e9da709-c65e-49c6-970c-44e14f41709c.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Elevate your everyday style with this elegant dark green co-ord set from BRIVOO. Designed with a chic shirt-style collar, delicate floral embroidery, pearl-style buttons, and a beautifully embellished neckline, this outfit offers a perfect blend of modern elegance and comfort. The matching straight-fit pants create a coordinated look, making it ideal for office wear, casual outings, shopping, and everyday occasions.\n\n",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792934814146",
+      "title": "Grey Embroidered Shirt-Style Kurta Pant Set for Women",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 599,
+      "originalPrice": 2499,
+      "tag": "NEW",
+      "image": "/images/product-11e6a763-9309-45ec-9e61-159817cd685c.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Keep your everyday style effortlessly elegant with this sophisticated grey co-ord set from BRIVOO. Featuring a stylish collared neckline, beautiful floral embroidery, and delicate pearl-style buttons, this outfit combines modern design with a graceful look. The matching straight-fit pants complete the coordinated ensemble, making it a versatile choice for office wear, casual outings, shopping, and everyday occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792934708026",
+      "title": "Navy Blue Embroidered Shirt-Style Cotton Co-Ord Set for Women",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 599,
+      "originalPrice": 1999,
+      "tag": "NEW",
+      "image": "/images/product-de8eda37-ba0d-4420-9d3a-28ba9f0b9a42.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Upgrade your everyday wardrobe with this elegant navy blue co-ord set from BRIVOO. Featuring a stylish shirt-style top, beautiful floral embroidery, pearl-style buttons, and a chic embellished collar, this outfit brings together modern fashion and everyday comfort. Paired with matching straight-fit pants, it creates a coordinated and sophisticated look for office wear, casual outings, shopping, and everyday occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792934602353",
+      "title": "Wine Plum Embroidered Cotton Kurta Pant Set for Women",
+      "subtitle": "",
+      "category": "Co-Ord Sets",
+      "gender": "Women",
+      "price": 599,
+      "originalPrice": 1999,
+      "tag": "BESTSELLER",
+      "image": "/images/product-bbc59baa-1c08-4222-8ccb-b939a6917b9d.jpg",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "Add timeless elegance to your everyday wardrobe with this beautiful wine-plum cotton set from BRIVOO. Designed with a stylish shirt collar, button-down front, and delicate floral embroidery, this coordinated outfit offers a graceful blend of traditional charm and modern style. The matching pants complete the look, making it perfect for everyday wear, office outings, casual gatherings, and family occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792934345407",
+      "title": "Navy Blue Printed Kurta Set with White Dupatta",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 499,
+      "originalPrice": 1299,
+      "tag": "SALE",
+      "image": "/images/product-1ae3619d-2af2-4f1f-93ab-41b7228781c8.webp",
+      "colors": [],
+      "sizes": [
+        "L"
+      ],
+      "stock": 25,
+      "description": "levate your everyday ethnic style with this elegant navy blue kurta set. Featuring delicate white floral motifs and a beautifully detailed neckline, this outfit blends traditional charm with modern simplicity. The matching bottoms create a coordinated look, while the lightweight white dupatta with floral patterns and lace detailing adds a graceful finishing touch.\n\nPerfect for casual outings, family gatherings, festive occasions, and everyday ethnic wear, this stylish ensemble offers a timeless and sophisticated look.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792933726096",
+      "title": "Maroon Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 499,
+      "originalPrice": 1699,
+      "tag": "SALE",
+      "image": "/images/product-39ecb022-9e44-48d5-aa83-12858b22632c.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Elevate your ethnic style with this elegant maroon kurta set featuring intricate white floral embroidery, matching straight-fit pants, and a sheer dupatta with a beautifully embroidered border. Perfect for festive celebrations, weddings, family gatherings, and special occasions, this outfit offers a timeless blend of traditional elegance and modern charm.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792933615108",
+      "title": "Teal Blue Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 499,
+      "originalPrice": 1699,
+      "tag": "SALE",
+      "image": "/images/product-c7eb2824-9f15-4e6c-8593-1072d1ea3d5e.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Upgrade your ethnic wardrobe with this stunning teal blue kurta set featuring elegant ivory embroidery, matching straight-fit pants, and a sheer dupatta with delicate embroidered borders. Its rich color and graceful design make it perfect for festive celebrations, family gatherings, and special occasions.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792933469306",
+      "title": "Magenta Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 499,
+      "originalPrice": 1699,
+      "tag": "NEW",
+      "image": "/images/product-5dff1c51-9fd3-4487-9b39-005dfcaa0bbe.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add a touch of elegance to your ethnic wardrobe with this beautiful magenta kurta set featuring intricate ivory embroidery, matching straight-fit pants, and a sheer dupatta with delicate embroidered border detailing. Perfect for festive celebrations, family gatherings, and special occasions, this outfit combines traditional beauty with modern sophistication.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792933258800",
+      "title": "Elegant Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 499,
+      "originalPrice": 1699,
+      "tag": "SALE",
+      "image": "/images/product-134bfb40-b200-4b07-a6de-dc97ca75f493.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Enhance your ethnic wardrobe with this beautiful kurta set featuring intricate floral embroidery, a coordinated bottom, and a stylish dupatta with elegant detailing. Perfect for festive occasions, family gatherings, and casual outings, this outfit combines traditional charm with a graceful, modern look.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792932434795",
+      "title": "Sage Green Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 799,
+      "originalPrice": 2499,
+      "tag": "NEW",
+      "image": "/images/product-b33ad21a-e12b-4221-84d3-bbed71bb134b.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Elevate your ethnic style with this elegant sage green kurta set featuring delicate floral embroidery, matching straight-fit pants, and a sheer dupatta with beautiful golden stripe detailing. Its soothing color and graceful design make it perfect for festive celebrations, family gatherings, and everyday ethnic wear.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792932291343",
+      "title": "Aqua Blue Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 799,
+      "originalPrice": 2199,
+      "tag": "LIMITED",
+      "image": "/images/product-8649ed06-a03e-48ab-9071-6f80b53ec98d.jpg",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Refresh your ethnic wardrobe with this elegant aqua blue kurta set featuring delicate floral embroidery, matching pants, and a beautiful dupatta adorned with pink floral prints and golden stripe detailing. Perfect for festive occasions, family gatherings, and special outings, this outfit combines graceful style with timeless charm.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792932140784",
+      "title": "Lavender Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 799,
+      "originalPrice": 2100,
+      "tag": "LIMITED",
+      "image": "/images/product-426be3a5-8905-4e73-8a61-e7f36b6b9d91.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add elegance to your ethnic wardrobe with this beautiful lavender kurta set featuring intricate floral embroidery, matching pants, and a graceful dupatta with golden stripe detailing and floral accents. Perfect for festive occasions, family gatherings, and special outings, this outfit blends sophistication with timeless ethnic charm.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792931993669",
+      "title": "Rust Red Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 799,
+      "originalPrice": 2097,
+      "tag": "NEW",
+      "image": "/images/product-e84d611c-5778-4488-a79d-f37a5f095de7.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Elevate your ethnic style with this stunning rust red kurta set featuring intricate white floral embroidery, matching pants, and a beautiful floral dupatta with elegant stripe detailing. Perfect for festive occasions, family gatherings, and special outings, this ensemble brings together traditional elegance and modern charm.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792931215203",
+      "title": "Pink Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 699,
+      "originalPrice": 2199,
+      "tag": "NEW",
+      "image": "/images/product-a437c061-b4a5-4108-ae06-f0cf8928840b.webp",
+      "colors": [],
+      "sizes": [
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add a touch of elegance to your ethnic wardrobe with this beautiful pink kurta set featuring intricate white floral embroidery, matching bottoms, and a gorgeous floral dupatta. Perfect for festive occasions, family gatherings, and casual outings, this stylish ensemble blends traditional charm with modern elegance.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792930788484",
+      "title": "Maroon Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 799,
+      "originalPrice": 2100,
+      "tag": "NEW",
+      "image": "/images/product-5b6f6598-aba8-44e5-b474-b43d231fa6d2.jpg",
+      "colors": [],
+      "sizes": [
+        "XXL"
+      ],
+      "stock": 25,
+      "description": "Make a statement with this elegant maroon kurta set featuring intricate white floral embroidery, matching bottoms, and a beautiful floral-print dupatta. Perfect for festive occasions, family gatherings, and special outings, this outfit adds a touch of sophistication to your ethnic wardrobe.",
+      "specs": "100% Premium European Flax Linen. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792930544577",
+      "title": "Mustard Yellow Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 1299,
+      "originalPrice": 2600,
+      "tag": "BESTSELLER",
+      "image": "/images/product-c975c34c-119e-499d-a730-e5241e5e58cc.jpg",
+      "colors": [],
       "sizes": [
         "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "stock": 25,
+      "description": "Add a vibrant touch to your ethnic wardrobe with this beautiful mustard yellow kurta set featuring elegant white floral embroidery, matching bottoms, and a coordinated dupatta. Perfect for festive occasions, family gatherings, and casual celebrations, this outfit combines traditional charm with effortless style.",
+      "specs": "100% Premium Fabric. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792930388453",
+      "title": "Sky Blue Floral Embroidered Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 999,
+      "originalPrice": 2499,
+      "tag": "LIMITED",
+      "image": "/images/product-bd5569ae-0625-4f13-aeb1-75dfb9325c4b.jpg",
+      "colors": [],
+      "sizes": [
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 25,
+      "description": "Refresh your ethnic wardrobe with this elegant sky blue kurta set featuring beautiful pink and yellow floral embroidery, matching bottoms, and a coordinating dupatta. Perfect for festive occasions, family gatherings, and casual outings, this outfit blends timeless elegance with effortless comfort.",
+      "specs": "100% Premium Fabric. Machine wash cold.",
+      "inStock": true,
+      "featured": true,
+      "reviews": []
+    },
+    {
+      "id": "prod-1792930182230",
+      "title": "Floral Print Red Dupatta Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
+      "gender": "Women",
+      "price": 599,
+      "originalPrice": 1599,
+      "tag": "SALE",
+      "image": "/images/product-8cd29c6c-639b-4d47-b1e1-fe18577e66eb.jpg",
+      "colors": [],
+      "sizes": [
         "M",
         "L",
         "XL",
         "XXL"
       ],
-      "stock": 44,
-      "description": "Elevated short-sleeve resort shirt cut from premium breathable linen. Designed with a classic camp collar and a relaxed silhouette for effortless summer elegance.",
-      "specs": "100% European Flax Linen. Pre-washed for soft feel. Machine wash cold.",
+      "stock": 25,
+      "description": "Refresh your ethnic wardrobe with this beautiful floral-print kurta set featuring vibrant red tones, matching red bottoms, and a striking dupatta with golden stripe detailing. Perfect for festive celebrations, casual outings, and family gatherings, this set combines elegance, comfort, and timeless ethnic charm.",
+      "specs": "100% Premium Fabric. Machine wash cold.",
       "inStock": true,
       "featured": true,
-      "reviews": [
-        {
-          "id": "r1",
-          "userName": "Aarav Sharma",
-          "rating": 5,
-          "comment": "Super soft linen, perfect fit for summer outings!",
-          "date": "2026-08-10"
-        },
-        {
-          "id": "r2",
-          "userName": "Kabir Roy",
-          "rating": 4,
-          "comment": "Great texture and color. Feels very high end.",
-          "date": "2026-08-12"
-        }
-      ]
+      "reviews": []
     },
     {
-      "id": "prod-2",
-      "title": "Oversized Linen Shirt",
-      "subtitle": "Beige",
-      "category": "Shirts",
+      "id": "prod-1792762817042",
+      "title": "Ivory Floral Kurta Set",
+      "subtitle": "",
+      "category": "Women’s Kurta Sets",
       "gender": "Women",
-      "price": 1899,
-      "originalPrice": 2699,
-      "tag": "NEW",
-      "image": "/images/oversized_shirt.png",
+      "price": 999,
+      "originalPrice": 2100,
+      "tag": "LIMITED",
+      "image": "/images/product-32aa2f81-70d7-4724-84da-fc8f9080b824.jpg",
       "colors": [
         {
-          "name": "Beige",
-          "hex": "#E3D5C5"
-        },
-        {
-          "name": "Cocoa",
-          "hex": "#5D4037"
-        },
-        {
-          "name": "Noir",
-          "hex": "#141414"
+          "name": "Ivory",
+          "hex": "#F5F2EB"
         }
       ],
       "sizes": [
-        "XS",
-        "S",
         "M",
         "L",
+        "XXL",
         "XL"
-      ],
-      "stock": 30,
-      "description": "Relaxed oversized button-down shirt featuring dropped shoulders and chest pocket detail. Made from ultra-lightweight organic linen blend.",
-      "specs": "80% Linen, 20% Organic Cotton. Dry clean or hand wash cold.",
-      "inStock": true,
-      "featured": true,
-      "reviews": [
-        {
-          "id": "r3",
-          "userName": "Priya Verma",
-          "rating": 5,
-          "comment": "Looks so elegant and chic. Quality is top notch!",
-          "date": "2026-08-12"
-        }
-      ]
-    },
-    {
-      "id": "prod-3",
-      "title": "Textured Knit Polo",
-      "subtitle": "Brown",
-      "category": "Polos",
-      "gender": "Men",
-      "price": 1699,
-      "originalPrice": 2299,
-      "tag": "BESTSELLER",
-      "image": "/images/textured_knit_polo.png",
-      "colors": [
-        {
-          "name": "Brown",
-          "hex": "#4A3525"
-        },
-        {
-          "name": "Cream",
-          "hex": "#F7F3EE"
-        },
-        {
-          "name": "Black",
-          "hex": "#111111"
-        }
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "stock": 20,
-      "description": "Sophisticated textured quarter-zip knit polo with refined ribbed collar and hem. Crafted from high-gauge luxury cotton.",
-      "specs": "100% Combed Cotton Knit. Lay flat to dry.",
-      "inStock": true,
-      "featured": true,
-      "reviews": [
-        {
-          "id": "r4",
-          "userName": "Rohan Mehta",
-          "rating": 5,
-          "comment": "The quarter zip detail is crisp and stylish. Fits true to size.",
-          "date": "2026-08-14"
-        }
-      ]
-    },
-    {
-      "id": "prod-4",
-      "title": "Tailored Vest",
-      "subtitle": "White",
-      "category": "Vests",
-      "gender": "Women",
-      "price": 1999,
-      "originalPrice": 2899,
-      "tag": "NEW",
-      "image": "/images/tailored_vest.png",
-      "colors": [
-        {
-          "name": "White",
-          "hex": "#FFFFFF"
-        },
-        {
-          "name": "Camel",
-          "hex": "#C69C6D"
-        },
-        {
-          "name": "Black",
-          "hex": "#000000"
-        }
-      ],
-      "sizes": [
-        "XS",
-        "S",
-        "M",
-        "L"
-      ],
-      "stock": 15,
-      "description": "Sleek tailored waistcoat vest with subtle horn-button front and notched hem. Pair with matching trousers for a powerful luxury look.",
-      "specs": "70% Viscose, 30% Linen with 100% Silk lining.",
-      "inStock": true,
-      "featured": true,
-      "reviews": [
-        {
-          "id": "r5",
-          "userName": "Ananya Roy",
-          "rating": 5,
-          "comment": "Absolute perfection! Fits like a glove.",
-          "date": "2026-08-15"
-        }
-      ]
-    },
-    {
-      "id": "prod-5",
-      "title": "Linen Tailored Trouser",
-      "subtitle": "Oatmeal",
-      "category": "Trousers",
-      "gender": "Unisex",
-      "price": 2499,
-      "originalPrice": 3299,
-      "tag": "BESTSELLER",
-      "image": "/images/hero.png",
-      "colors": [
-        {
-          "name": "Oatmeal",
-          "hex": "#D6C7B2"
-        },
-        {
-          "name": "Charcoal",
-          "hex": "#363636"
-        }
-      ],
-      "sizes": [
-        "28",
-        "30",
-        "32",
-        "34",
-        "36"
       ],
       "stock": 25,
-      "description": "Relaxed straight-leg tailored trousers with elasticated back waist, horn buttons, and deep side pockets.",
-      "specs": "100% Fine Linen.",
+      "description": "Elevate your ethnic style with this elegant ivory kurta set featuring beautiful pink floral embroidery, matching bottoms, and a graceful dupatta. Perfect for festive occasions, family gatherings, and everyday elegance. A timeless blend of comfort, charm, and sophistication.",
+      "specs": "100% Premium Fabric. Machine wash cold.",
       "inStock": true,
-      "featured": false,
+      "featured": true,
       "reviews": []
     }
   ],
   "orders": [
     {
-      "id": "BRV-62632",
-      "customerName": "Hanuman Jogi",
-      "email": "hanuman@example.com",
-      "phone": "+91 98765 43210",
-      "address": "12, Luxury Palm Avenue, Jubilee Hills, indore, madhya Pradesh 500033",
+      "id": "BRV-20753",
+      "customerName": "Sujal Rathore",
+      "email": "sujalrathore970@gmail.com",
+      "phone": "09009055556",
+      "address": "308\nTapti Parisar, Rau Pithampur, Bypass, 453331, 453331 453331",
+      "shippingCity": "453331",
+      "shippingState": "453331",
+      "shippingPincode": "453331",
       "items": [
         {
-          "id": "prod-1",
-          "title": "Linen Resort Shirt",
-          "price": 1799,
-          "quantity": 1,
-          "selectedSize": "S",
-          "selectedColor": "Ivory",
-          "image": "/images/linen_resort_shirt.png"
-        }
-      ],
-      "totalAmount": 1949,
-      "discountAmount": 0,
-      "paymentMethod": "UPI",
-      "status": "Processing",
-      "createdAt": "2026-08-17T10:03:20.808Z"
-    },
-    {
-      "id": "BRV-98412",
-      "customerName": "Rahul Kapoor",
-      "email": "rahul@example.com",
-      "phone": "+91 98765 43210",
-      "address": "Flat 402, Sunshine Heights, Bandra West, Mumbai 400050",
-      "items": [
-        {
-          "id": "prod-1",
-          "title": "Linen Resort Shirt",
-          "price": 1799,
+          "id": "prod-1792939854974",
+          "title": "Brown Floral Printed Sleeveless Top for Women",
+          "price": 322,
           "quantity": 1,
           "selectedSize": "L",
-          "selectedColor": "Ivory",
-          "image": "/images/linen_resort_shirt.png"
+          "selectedColor": "Standard",
+          "image": "/images/product-901e2935-d473-4100-aa10-507db7e3553e.jpg"
         }
       ],
-      "totalAmount": 1799,
+      "subtotal": 322,
+      "deliveryCharge": 97.72,
+      "totalAmount": 419.72,
+      "prepaidDiscount": 0,
+      "codFee": 0,
       "discountAmount": 0,
-      "paymentMethod": "UPI",
-      "status": "Processing",
-      "createdAt": "2026-08-16T10:30:00.000Z"
-    },
-    {
-      "id": "BRV-98411",
-      "customerName": "Sneha Reddy",
-      "email": "sneha@example.com",
-      "phone": "+91 91234 56789",
-      "address": "12 Jubilee Hills, Road No 36, Hyderabad 500033",
-      "items": [
-        {
-          "id": "prod-4",
-          "title": "Tailored Vest",
-          "price": 1999,
-          "quantity": 1,
-          "selectedSize": "S",
-          "selectedColor": "White",
-          "image": "/images/tailored_vest.png"
-        }
-      ],
-      "totalAmount": 1799,
-      "discountAmount": 200,
-      "paymentMethod": "Card",
-      "status": "Delivered",
-      "createdAt": "2026-08-15T14:20:00.000Z"
+      "couponCode": null,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "Pending",
+      "paymentRef": "TXN_COD_607442",
+      "status": "Cancelled",
+      "tracking": {
+        "carrier": "BlueDart Express",
+        "trackingNumber": "BLUEDART-45284110",
+        "estimatedDelivery": "2026-11-05",
+        "dispatchedAt": "2026-11-01T15:06:47.442Z",
+        "currentLocation": "BRIVOO Mumbai Fulfillment Hub",
+        "status": "Cancelled",
+        "checkpoints": [
+          {
+            "id": "cp-1793545607442",
+            "status": "Order Confirmed",
+            "location": "BRIVOO Mumbai Center",
+            "timestamp": "1 Nov 2026, 03:06 pm",
+            "description": "Order confirmed with Cash on Delivery."
+          },
+          {
+            "id": "cp-1793698631930",
+            "status": "Shipped",
+            "location": "BRIVOO Mumbai Fulfillment Hub",
+            "timestamp": "3 Nov 2026, 09:37 am",
+            "description": "Order status updated to Shipped."
+          },
+          {
+            "id": "cp-1793698633889",
+            "status": "Delivered",
+            "location": "BRIVOO Mumbai Fulfillment Hub",
+            "timestamp": "3 Nov 2026, 09:37 am",
+            "description": "Order status updated to Delivered."
+          },
+          {
+            "id": "cp-1793698636366",
+            "status": "Cancelled",
+            "location": "BRIVOO Mumbai Fulfillment Hub",
+            "timestamp": "3 Nov 2026, 09:37 am",
+            "description": "Order status updated to Cancelled."
+          }
+        ]
+      },
+      "returnStatus": "None",
+      "createdAt": "2026-11-01T15:06:47.498Z",
+      "emailNotification": {
+        "status": "sent",
+        "provider": "resend",
+        "messageId": "01a197a6-1a07-7143-9ed2-d4e62b6ddf3e",
+        "sentAt": "2026-11-01T15:06:47.849Z",
+        "recipient": "sujalrathore970@gmail.com",
+        "subject": "Order Confirmed: #BRV-20753 (Cash on Delivery) - BRIVOO"
+      }
     }
   ],
   "users": [
@@ -351,18 +1063,98 @@
       "id": "usr-admin",
       "name": "Brivoo Admin",
       "email": "admin@brivoo.com",
-      "password": "admin123",
+      "password": "$2b$10$jutQJXvLUDlPEM8CSQRCbutW4iRmgw.kHy7tQAmUga41GSUYRYnyC",
       "role": "admin",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      "lastLoginAt": "2026-10-13T09:45:44.570Z",
+      "authProvider": "email"
     },
     {
-      "id": "usr-customer",
-      "name": "Hanuman Jogi",
-      "email": "customer@brivoo.com",
-      "password": "user123",
+      "id": "usr-g-1793005165619",
+      "name": "Hanuman S. Jogi",
+      "email": "hsjogi9827@gmail.com",
+      "password": "google_oauth_1793005165619",
       "role": "customer",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIFih2wSkOqkhOFJxRE5fQP9MmPNV7dxkDKHZHcCLtfLpVzUoTYbQ=s96-c",
+      "googleId": "117701808466256713778",
+      "joinedAt": "2026-10-26T08:59:25.619Z"
+    },
+    {
+      "id": "usr-g-1793006769707",
+      "name": "Sujal Rathore",
+      "email": "sujalrathore971@gmail.com",
+      "password": "google_oauth_1793006769707",
+      "role": "customer",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLOrKme7_jSwCV5rrJmOiQaqgB-5ugVcd9GVL8arwTY_VBXxw=s96-c",
+      "googleId": "110000587436177205012",
+      "joinedAt": "2026-10-26T09:26:09.707Z"
+    },
+    {
+      "id": "usr-1793784749627",
+      "name": "tester",
+      "email": "test@gmail.com",
+      "password": "$2b$10$ocXFZ7k4/p3fpAwcquel6OuwK7KW/GQPcAbl0TwWkAj5ETpe3f/xC",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=tester",
+      "joinedAt": "2026-11-04T09:32:29.627Z"
+    },
+    {
+      "id": "usr-g-1794055045969",
+      "name": "Amit Gurjar",
+      "email": "amitgurjar3104@gmail.com",
+      "password": "google_oauth_1794055045969",
+      "role": "customer",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKFtu2kBWOShA7JZ55dgkmI0ljnhxtCSunDGLGJkbAInD9P3Q=s96-c",
+      "googleId": "116830010206789945898",
+      "joinedAt": "2026-11-07T12:37:25.969Z"
     }
   ],
-  "otps": {}
+  "otps": {},
+  "paymentOrders": [
+    {
+      "razorpayOrderId": "order_TuxEmzWBYCjhiq",
+      "amountPaise": 32172,
+      "shippingPincode": "453331",
+      "couponCode": "",
+      "itemsFingerprint": "e72cc946ffbe2f24f70ca3d141336f3715586ae74913527d4f41b6f435d6b44f",
+      "calculation": {
+        "subtotal": 322,
+        "discountAmount": 0,
+        "prepaidDiscount": 50,
+        "shippingCharge": 49.72,
+        "codFee": 0,
+        "grandTotal": 321.72,
+        "appliedCoupon": null,
+        "verifiedItems": [
+          {
+            "id": "prod-1792939854974",
+            "title": "Brown Floral Printed Sleeveless Top for Women",
+            "price": 322,
+            "quantity": 1,
+            "selectedSize": "L",
+            "selectedColor": "Standard",
+            "image": "/images/product-901e2935-d473-4100-aa10-507db7e3553e.jpg"
+          }
+        ],
+        "shippingCourier": "Xpressbees Air"
+      },
+      "createdAt": "2026-11-01T15:06:11.115Z",
+      "verified": false
+    }
+  ],
+  "offers": [],
+  "payments": [
+    {
+      "id": "PAY-607498",
+      "orderId": "BRV-20753",
+      "customerName": "Sujal Rathore",
+      "customerEmail": "sujalrathore970@gmail.com",
+      "amount": 419.72,
+      "method": "Cash on Delivery",
+      "status": "Pending",
+      "transactionRef": "TXN_COD_607442",
+      "createdAt": "2026-11-01T15:06:47.498Z"
+    }
+  ],
+  "returns": []
 }

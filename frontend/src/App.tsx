@@ -1,32 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { Product, CartItem, Order, Category, Coupon, SiteSettings, User } from './types';
+import React, { useState, useEffect, useRef } from 'react';
+import { Product, CartItem, Order, Category, Coupon, Offer, SiteSettings, User } from './types';
 import { api } from './services/api';
+import { initializeMetaPixel, trackMetaEvent, trackMetaPageView, trackMetaPurchase } from './services/metaPixel';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { FeaturedCollection } from './components/FeaturedCollection';
+import { CategoryShowcase } from './components/CategoryShowcase';
+import { OffersBanner } from './components/OffersBanner';
+import { ArtisanStory } from './components/ArtisanStory';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { AuthModal } from './components/AuthModal';
+const AIStylistModal = React.lazy(() => import('./components/AIStylistModal').then(m => ({ default: m.AIStylistModal })));
 import { Footer } from './components/Footer';
 import { ShopPage } from './pages/ShopPage';
 import { AccountPage } from './pages/AccountPage';
+import { OffersPage } from './pages/OffersPage';
+import { AboutPage } from './pages/AboutPage';
 
-// Admin Pages & Auth
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AdminProducts } from './pages/admin/AdminProducts';
-import { AdminOrders } from './pages/admin/AdminOrders';
-import { AdminCategories } from './pages/admin/AdminCategories';
-import { AdminCoupons } from './pages/admin/AdminCoupons';
-import { AdminSettings } from './pages/admin/AdminSettings';
-import { AdminLogin } from './pages/admin/AdminLogin';
+// Admin Pages & Auth (lazy-loaded)
+const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminProducts = React.lazy(() => import('./pages/admin/AdminProducts').then(m => ({ default: m.AdminProducts })));
+const AdminOrders = React.lazy(() => import('./pages/admin/AdminOrders').then(m => ({ default: m.AdminOrders })));
+const AdminTracking = React.lazy(() => import('./pages/admin/AdminTracking').then(m => ({ default: m.AdminTracking })));
+const AdminCategories = React.lazy(() => import('./pages/admin/AdminCategories').then(m => ({ default: m.AdminCategories })));
+const AdminCoupons = React.lazy(() => import('./pages/admin/AdminCoupons').then(m => ({ default: m.AdminCoupons })));
+const AdminOffers = React.lazy(() => import('./pages/admin/AdminOffers').then(m => ({ default: m.AdminOffers })));
+const AdminPayments = React.lazy(() => import('./pages/admin/AdminPayments').then(m => ({ default: m.AdminPayments })));
+const AdminReturns = React.lazy(() => import('./pages/admin/AdminReturns').then(m => ({ default: m.AdminReturns })));
+const AdminCustomers = React.lazy(() => import('./pages/admin/AdminCustomers').then(m => ({ default: m.AdminCustomers })));
+const AdminReviews = React.lazy(() => import('./pages/admin/AdminReviews').then(m => ({ default: m.AdminReviews })));
+const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings').then(m => ({ default: m.AdminSettings })));
+const AdminWhatsAppCRM = React.lazy(() => import('./pages/admin/AdminWhatsAppCRM').then(m => ({ default: m.AdminWhatsAppCRM })));
+const AdminVendors = React.lazy(() => import('./pages/admin/AdminVendors').then(m => ({ default: m.AdminVendors })));
+const AdminMarketing = React.lazy(() => import('./pages/admin/AdminMarketing').then(m => ({ default: m.AdminMarketing })));
+const AdminLogin = React.lazy(() => import('./pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
+const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
 export function App() {
   // Store Data States
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
@@ -41,10 +59,29 @@ export function App() {
   const [authPromptMessage, setAuthPromptMessage] = useState<string>('');
 
   // App UI Navigation States
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('brivoo_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        return u && u.role === 'admin';
+      }
+    } catch (e) {}
+    return false;
+  });
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('brivoo_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        if (u && u.role === 'admin') return 'admin';
+      }
+    } catch (e) {}
+    return 'home';
+  });
   const [adminTab, setAdminTab] = useState<string>('dashboard');
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('All');
 
   // Cart & Wishlist States
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -58,6 +95,16 @@ export function App() {
   const [appliedCouponCode, setAppliedCouponCode] = useState<string>('');
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
   const [trackOrderId, setTrackOrderId] = useState<string>('');
+  const [metaConsent, setMetaConsent] = useState<'accepted' | 'rejected' | null>(() => {
+    const saved = localStorage.getItem('brivoo_meta_pixel_consent');
+    return saved === 'accepted' || saved === 'rejected' ? saved : null;
+  });
+  const lastViewedProductRef = useRef<string | null>(null);
+
+  // AI Stylist & Virtual Try-On Modal States
+  const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
+  const [aiModalProduct, setAiModalProduct] = useState<Product | null>(null);
+  const [aiModalMode, setAiModalMode] = useState<'ask' | 'tryon'>('ask');
 
   // Add Product Quick Launch from Admin Dashboard
   const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false);
@@ -65,21 +112,31 @@ export function App() {
   // Load all initial store data from backend
   const fetchAllData = async () => {
     try {
-      const [prodRes, catRes, coupRes, ordRes, setRes, anaRes] = await Promise.all([
+      const [prodRes, catRes, coupRes, offRes, setRes] = await Promise.all([
         api.getProducts(),
         api.getCategories(),
         api.getCoupons(),
-        api.getOrders(),
-        api.getSettings(),
-        api.getAnalytics()
+        api.getOffers(),
+        api.getSettings()
       ]);
 
       if (prodRes.success) setProducts(prodRes.data);
       if (catRes.success) setCategories(catRes.data);
       if (coupRes.success) setCoupons(coupRes.data);
-      if (ordRes.success) setOrders(ordRes.data);
+      if (offRes && offRes.success) setOffers(offRes.data);
       if (setRes.success) setSettings(setRes.data);
-      if (anaRes.success) setAnalytics(anaRes.data);
+
+      if (currentUser) {
+        const ordRes = await api.getOrders();
+        if (ordRes.success) setOrders(ordRes.data);
+      } else {
+        setOrders([]);
+      }
+
+      if (isAdmin) {
+        const anaRes = await api.getAnalytics();
+        if (anaRes.success) setAnalytics(anaRes.data);
+      }
     } catch (err) {
       console.error('Error connecting to BRIVOO backend:', err);
     }
@@ -87,7 +144,32 @@ export function App() {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [currentUser, isAdmin]);
+
+  useEffect(() => {
+    if (metaConsent === 'accepted') initializeMetaPixel();
+  }, [metaConsent]);
+
+  useEffect(() => {
+    if (metaConsent === 'accepted' && !isAdmin) trackMetaPageView(activeTab);
+  }, [activeTab, metaConsent, isAdmin]);
+
+  useEffect(() => {
+    if (!selectedProduct) {
+      lastViewedProductRef.current = null;
+      return;
+    }
+    if (metaConsent !== 'accepted' || lastViewedProductRef.current === selectedProduct.id) return;
+
+    lastViewedProductRef.current = selectedProduct.id;
+    trackMetaEvent('ViewContent', {
+      content_ids: [selectedProduct.id],
+      content_name: selectedProduct.title,
+      content_type: 'product',
+      value: Number(selectedProduct.price),
+      currency: 'INR'
+    });
+  }, [selectedProduct, metaConsent]);
 
   // Auth Handlers
   const handleLoginSuccess = (user: User, token: string) => {
@@ -96,6 +178,7 @@ export function App() {
     localStorage.setItem('brivoo_user', JSON.stringify(user));
     localStorage.setItem('brivoo_token', token);
     setIsAuthModalOpen(false);
+    setOrders([]);
 
     if (user.role === 'admin') {
       setIsAdmin(true);
@@ -109,6 +192,8 @@ export function App() {
     localStorage.removeItem('brivoo_user');
     localStorage.removeItem('brivoo_token');
     setIsAdmin(false);
+    setOrders([]);
+    setAnalytics(null);
     setActiveTab('home');
   };
 
@@ -143,6 +228,14 @@ export function App() {
         };
         setCartItems([...cartItems, newItem]);
       }
+      trackMetaEvent('AddToCart', {
+        content_ids: [product.id],
+        contents: [{ id: product.id, quantity }],
+        content_name: product.title,
+        content_type: 'product',
+        value: Number(product.price) * quantity,
+        currency: 'INR'
+      });
       setIsCartOpen(true);
       if (selectedProduct) setSelectedProduct(null);
     }, "Sign in to add items to your shopping cart!");
@@ -152,6 +245,13 @@ export function App() {
     requireAuthForAction(() => {
       handleAddToCart(product, color, size, quantity);
       setIsCartOpen(false);
+      trackMetaEvent('InitiateCheckout', {
+        content_ids: [product.id],
+        contents: [{ id: product.id, quantity }],
+        content_type: 'product',
+        value: Number(product.price) * quantity,
+        currency: 'INR'
+      });
       setIsCheckoutOpen(true);
     }, "Sign in to complete instant checkout!");
   };
@@ -185,11 +285,19 @@ export function App() {
       setAppliedDiscount(discount);
       setAppliedCouponCode(code);
       setIsCartOpen(false);
+      trackMetaEvent('InitiateCheckout', {
+        content_ids: cartItems.map(item => item.product.id),
+        contents: cartItems.map(item => ({ id: item.product.id, quantity: item.quantity })),
+        content_type: 'product',
+        value: Math.max(0, cartItems.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0) - discount),
+        currency: 'INR'
+      });
       setIsCheckoutOpen(true);
     }, "Sign in to proceed to secure checkout!");
   };
 
   const handleOrderSuccess = (newOrder: Order) => {
+    trackMetaPurchase(newOrder);
     setIsCheckoutOpen(false);
     setCartItems([]);
     setConfirmedOrder(newOrder);
@@ -197,6 +305,153 @@ export function App() {
   };
 
   const totalCartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // DEDICATED FULL-SCREEN LUXURY ADMIN SUITE
+  if (activeTab === 'admin') {
+    if (!currentUser || currentUser.role !== 'admin') {
+      return (
+        <React.Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center text-gray-600">Loading Admin...</div>}>
+        <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-4">
+          <AdminLogin
+            onAdminLoginSuccess={handleLoginSuccess}
+            onCancel={() => {
+              setIsAdmin(false);
+              setActiveTab('home');
+            }}
+          />
+        </div>
+        </React.Suspense>
+      );
+    }
+
+    return (
+      <React.Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center text-gray-600">Loading Admin...</div>}>
+      <AdminLayout
+        currentUser={currentUser}
+        activeTab={adminTab}
+        onSelectTab={setAdminTab}
+        onExitToStore={() => {
+          setIsAdmin(false);
+          setActiveTab('home');
+        }}
+        onLogout={handleLogout}
+        orders={orders}
+        products={products}
+        analytics={analytics}
+        onAddNewProduct={() => {
+          setAdminTab('products');
+          setOpenAddProductModal(true);
+        }}
+      >
+        {adminTab === 'dashboard' && (
+          <AdminDashboard
+            analytics={analytics}
+            orders={orders}
+            products={products}
+            onNavigateTab={setAdminTab}
+            onAddNewProduct={() => {
+              setAdminTab('products');
+              setOpenAddProductModal(true);
+            }}
+          />
+        )}
+
+        {adminTab === 'orders' && (
+          <AdminOrders
+            orders={orders}
+            onRefresh={fetchAllData}
+            onNavigateToTracking={() => setAdminTab('tracking')}
+          />
+        )}
+
+        {adminTab === 'tracking' && (
+          <AdminTracking
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'categories' && (
+          <AdminCategories
+            categories={categories}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'coupons' && (
+          <AdminCoupons
+            coupons={coupons}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'offers' && (
+          <AdminOffers
+            offers={offers}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'payments' && (
+          <AdminPayments
+            orders={orders}
+            onRefresh={fetchAllData}
+            onNavigateToPricing={() => setAdminTab('settings')}
+          />
+        )}
+
+        {adminTab === 'returns' && (
+          <AdminReturns
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'products' && (
+          <AdminProducts
+            products={products}
+            categories={categories}
+            onRefresh={fetchAllData}
+            openAddModalInitially={openAddProductModal}
+          />
+        )}
+
+        {adminTab === 'vendors' && (
+          <AdminVendors />
+        )}
+
+        {adminTab === 'marketing' && (
+          <AdminMarketing />
+        )}
+
+        {adminTab === 'customers' && (
+          <AdminCustomers
+            orders={orders}
+            onRefresh={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'reviews' && (
+          <AdminReviews />
+        )}
+
+        {adminTab === 'whatsapp' && (
+          <AdminWhatsAppCRM
+            orders={orders}
+            onRefreshOrders={fetchAllData}
+          />
+        )}
+
+        {adminTab === 'settings' && (
+          <AdminSettings
+            settings={settings!}
+            onRefresh={fetchAllData}
+          />
+        )}
+      </AdminLayout>
+      </React.Suspense>
+    );
+  }
+
   const wishlistProducts = products.filter(p => wishlistIds.includes(p.id));
 
   return (
@@ -229,6 +484,11 @@ export function App() {
         setActiveTab={setActiveTab}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        onOpenAIStylist={(mode) => {
+          setAiModalMode(mode || 'ask');
+          setAiModalProduct(selectedProduct || products[0] || null);
+          setIsAIModalOpen(true);
+        }}
       />
 
       {/* Main Body Router Views */}
@@ -242,15 +502,77 @@ export function App() {
               onShopMen={() => setActiveTab('men')}
               onShopWomen={() => setActiveTab('women')}
             />
+            <CategoryShowcase
+              categories={categories}
+              onSelectCategory={(catName) => {
+                setSelectedCategoryFilter(catName);
+                setActiveTab('shop-all');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+            />
+            <OffersBanner
+              offers={offers}
+              onViewAllOffers={() => setActiveTab('offers')}
+              onShopCategory={(cat) => {
+                setSelectedCategoryFilter('All');
+                setActiveTab('shop-all');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+            />
             <FeaturedCollection
               products={products}
               onQuickAdd={handleAddToCart}
               onOpenModal={setSelectedProduct}
               onToggleWishlist={handleToggleWishlist}
               wishlistIds={wishlistIds}
-              onViewAll={() => setActiveTab('shop-all')}
+              onViewAll={() => {
+                setSelectedCategoryFilter('All');
+                setActiveTab('shop-all');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+            />
+            <ArtisanStory
+              onLearnMore={() => {
+                setActiveTab('about');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
+              onShopAll={() => {
+                setSelectedCategoryFilter('All');
+                setActiveTab('shop-all');
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              }}
             />
           </>
+        )}
+
+        {/* CUSTOMER VIEW - OFFERS & PROMOTIONAL PRIVILEGES */}
+        {activeTab === 'offers' && !isAdmin && (
+          <OffersPage
+            offers={offers}
+            onShopCategory={(category) => {
+              if (category === 'Shirts' || category === 'Polos' || category === 'Vests' || category === 'Trousers') {
+                setActiveTab('shop-all');
+              } else if (category === 'Men') {
+                setActiveTab('men');
+              } else if (category === 'Women') {
+                setActiveTab('women');
+              } else {
+                setActiveTab('shop-all');
+              }
+            }}
+            onApplyCouponToCart={(code) => {
+              setAppliedCouponCode(code);
+            }}
+          />
+        )}
+
+        {/* CUSTOMER VIEW - ABOUT US */}
+        {activeTab === 'about' && !isAdmin && (
+          <AboutPage
+            onShopMen={() => setActiveTab('men')}
+            onShopWomen={() => setActiveTab('women')}
+            onShopAll={() => setActiveTab('shop-all')}
+          />
         )}
 
         {/* CUSTOMER VIEW - CATALOG SHOP / MEN / WOMEN / COLLECTIONS */}
@@ -263,6 +585,7 @@ export function App() {
             onToggleWishlist={handleToggleWishlist}
             wishlistIds={wishlistIds}
             initialGender={activeTab === 'men' ? 'Men' : activeTab === 'women' ? 'Women' : 'All'}
+            initialCategory={selectedCategoryFilter}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
@@ -281,107 +604,7 @@ export function App() {
           />
         )}
 
-        {/* ADMIN CONTROL PANEL ROUTE (Gated with Admin Login) */}
-        {activeTab === 'admin' && (
-          !currentUser || currentUser.role !== 'admin' ? (
-            /* ADMIN LOGIN SCREEN */
-            <AdminLogin
-              onAdminLoginSuccess={handleLoginSuccess}
-              onCancel={() => setActiveTab('home')}
-            />
-          ) : (
-            /* ADMIN CONTROL PANEL */
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              
-              {/* Admin Header Bar */}
-              <div className="bg-[#141414] text-white p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between shadow-xl">
-                <div>
-                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C5A059]">
-                    ADMINISTRATION PORTAL
-                  </span>
-                  <h2 className="font-serif-luxury text-2xl font-bold">BRIVOO Command Center</h2>
-                  <p className="text-xs text-gray-400">Logged in as: <strong className="text-white">{currentUser.email}</strong></p>
-                </div>
 
-                {/* Admin Navigation Tabs */}
-                <div className="mt-4 md:mt-0 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider">
-                  {[
-                    { id: 'dashboard', label: 'Dashboard' },
-                    { id: 'products', label: 'Products' },
-                    { id: 'orders', label: 'Orders' },
-                    { id: 'categories', label: 'Categories' },
-                    { id: 'coupons', label: 'Coupons' },
-                    { id: 'settings', label: 'Site Settings' }
-                  ].map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setAdminTab(tab.id)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        adminTab === tab.id
-                          ? 'bg-[#C5A059] text-white shadow-md'
-                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Admin Tab Content */}
-              {adminTab === 'dashboard' && (
-                <AdminDashboard
-                  analytics={analytics}
-                  orders={orders}
-                  products={products}
-                  onNavigateTab={setAdminTab}
-                  onAddNewProduct={() => {
-                    setAdminTab('products');
-                    setOpenAddProductModal(true);
-                  }}
-                />
-              )}
-
-              {adminTab === 'products' && (
-                <AdminProducts
-                  products={products}
-                  categories={categories}
-                  onRefresh={fetchAllData}
-                  openAddModalInitially={openAddProductModal}
-                />
-              )}
-
-              {adminTab === 'orders' && (
-                <AdminOrders
-                  orders={orders}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'categories' && (
-                <AdminCategories
-                  categories={categories}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'coupons' && (
-                <AdminCoupons
-                  coupons={coupons}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-              {adminTab === 'settings' && (
-                <AdminSettings
-                  settings={settings!}
-                  onRefresh={fetchAllData}
-                />
-              )}
-
-            </div>
-          )
-        )}
 
       </main>
 
@@ -393,6 +616,10 @@ export function App() {
           else setActiveTab('shop-all');
         }}
         onTrackOrderClick={() => requireAuthForAction(() => setActiveTab('account'), "Sign in to track your orders!")}
+        onAboutClick={() => {
+          setActiveTab('about');
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }}
       />
 
       {/* Global Authentication Modal (Customer Login / Signup / Google Auth / Forgot Password) */}
@@ -412,6 +639,11 @@ export function App() {
         onToggleWishlist={handleToggleWishlist}
         isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
         onReviewSubmitted={fetchAllData}
+        onOpenAITryOn={(prod) => {
+          setAiModalProduct(prod);
+          setAiModalMode('tryon');
+          setIsAIModalOpen(true);
+        }}
       />
 
       {/* Slide-over Cart Drawer */}
@@ -432,6 +664,8 @@ export function App() {
         items={cartItems}
         appliedDiscount={appliedDiscount}
         couponCode={appliedCouponCode}
+        settings={settings}
+        metaConsent={metaConsent === 'accepted'}
         onOrderSuccess={handleOrderSuccess}
       />
 
@@ -445,6 +679,59 @@ export function App() {
         }}
       />
 
+      {/* Global AI Fashion Stylist & Virtual Try-On Studio Modal */}
+      {isAIModalOpen && (
+        <React.Suspense fallback={<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 text-white">Loading AI Stylist...</div>}>
+          <AIStylistModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        products={products}
+        initialProduct={aiModalProduct}
+        initialMode={aiModalMode}
+        onAddToCart={handleAddToCart}
+        onOpenProductDetail={(prod) => {
+          setSelectedProduct(prod);
+          setIsAIModalOpen(false);
+        }}
+          />
+        </React.Suspense>
+      )}
+
+
+
+      {metaConsent === null && (
+        <div
+          role="dialog"
+          aria-label="Cookie preferences"
+          className="fixed bottom-4 left-4 right-4 z-[100] mx-auto max-w-2xl rounded-xl border border-gray-200 bg-white p-4 shadow-2xl"
+        >
+          <p className="mb-3 text-sm text-gray-700">
+            We use Meta Pixel to understand site activity and improve our ads. You can accept or reject this optional tracking.
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              onClick={() => {
+                localStorage.setItem('brivoo_meta_pixel_consent', 'rejected');
+                setMetaConsent('rejected');
+              }}
+            >
+              Reject
+            </button>
+            <button
+              type="button"
+              className="rounded-lg bg-[#1A1A1A] px-4 py-2 text-sm text-white"
+              onClick={() => {
+                localStorage.setItem('brivoo_meta_pixel_consent', 'accepted');
+                setMetaConsent('accepted');
+              }}
+            >
+              Accept
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

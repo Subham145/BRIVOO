@@ -27,15 +27,18 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-6 animate-in fade-in zoom-in duration-200 print:shadow-none print:border-none">
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto p-4 sm:p-6 flex justify-center items-start"
+    >
+      <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-4 sm:my-8 animate-in fade-in zoom-in duration-200 print:shadow-none print:border-none">
         
         {/* Top Success Banner */}
         <div className="bg-[#141414] text-white p-6 text-center space-y-2 relative">
           <div className="w-12 h-12 rounded-full bg-[#C5A059] text-white flex items-center justify-center mx-auto shadow-lg">
             <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <h2 className="font-serif-luxury text-2xl font-bold tracking-wide">
+          <h2 className="font-sans text-2xl font-extrabold tracking-tight">
             Thank You For Your Order!
           </h2>
           <p className="text-xs text-[#C5A059] uppercase font-bold tracking-widest">
@@ -83,7 +86,7 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
           {/* Purchased Items Table */}
           <div className="space-y-3">
-            <h4 className="font-serif-luxury font-bold text-sm text-[#1A1A1A] border-b border-[#E6DFC5] pb-2">
+            <h4 className="font-sans font-bold text-sm text-stone-900 border-b border-[#E6DFC5] pb-2">
               Order Items ({order.items.length})
             </h4>
             <div className="divide-y divide-[#E6DFC5]">
@@ -111,11 +114,37 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
           {/* Pricing Totals */}
           <div className="border-t border-[#E6DFC5] pt-3 space-y-1 text-right">
-            {order.discountAmount > 0 && (
-              <p className="text-green-700 font-medium">Discount: - ₹{order.discountAmount.toLocaleString('en-IN')}</p>
+            {(order as any).subtotal !== undefined && (
+              <p className="text-gray-600">
+                Items Total: ₹{Number((order as any).subtotal).toLocaleString('en-IN')}
+              </p>
+            )}
+            {(order.discountAmount || 0) > 0 && (
+              <p className="text-green-700 font-medium">
+                Coupon Discount: - ₹{Number(order.discountAmount || 0).toLocaleString('en-IN')}
+              </p>
+            )}
+            {Number((order as any).prepaidDiscount || 0) > 0 && (
+              <p className="text-green-700 font-medium">
+                Prepaid Discount: - ₹{Number((order as any).prepaidDiscount).toLocaleString('en-IN')}
+              </p>
+            )}
+            {(order as any).deliveryCharge !== undefined && (
+              <p className="text-gray-600">
+                Shipping: {Number((order as any).deliveryCharge) === 0
+                  ? 'FREE'
+                  : `₹${Number((order as any).deliveryCharge).toLocaleString('en-IN')}`}
+              </p>
+            )}
+            {Number((order as any).codFee || 0) > 0 && (
+              <p className="text-gray-600">
+                Cash on Delivery Fee: + ₹{Number((order as any).codFee).toLocaleString('en-IN')}
+              </p>
             )}
             <p className="text-base font-bold text-[#1A1A1A]">
-              Total Paid: ₹{order.totalAmount.toLocaleString('en-IN')}
+              {order.paymentMethod === 'Cash on Delivery'
+                ? 'Total Payable on Delivery'
+                : 'Total Paid'}: ₹{order.totalAmount.toLocaleString('en-IN')}
             </p>
           </div>
 

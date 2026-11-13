@@ -21,8 +21,9 @@ export default {
         }
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+        serif: ['Plus Jakarta Sans', 'Outfit', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'Plus Jakarta Sans', 'sans-serif']
       }
     },
   },

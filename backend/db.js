@@ -24,12 +24,103 @@ const INITIAL_DATA = {
     { id: "coup-1", code: "LUXE10", discountType: "percentage", value: 10, minSpend: 1000, active: true },
     { id: "coup-2", code: "BRIVOO500", discountType: "fixed", value: 500, minSpend: 2500, active: true }
   ],
+  offers: [
+    {
+      id: "off-1",
+      title: "Summer European Flax Linen Sale",
+      subtitle: "Bespoke linen shirts, relaxed trousers & waistcoats",
+      badge: "FLAT 25% OFF",
+      code: "LINEN25",
+      discountType: "percentage",
+      discountValue: 25,
+      minSpend: 1999,
+      description: "Unlock 25% off on our signature 100% European Flax Linen collection. Handcrafted seams and mother-of-pearl buttons.",
+      validUntil: "2026-11-30",
+      category: "All",
+      bannerImage: "/images/hero_slide_1.jpg",
+      tagColor: "gold",
+      featured: true,
+      active: true,
+      terms: [
+        "Valid on orders above ₹1,999",
+        "Applicable on all European Flax Linen articles",
+        "Includes complimentary door-to-door express delivery",
+        "Cannot be combined with other promotional codes"
+      ]
+    },
+    {
+      id: "off-2",
+      title: "Atelier First Order Privilege",
+      subtitle: "Welcome to BRIVOO luxury tailoring",
+      badge: "₹500 OFF",
+      code: "WELCOME500",
+      discountType: "fixed",
+      discountValue: 500,
+      minSpend: 2499,
+      description: "A warm welcome gift for discerning patrons. Receive ₹500 instant deduction on your first bespoke purchase.",
+      validUntil: "2026-12-31",
+      category: "All",
+      bannerImage: "/images/hero_slide_2.jpg",
+      tagColor: "dark",
+      featured: true,
+      active: true,
+      terms: [
+        "Minimum cart value of ₹2,499 required",
+        "Valid for new customers only",
+        "Applicable across all shirts, polos & waistcoats"
+      ]
+    },
+    {
+      id: "off-3",
+      title: "Weekend Luxury Flash Soirée",
+      subtitle: "Limited 48-Hour Weekend Window",
+      badge: "FLASH DEAL 30%",
+      code: "WEEKEND30",
+      discountType: "percentage",
+      discountValue: 30,
+      minSpend: 3499,
+      description: "Exclusive weekend privilege for our atelier club members. Save 30% on orders exceeding ₹3,499.",
+      validUntil: "2026-10-31",
+      category: "Shirts",
+      bannerImage: "/images/hero_slide_3.jpg",
+      tagColor: "rose",
+      featured: true,
+      active: true,
+      terms: [
+        "Valid till Sunday midnight",
+        "Minimum cart spend ₹3,499",
+        "Includes express priority dispatched within 24 hours"
+      ]
+    },
+    {
+      id: "off-4",
+      title: "Complimentary Silk Pocket Square",
+      subtitle: "Bespoke luxury gift with every Vest or Suit",
+      badge: "COMPLIMENTARY GIFT",
+      code: "SILKGIFT",
+      discountType: "fixed",
+      discountValue: 300,
+      minSpend: 2999,
+      description: "Receive a complimentary hand-rolled mulberry silk pocket square and ₹300 off with any tailored waistcoat.",
+      validUntil: "2026-11-15",
+      category: "Vests",
+      bannerImage: "/images/tailored_vest.png",
+      tagColor: "emerald",
+      featured: false,
+      active: true,
+      terms: [
+        "Automatic silk pocket square included in packaging",
+        "Minimum spend ₹2,999 on tailored items",
+        "Non-exchangeable for cash"
+      ]
+    }
+  ],
   users: [
     {
       id: "usr-admin",
-      name: "Brivoo Admin",
-      email: "admin@brivoo.com",
-      password: "admin123", // Hashed in production
+      name: "Sujal Rathore (Admin)",
+      email: "sujalrathore970@gmail.com",
+      password: "$2b$10$VsfLs5PhOGjLtaTyDIgddOYnJzZLhMT.gw.wgDTFLQmOhzMVma7cu", // Pre-hashed bcrypt
       role: "admin",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
     },
@@ -37,7 +128,7 @@ const INITIAL_DATA = {
       id: "usr-customer",
       name: "Hanuman Jogi",
       email: "customer@brivoo.com",
-      password: "user123",
+      password: "$2b$10$CcKV9.QCfNkGN4qYzS6YPuyPrn07wqqL.pq9XJuv8fkXQyFab9Zka", // Pre-hashed bcrypt
       role: "customer",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
     }
@@ -247,8 +338,20 @@ export function readData() {
       data.coupons = INITIAL_DATA.coupons;
       dirty = true;
     }
+    if (!data.offers) {
+      data.offers = INITIAL_DATA.offers;
+      dirty = true;
+    }
     if (!data.categories) {
       data.categories = INITIAL_DATA.categories;
+      dirty = true;
+    }
+    if (!data.payments) {
+      data.payments = [];
+      dirty = true;
+    }
+    if (!data.returns) {
+      data.returns = [];
       dirty = true;
     }
     if (!data.settings) {
@@ -268,10 +371,17 @@ export function readData() {
 export function writeData(data) {
   initDB();
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    const tempFile = `${DATA_FILE}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tempFile, DATA_FILE);
     return true;
   } catch (err) {
-    console.error('Error writing database file:', err);
-    return false;
+    try {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      return true;
+    } catch (fallbackErr) {
+      console.error('Error writing database file:', fallbackErr);
+      return false;
+    }
   }
 }
