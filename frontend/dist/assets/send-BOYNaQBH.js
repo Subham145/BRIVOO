@@ -1,1 +1,0 @@
-import{n as e}from"./jsx-runtime-B-XWp_JT.js";var t=e(`CheckCheck`,[[`path`,{d:`M18 6 7 17l-5-5`,key:`116fxf`}],[`path`,{d:`m22 10-7.5 7.5L13 16`,key:`ke71qq`}]]),n=e(`Send`,[[`path`,{d:`m22 2-7 20-4-9-9-4Z`,key:`1q3vgg`}],[`path`,{d:`M22 2 11 13`,key:`nzbqef`}]]);export{t as n,n as t};

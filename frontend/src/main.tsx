@@ -13,9 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <App />
       </GoogleOAuthProvider>
     ) : (
-      <div role="alert" className="p-6 text-center text-red-700">
-        Google Sign-In is not configured.
-      </div>
+      <App />
     )}
   </React.StrictMode>
 );

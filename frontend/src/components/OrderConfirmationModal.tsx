@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Printer, ArrowRight, PackageCheck, MapPin, Calendar } from 'lucide-react';
+import { Check, CheckCircle2, ArrowRight, Package, MapPin, Printer, Sparkles } from 'lucide-react';
 import { Order } from '../types';
 
 interface OrderConfirmationModalProps {
@@ -15,169 +15,99 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 }) => {
   if (!order) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const estimatedDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto p-4 sm:p-6 flex justify-center items-start"
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm overflow-y-auto p-4 sm:p-6 flex justify-center items-start animate-in fade-in"
     >
-      <div className="bg-[#FAF7F2] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#C5A059]/40 relative overflow-hidden my-4 sm:my-8 animate-in fade-in zoom-in duration-200 print:shadow-none print:border-none">
+      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl border border-[#E9DED5] relative overflow-hidden my-6 sm:my-10 animate-in zoom-in-95 duration-200">
         
-        {/* Top Success Banner */}
-        <div className="bg-[#141414] text-white p-6 text-center space-y-2 relative">
-          <div className="w-12 h-12 rounded-full bg-[#C5A059] text-white flex items-center justify-center mx-auto shadow-lg">
-            <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
+        {/* Top Celebration Section matching Reference Image */}
+        <div className="p-8 sm:p-10 text-center space-y-4 bg-gradient-to-b from-[#FBF6F0] to-white border-b border-[#E9DED5]">
+          
+          {/* Green Checkmark Circle with Festive Aura */}
+          <div className="relative inline-block">
+            <div className="w-20 h-20 rounded-full bg-[#23865B] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#23865B]/20">
+              <Check className="w-10 h-10 stroke-[3]" />
+            </div>
+            {/* Sparkle icons */}
+            <Sparkles className="w-5 h-5 text-[#D6A63A] absolute -top-1 -right-2 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-[#D6A63A] absolute -bottom-1 -left-2 animate-pulse" />
           </div>
-          <h2 className="font-sans text-2xl font-extrabold tracking-tight">
-            Thank You For Your Order!
-          </h2>
-          <p className="text-xs text-[#C5A059] uppercase font-bold tracking-widest">
-            Order Reference #{order.id}
+
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#211A18] tracking-tight">
+            Order Placed Successfully!
+          </h1>
+
+          <p className="text-xs sm:text-sm text-[#746963] font-normal">
+            Thank you for shopping with <strong className="text-[#781C35]">BRIVOO</strong>.
           </p>
+
+          <div className="bg-[#FAF0F2] border border-[#781C35]/20 px-4 py-2 rounded-xl inline-block">
+            <span className="text-xs font-bold text-[#781C35] tracking-wider uppercase font-mono">
+              Order ID: #{order.id}
+            </span>
+          </div>
+
+          <p className="text-[11px] text-[#746963] max-w-sm mx-auto">
+            We've sent the order details to your email <strong className="text-[#211A18]">{order.email}</strong> and WhatsApp.
+          </p>
+
+          {/* Action Buttons matching Reference Image */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => {
+                onTrackOrder(order.id);
+                onClose();
+              }}
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#781C35] hover:bg-[#541326] text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-luxury transition-all"
+            >
+              Track Order
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full sm:w-auto px-8 py-3.5 bg-white hover:bg-[#FBF6F0] text-[#211A18] border border-[#E9DED5] text-xs font-bold uppercase tracking-wider rounded-full transition-all"
+            >
+              Continue Shopping
+            </button>
+          </div>
         </div>
 
-        {/* Printable Receipt Body */}
-        <div className="p-6 md:p-8 space-y-6 text-xs text-[#1A1A1A]">
-          
-          {/* Order Details Header Grid */}
-          <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-[#E6DFC5]">
-            <div>
-              <span className="text-gray-400 font-medium">Customer Name</span>
-              <p className="font-bold text-sm">{order.customerName}</p>
-              <p className="text-gray-500">{order.email}</p>
-              <p className="text-gray-500">{order.phone}</p>
-            </div>
-            <div className="text-right">
-              <span className="text-gray-400 font-medium">Payment & Status</span>
-              <p className="font-bold text-sm text-[#C5A059]">{order.paymentMethod}</p>
-              <span className="inline-block mt-1 bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                {order.status}
-              </span>
-            </div>
-          </div>
+        {/* Order Brief Summary Details */}
+        <div className="p-6 sm:p-8 space-y-4 text-xs">
+          <h3 className="font-serif text-sm font-bold text-[#211A18] uppercase tracking-wider">
+            Order Overview
+          </h3>
 
-          {/* Delivery Estimate & Address */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#F7F3EE] p-4 rounded-xl border border-[#E6DFC5]">
-            <div className="flex items-start space-x-3">
-              <Calendar className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold uppercase text-[10px] text-gray-500">Estimated Delivery</span>
-                <p className="font-bold text-xs">{estimatedDelivery}</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MapPin className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold uppercase text-[10px] text-gray-500">Shipping Address</span>
-                <p className="font-medium text-xs text-gray-700">{order.address}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Purchased Items Table */}
-          <div className="space-y-3">
-            <h4 className="font-sans font-bold text-sm text-stone-900 border-b border-[#E6DFC5] pb-2">
-              Order Items ({order.items.length})
-            </h4>
-            <div className="divide-y divide-[#E6DFC5]">
-              {order.items.map((item, idx) => (
-                <div key={idx} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <img 
-                      src={item.image} 
-                      alt={item.title} 
-                      className="w-12 h-14 object-cover rounded bg-[#F3EEE7]"
-                    />
-                    <div>
-                      <p className="font-bold text-xs">{item.title}</p>
-                      <p className="text-gray-500 text-[11px]">Size: {item.selectedSize} | Color: {item.selectedColor}</p>
-                      <p className="text-gray-400 text-[11px]">Qty: {item.quantity}</p>
-                    </div>
-                  </div>
-                  <span className="font-bold text-sm">
-                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
-                  </span>
+          <div className="space-y-2.5 divide-y divide-[#E9DED5]">
+            {order.items.map((item, idx) => (
+              <div key={idx} className="pt-2.5 flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-[#211A18]">{item.title}</p>
+                  <p className="text-[11px] text-[#746963]">
+                    Qty: {item.quantity} • Size: {item.selectedSize}
+                  </p>
                 </div>
-              ))}
+                <span className="font-bold text-[#781C35]">₹{item.price * item.quantity}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-3 border-t border-[#E9DED5] flex justify-between font-bold text-sm text-[#211A18]">
+            <span>Total Payable</span>
+            <span className="text-base text-[#781C35]">₹{order.totalAmount}</span>
+          </div>
+
+          {/* Delivery Address */}
+          <div className="bg-[#FBF6F0] p-3.5 rounded-2xl flex items-start gap-2.5 text-[#746963]">
+            <MapPin className="w-4 h-4 text-[#781C35] shrink-0 mt-0.5" />
+            <div className="text-[11px]">
+              <span className="font-bold text-[#211A18] block">Delivering to:</span>
+              <p>{order.customerName}</p>
+              <p>{order.address}</p>
+              <p>Phone: {order.phone}</p>
             </div>
           </div>
-
-          {/* Pricing Totals */}
-          <div className="border-t border-[#E6DFC5] pt-3 space-y-1 text-right">
-            {(order as any).subtotal !== undefined && (
-              <p className="text-gray-600">
-                Items Total: ₹{Number((order as any).subtotal).toLocaleString('en-IN')}
-              </p>
-            )}
-            {(order.discountAmount || 0) > 0 && (
-              <p className="text-green-700 font-medium">
-                Coupon Discount: - ₹{Number(order.discountAmount || 0).toLocaleString('en-IN')}
-              </p>
-            )}
-            {Number((order as any).prepaidDiscount || 0) > 0 && (
-              <p className="text-green-700 font-medium">
-                Prepaid Discount: - ₹{Number((order as any).prepaidDiscount).toLocaleString('en-IN')}
-              </p>
-            )}
-            {(order as any).deliveryCharge !== undefined && (
-              <p className="text-gray-600">
-                Shipping: {Number((order as any).deliveryCharge) === 0
-                  ? 'FREE'
-                  : `₹${Number((order as any).deliveryCharge).toLocaleString('en-IN')}`}
-              </p>
-            )}
-            {Number((order as any).codFee || 0) > 0 && (
-              <p className="text-gray-600">
-                Cash on Delivery Fee: + ₹{Number((order as any).codFee).toLocaleString('en-IN')}
-              </p>
-            )}
-            <p className="text-base font-bold text-[#1A1A1A]">
-              {order.paymentMethod === 'Cash on Delivery'
-                ? 'Total Payable on Delivery'
-                : 'Total Paid'}: ₹{order.totalAmount.toLocaleString('en-IN')}
-            </p>
-          </div>
-
-          {/* Footer Actions (Non-printable) */}
-          <div className="pt-4 border-t border-[#E6DFC5] flex flex-wrap gap-3 justify-between items-center print:hidden">
-            <button
-              onClick={handlePrint}
-              className="px-4 py-2 bg-white border border-[#E6DFC5] hover:bg-[#F3EEE7] rounded-lg text-xs font-bold uppercase tracking-wider flex items-center space-x-2 transition-colors"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Print Invoice</span>
-            </button>
-
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  onClose();
-                  onTrackOrder(order.id);
-                }}
-                className="bg-[#C5A059] hover:bg-[#A6823C] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-              >
-                Track Order Status
-              </button>
-
-              <button
-                onClick={onClose}
-                className="bg-[#141414] hover:bg-[#C5A059] text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-md"
-              >
-                Continue Shopping
-              </button>
-            </div>
-          </div>
-
         </div>
 
       </div>

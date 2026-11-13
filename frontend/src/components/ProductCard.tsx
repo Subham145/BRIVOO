@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, ShoppingBag, Eye } from 'lucide-react';
+import { Heart, ShoppingBag, Eye, Check } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -18,148 +18,163 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isWishlisted
 }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.name || 'Default');
-  const [selectedHex, setSelectedHex] = useState(product.colors?.[0]?.hex || '#1A1A1A');
+  const [addedAnimation, setAddedAnimation] = useState(false);
+
+  const discountPercent = product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
+
+  const handleQuickAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const defaultSize = product.sizes?.[0] || 'M';
+    onQuickAdd(product, selectedColor, defaultSize);
+    setAddedAnimation(true);
+    setTimeout(() => setAddedAnimation(false), 1500);
+  };
 
   return (
-    <div className="group relative flex flex-col bg-white rounded-xl sm:rounded-2xl p-2 sm:p-3 transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] border border-stone-200/80 hover:border-amber-400/50 hover:-translate-y-1">
-      
-      {/* Product Image Container */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg sm:rounded-xl bg-stone-100">
-        <img 
-          src={product.image} 
+    <div 
+      onClick={() => onOpenModal(product)}
+      className="group relative flex flex-col bg-white rounded-2xl p-2.5 sm:p-3 transition-all duration-300 border border-[#E9DED5] hover:border-[#781C35]/40 hover:shadow-luxury hover:-translate-y-1 cursor-pointer"
+    >
+      {/* Product Image Container (3:4 Editorial Ratio) */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#F2E5D8]/50">
+        <img
+          src={product.image}
           alt={product.title}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-contain object-center group-hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
-          onClick={() => onOpenModal(product)}
+          className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
         />
 
-        {/* Badge (Top-Left) */}
-        {product.tag && (
-          <div className="absolute top-2 left-2 z-10">
-            <span className="bg-[#141414]/90 backdrop-blur-md text-[#C5A059] text-[8px] sm:text-[9px] font-bold tracking-wider sm:tracking-widest uppercase px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md border border-[#C5A059]/30 shadow-xs">
+        {/* Tag / Discount Badge (Top-Left) */}
+        <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
+          {product.tag && (
+            <span className="bg-[#781C35] text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs">
               {product.tag}
             </span>
-          </div>
-        )}
+          )}
+          {discountPercent > 0 && !product.tag && (
+            <span className="bg-[#23865B] text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs">
+              {discountPercent}% OFF
+            </span>
+          )}
+        </div>
 
-        {/* Wishlist Button (Top-Right) */}
+        {/* Wishlist Heart Button (Top-Right) */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleWishlist(product);
           }}
-          className={`absolute top-2 right-2 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all shadow-xs min-w-[30px] min-h-[30px] flex items-center justify-center ${
-            isWishlisted 
-              ? 'bg-red-50 text-red-500 scale-105' 
-              : 'bg-white/85 text-stone-700 hover:bg-white hover:text-red-500 hover:scale-105'
+          className={`absolute top-2.5 right-2.5 z-10 p-2 rounded-full backdrop-blur-md transition-all shadow-xs flex items-center justify-center ${
+            isWishlisted
+              ? 'bg-[#781C35] text-white scale-105'
+              : 'bg-white/90 text-stone-700 hover:bg-white hover:text-[#781C35] hover:scale-110'
           }`}
-          title="Add to Wishlist"
+          title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
           aria-label="Wishlist"
         >
-          <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-red-500' : ''}`} />
+          <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-white stroke-white' : 'stroke-[2]'}`} />
         </button>
 
-        {/* Mobile Quick-Add Button (Always visible on mobile touchscreens) */}
+        {/* Mobile Quick Add Button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onQuickAdd(product, selectedColor, product.sizes?.[0] || 'M');
-          }}
-          className="md:hidden absolute bottom-2 right-2 z-10 bg-stone-900/90 text-white hover:bg-[#C5A059] p-2 rounded-lg shadow-md border border-white/20 active:scale-90 transition-all flex items-center justify-center min-w-[32px] min-h-[32px]"
+          onClick={handleQuickAddClick}
+          className="md:hidden absolute bottom-2.5 right-2.5 z-10 bg-[#781C35] text-white p-2 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center"
           title="Quick Add to Bag"
           aria-label="Quick Add to Bag"
         >
-          <ShoppingBag className="w-3.5 h-3.5 text-[#C5A059]" />
+          {addedAnimation ? (
+            <Check className="w-4 h-4 text-[#D6A63A]" />
+          ) : (
+            <ShoppingBag className="w-4 h-4" />
+          )}
         </button>
 
         {/* Desktop Hover Quick Action Overlay */}
-        <div className="hidden md:flex absolute inset-x-0 bottom-2.5 px-2.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 space-x-2">
+        <div className="hidden md:flex absolute inset-x-0 bottom-3 px-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 space-x-2 z-10">
           <button
-            onClick={() => onQuickAdd(product, selectedColor, product.sizes?.[0] || 'M')}
-            className="flex-1 bg-stone-900/95 hover:bg-[#C5A059] text-white text-[11px] font-bold uppercase tracking-wider py-2.5 rounded-xl shadow-lg backdrop-blur-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
+            onClick={handleQuickAddClick}
+            className="flex-1 bg-[#781C35] hover:bg-[#541326] text-white text-[11px] font-bold uppercase tracking-wider py-2.5 rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all active:scale-95"
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Quick Add</span>
+            {addedAnimation ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-[#D6A63A]" />
+                <span>Added!</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>Quick Add</span>
+              </>
+            )}
           </button>
 
           <button
-            onClick={() => onOpenModal(product)}
-            className="bg-white/95 hover:bg-white text-stone-900 p-2.5 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:text-[#C5A059] active:scale-95"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenModal(product);
+            }}
+            className="bg-white hover:bg-[#FBF6F0] text-[#211A18] p-2.5 rounded-xl shadow-lg transition-all active:scale-95"
             title="Quick View"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5 text-[#781C35]" />
           </button>
         </div>
       </div>
 
-      {/* Product Details Section */}
-      <div className="pt-2 sm:pt-3 px-0.5 sm:px-1 flex flex-col justify-between flex-1">
+      {/* Product Information Details */}
+      <div className="pt-3 px-1 flex flex-col justify-between flex-1">
         <div>
-          {/* Title & Swatches row */}
-          <div className="flex items-start justify-between gap-1.5">
-            <div className="min-w-0 flex-1">
-              <h3 
-                onClick={() => onOpenModal(product)}
-                className="font-sans text-xs sm:text-[13px] font-semibold text-stone-900 hover:text-[#C5A059] transition-colors cursor-pointer truncate tracking-tight"
-                title={product.title}
-              >
-                {product.title}
-              </h3>
-              <p className="text-[10px] sm:text-[11px] text-stone-500 mt-0.5 font-medium truncate">{selectedColor}</p>
-            </div>
+          {/* Category breadcrumb / subtitle */}
+          <span className="text-[10.5px] uppercase tracking-wider font-semibold text-[#746963] block">
+            {product.category}
+          </span>
 
-            {/* Color Swatches */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="flex items-center space-x-1 pt-0.5 shrink-0">
-                {product.colors.slice(0, 3).map((color, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setSelectedColor(color.name);
-                      setSelectedHex(color.hex);
-                    }}
-                    title={color.name}
-                    className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full border transition-all ${
-                      selectedColor === color.name
-                        ? 'ring-1 sm:ring-2 ring-offset-1 ring-[#C5A059] border-white scale-110'
-                        : 'border-stone-300 hover:scale-105'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Product Title */}
+          <h3 className="font-sans text-xs sm:text-sm font-semibold text-[#211A18] line-clamp-1 mt-0.5 group-hover:text-[#781C35] transition-colors">
+            {product.title}
+          </h3>
         </div>
 
-        {/* Price & Rating row */}
-        <div className="mt-2 sm:mt-2.5 flex flex-wrap items-baseline justify-between gap-1 pt-1.5 border-t border-stone-100">
-          <div className="flex items-baseline space-x-1.5 sm:space-x-2">
-            <span className="text-xs sm:text-sm font-bold text-stone-900 tabular-nums">
-              ₹{product.price.toLocaleString('en-IN')}
+        {/* Price Row matching Reference Design */}
+        <div className="pt-2 flex items-baseline justify-between flex-wrap gap-1">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm sm:text-base font-bold text-[#781C35] tabular-nums">
+              ₹{product.price}
             </span>
             {product.originalPrice > product.price && (
-              <span className="text-[10px] sm:text-xs text-stone-400 line-through tabular-nums">
-                ₹{product.originalPrice.toLocaleString('en-IN')}
+              <span className="text-xs text-[#746963] line-through tabular-nums">
+                ₹{product.originalPrice}
               </span>
             )}
           </div>
 
-          {product.originalPrice > product.price && (
-            <span className="text-[8.5px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded border border-emerald-100 shrink-0">
-              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-            </span>
-          )}
-
-          {!product.inStock && (
-            <span className="text-[8px] sm:text-[9px] text-rose-600 font-bold uppercase tracking-wider bg-rose-50 px-1 sm:px-1.5 py-0.5 rounded border border-rose-100">
-              Sold Out
+          {discountPercent > 0 && (
+            <span className="text-[10px] font-bold text-[#23865B] bg-emerald-50 px-1.5 py-0.5 rounded-md">
+              {discountPercent}% OFF
             </span>
           )}
         </div>
-      </div>
 
+        {/* Color swatches count or dots if available */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="pt-2 flex items-center gap-1.5">
+            {product.colors.slice(0, 4).map((c, i) => (
+              <span
+                key={i}
+                className="w-3 h-3 rounded-full border border-stone-300 shadow-2xs"
+                style={{ backgroundColor: c.hex }}
+                title={c.name}
+              />
+            ))}
+            {product.colors.length > 4 && (
+              <span className="text-[9px] text-[#746963] font-medium">+{product.colors.length - 4}</span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

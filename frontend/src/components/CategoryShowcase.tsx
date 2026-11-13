@@ -1,117 +1,129 @@
 import React from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, LayoutGrid } from 'lucide-react';
 import { Category } from '../types';
 
 interface CategoryShowcaseProps {
   categories: Category[];
   onSelectCategory: (categoryName: string) => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
-export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ categories, onSelectCategory }) => {
+export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ 
+  categories, 
+  onSelectCategory,
+  onNavigateTab 
+}) => {
   const categoryTiles = [
     {
-      name: "Shirts",
-      subtitle: "Linen Camp Collars & Resort Tops",
-      count: "12 Garments",
-      image: "/images/linen_resort_shirt.png",
-      tag: "SIGNATURE"
+      name: "Kurtis",
+      targetCategory: "Women’s Kurtis",
+      image: "/images/product-52b661be-bc40-4666-98bc-719828a872de.jpg",
+      tag: "Popular"
     },
     {
-      name: "Polos",
-      subtitle: "Textured & Knit Knits",
-      count: "8 Garments",
-      image: "/images/textured_knit_polo.png",
-      tag: "NEW DROP"
+      name: "Kurta Sets",
+      targetCategory: "Women’s Kurta Sets",
+      image: "/images/product-7253dbe7-6795-46ce-a83f-8d19cd66f180.webp",
+      tag: "Trending"
     },
     {
-      name: "Vests",
-      subtitle: "Tailored Waistcoats & Layering",
-      count: "6 Garments",
-      image: "/images/tailored_vest.png",
-      tag: "ATELIER"
+      name: "Dresses",
+      targetCategory: "Women’s Long Kurtas",
+      image: "/images/product-14cc800a-70e9-418a-9a0c-2621abd30bcf.webp",
+      tag: "Festive"
     },
     {
-      name: "Trousers",
-      subtitle: "Relaxed Linen Pleats",
-      count: "10 Garments",
-      image: "/images/oversized_shirt.png",
-      tag: "CORE"
+      name: "Tops",
+      targetCategory: "Women’s Tops",
+      image: "/images/product-f39f7d73-2499-4949-a877-edabc33d56f9.webp",
+      tag: "Daily"
+    },
+    {
+      name: "Bottoms",
+      targetCategory: "Co-Ord Sets",
+      image: "/images/product-426be3a5-8905-4e73-8a61-e7f36b6b9d91.webp",
+      tag: "Comfort"
+    },
+    {
+      name: "Men",
+      targetCategory: "Men",
+      isTab: true,
+      tab: "men",
+      image: "/images/hero_slide_1.jpg",
+      tag: "Classic"
+    },
+    {
+      name: "All Categories",
+      targetCategory: "All",
+      isTab: true,
+      tab: "shop-all",
+      isAllTile: true,
+      image: "/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.webp",
+      tag: "Explore"
     }
   ];
 
   return (
-    <section className="py-14 sm:py-20 bg-[#FAF8F5] relative overflow-hidden">
+    <section className="py-10 sm:py-14 bg-[#FBF6F0]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold tracking-[0.25em] text-[#B58A44] uppercase mb-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>THE CURATED EDIT</span>
-            </div>
-            <h2 className="font-sans text-3xl sm:text-4xl font-black text-stone-900 tracking-tight">
-              Explore By Category
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#211A18] tracking-tight">
+              Shop by Category
             </h2>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-lg">
-              Explore handcrafted garments designed with pure European linen, architectural cuts, and timeless silhouettes.
+            <p className="text-xs sm:text-sm text-[#746963] mt-1 font-normal">
+              Explore elegant styles tailored for comfort and beauty
             </p>
           </div>
-
           <button
             onClick={() => onSelectCategory('All')}
-            className="group flex items-center space-x-2 text-xs font-extrabold tracking-widest text-stone-900 hover:text-[#C5A059] uppercase transition-colors self-start sm:self-auto border-b border-stone-900 hover:border-[#C5A059] pb-0.5"
+            className="text-xs font-semibold text-[#781C35] hover:text-[#541326] flex items-center gap-1 group"
           >
-            <span>DISCOVER ALL EDITS</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        {/* 4 Category Visual Cards: 2 Columns on Mobile, 4 Columns on Desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {/* Categories Row / Grid (Circular / Rounded Image Cards from Reference Image) */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4 sm:gap-6">
           {categoryTiles.map((cat, idx) => (
-            <div
+            <button
               key={idx}
-              onClick={() => onSelectCategory(cat.name)}
-              className="group relative h-[240px] xs:h-[280px] sm:h-[360px] lg:h-[400px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.14)] hover:-translate-y-1.5 transition-all duration-500 border border-stone-200/80"
+              onClick={() => {
+                if (cat.isTab && cat.tab && onNavigateTab) {
+                  onNavigateTab(cat.tab);
+                } else {
+                  onSelectCategory(cat.targetCategory);
+                }
+              }}
+              className="flex flex-col items-center group text-center focus:outline-none"
             >
-              {/* Background Image */}
-              <img
-                src={cat.image}
-                alt={cat.name}
-                className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
-              />
-
-              {/* Gradient Scrim */}
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/30 to-transparent group-hover:from-stone-950/95 transition-colors"></div>
-
-              {/* Top Tag Badge */}
-              <div className="absolute top-2.5 sm:top-4 left-2.5 sm:left-4">
-                <span className="bg-white/85 backdrop-blur-md text-stone-900 text-[8.5px] sm:text-[10px] font-extrabold tracking-wider sm:tracking-widest uppercase px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/50 shadow-xs">
-                  {cat.tag}
-                </span>
-              </div>
-
-              {/* Bottom Card Content */}
-              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-6 flex flex-col justify-end text-left">
-                <span className="text-[9px] sm:text-[11px] font-bold text-[#C5A059] uppercase tracking-wider sm:tracking-widest mb-0.5">
-                  {cat.count}
-                </span>
-                <h3 className="font-sans text-base xs:text-lg sm:text-2xl font-black text-white tracking-tight group-hover:text-[#FAF8F5] transition-colors leading-tight">
-                  {cat.name}
-                </h3>
-                <p className="text-[10.5px] sm:text-xs text-stone-300 mt-0.5 line-clamp-1 font-normal hidden xs:block">
-                  {cat.subtitle}
-                </p>
-
-                <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-white/15 flex items-center justify-between text-[10px] sm:text-xs font-bold text-white group-hover:text-[#C5A059] transition-colors">
-                  <span className="tracking-wider uppercase text-[9.5px] sm:text-[11px]">View All</span>
-                  <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-white/15 group-hover:bg-[#C5A059] group-hover:text-white flex items-center justify-center transition-all">
-                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
+              {/* Circular / Rounded Image Frame */}
+              <div className="relative w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden p-1 bg-gradient-to-tr from-[#781C35]/30 via-[#D6A63A]/40 to-[#781C35]/10 group-hover:from-[#781C35] group-hover:to-[#D6A63A] transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:scale-105">
+                <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                  {cat.isAllTile ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-[#F2E5D8] text-[#781C35] group-hover:bg-[#781C35] group-hover:text-white transition-colors">
+                      <LayoutGrid className="w-6 h-6 mb-1" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">All</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                    />
+                  )}
                 </div>
               </div>
-            </div>
+
+              {/* Category Label */}
+              <span className="mt-3 text-xs sm:text-sm font-semibold text-[#211A18] group-hover:text-[#781C35] transition-colors leading-tight">
+                {cat.name}
+              </span>
+            </button>
           ))}
         </div>
 

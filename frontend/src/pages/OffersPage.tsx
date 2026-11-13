@@ -78,51 +78,51 @@ export const OffersPage: React.FC<OffersPageProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1A1A1A] pb-24">
+    <div className="min-h-screen bg-[#FBF6F0] text-[#211A18] pb-24">
       
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#121212] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-[#C5A059]/40 flex items-center space-x-3 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="w-8 h-8 rounded-full bg-[#C5A059] flex items-center justify-center text-stone-950 font-bold shrink-0">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#541326] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-[#D6A63A]/40 flex items-center space-x-3 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div className="w-8 h-8 rounded-full bg-[#D6A63A] flex items-center justify-center text-[#211A18] font-bold shrink-0">
             <Check className="w-4 h-4" />
           </div>
           <div>
             <p className="text-xs font-bold text-white">{toastMessage}</p>
-            <p className="text-[10px] text-[#C5A059]">Discount will be applied at checkout</p>
+            <p className="text-[10px] text-[#D6A63A]">Discount will be applied at checkout</p>
           </div>
         </div>
       )}
 
       {/* Hero Header */}
-      <section className="bg-[#121212] text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-white/10 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-[#541326] via-[#781C35] to-[#541326] text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-[#781C35] relative overflow-hidden">
         {/* Glow aesthetics */}
-        <div className="absolute top-0 right-1/3 w-96 h-96 bg-[#C5A059]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-72 h-72 bg-[#C5A059]/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-1/3 w-96 h-96 bg-[#D6A63A]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-72 h-72 bg-[#D6A63A]/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-6xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 border border-[#C5A059]/30 text-[#C5A059] text-[10px] font-bold tracking-[0.25em] uppercase">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-[#D6A63A]/30 text-[#D6A63A] text-[10px] font-bold tracking-[0.25em] uppercase">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span>BRIVOO ATELIER PRIVILEGES</span>
+            <span>BRIVOO FESTIVE PRIVILEGES</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
-            Exclusive Offers & Deals
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white">
+            Exclusive Offers & Festive Sale
           </h1>
 
-          <p className="text-xs sm:text-sm md:text-base text-stone-300 max-w-2xl mx-auto leading-relaxed">
-            Discover limited-edition seasonal savings, first-order welcome vouchers, and master-crafted linen privileges designed exclusively for you.
+          <p className="text-xs sm:text-sm md:text-base text-stone-200 max-w-2xl mx-auto leading-relaxed font-light">
+            Discover limited-edition festive promotions, coupon vouchers, and seasonal savings designed exclusively for you.
           </p>
 
           {/* Quick Search */}
           <div className="max-w-md mx-auto pt-4">
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+              <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-300" />
               <input
                 type="text"
                 placeholder="Search offer titles, promo codes, or categories..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-xs text-white placeholder-stone-400 focus:outline-hidden focus:border-[#C5A059] transition-all"
+                className="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-xs text-white placeholder-stone-300 focus:outline-none focus:border-[#D6A63A] transition-all"
               />
             </div>
           </div>
@@ -136,10 +136,10 @@ export const OffersPage: React.FC<OffersPageProps> = ({
         <div className="flex items-center justify-start sm:justify-center space-x-2 sm:space-x-4 overflow-x-auto no-scrollbar scroll-smooth pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveFilter('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap shrink-0 ${
               activeFilter === 'all'
-                ? 'bg-stone-900 text-white shadow-md'
-                : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                ? 'bg-[#781C35] text-white shadow-md'
+                : 'bg-white text-[#746963] hover:bg-[#FAF0F2] border border-[#E9DED5]'
             }`}
           >
             All Offers ({activeOffers.length})
@@ -147,14 +147,14 @@ export const OffersPage: React.FC<OffersPageProps> = ({
 
           <button
             onClick={() => setActiveFilter('flash')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
               activeFilter === 'flash'
-                ? 'bg-rose-600 text-white shadow-md'
-                : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                ? 'bg-[#781C35] text-white shadow-md'
+                : 'bg-white text-[#746963] hover:bg-[#FAF0F2] border border-[#E9DED5]'
             }`}
           >
-            <Flame className="w-3.5 h-3.5" />
-            <span>Flash Deals</span>
+            <Flame className="w-3.5 h-3.5 text-[#D6A63A]" />
+            <span>Festive Deals</span>
           </button>
 
           <button

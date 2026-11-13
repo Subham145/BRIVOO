@@ -258,7 +258,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           shippingState: state.trim(),
           shippingPincode: pincode.trim()
         },
-        theme: { color: '#C5A059' },
+        theme: { color: '#781C35' },
         modal: {
           ondismiss: () => {
             setErrorMsg('Payment was cancelled or not completed. No order has been confirmed.');
@@ -325,37 +325,39 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto p-2 sm:p-4 md:p-6 flex justify-center items-start"
     >
-      <div className="bg-[#FAF7F2] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#C5A059]/30 relative overflow-hidden my-2 sm:my-8 animate-in fade-in">
+      <div className="bg-[#FBF6F0] w-full max-w-3xl rounded-3xl shadow-2xl border border-[#E9DED5] relative overflow-hidden my-2 sm:my-8 animate-in fade-in">
         
         {/* Modal Header */}
-        <div className="bg-[#141414] text-white p-3.5 sm:p-5 flex items-center justify-between">
+        <div className="bg-[#541326] text-white p-4 sm:p-5 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Lock className="w-4 h-4 text-[#C5A059]" />
-            <h2 className="font-sans text-base sm:text-lg font-bold tracking-tight text-white">
+            <Lock className="w-4 h-4 text-[#D6A63A]" />
+            <h2 className="font-serif text-base sm:text-lg font-bold tracking-tight text-white">
               BRIVOO Secure Checkout
             </h2>
           </div>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors p-1.5 -mr-1 rounded-full min-w-[36px] min-h-[36px] flex items-center justify-center"
+            className="text-stone-300 hover:text-white transition-colors p-1.5 rounded-full"
             aria-label="Close checkout"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Step Indicator */}
-        <div className="bg-[#F7F3EE] px-3 sm:px-6 py-2.5 sm:py-3 border-b border-[#E6DFC5] flex items-center justify-center space-x-2.5 sm:space-x-8 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-          <div className={`flex items-center space-x-1.5 sm:space-x-2 ${step === 1 ? 'text-[#C5A059]' : 'text-gray-400'}`}>
-            <span className="w-5 h-5 rounded-full bg-[#141414] text-white flex items-center justify-center text-[10px] shrink-0">1</span>
-            <span className="hidden xs:inline">Shipping Address</span>
-            <span className="xs:hidden">Address</span>
+        {/* Step Indicator matching Reference Image */}
+        <div className="bg-[#FAF0F2] px-4 sm:px-8 py-3 border-b border-[#E9DED5] flex items-center justify-center space-x-3 sm:space-x-8 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+          <div className={`flex items-center space-x-2 ${step === 1 ? 'text-[#781C35]' : 'text-stone-400'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold ${
+              step === 1 ? 'bg-[#781C35] text-white' : 'bg-stone-300 text-stone-700'
+            }`}>1</span>
+            <span>Delivery Address</span>
           </div>
-          <span className="text-gray-300">→</span>
-          <div className={`flex items-center space-x-1.5 sm:space-x-2 ${step === 2 ? 'text-[#C5A059]' : 'text-gray-400'}`}>
-            <span className="w-5 h-5 rounded-full bg-[#141414] text-white flex items-center justify-center text-[10px] shrink-0">2</span>
-            <span className="hidden xs:inline">Payment & Place Order</span>
-            <span className="xs:hidden">Payment</span>
+          <span className="text-stone-300">→</span>
+          <div className={`flex items-center space-x-2 ${step === 2 ? 'text-[#781C35]' : 'text-stone-400'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold ${
+              step === 2 ? 'bg-[#781C35] text-white' : 'bg-stone-300 text-stone-700'
+            }`}>2</span>
+            <span>Payment & Review</span>
           </div>
         </div>
 
@@ -479,7 +481,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     if (customerName && email && phone && address) setStep(2);
                     else setErrorMsg('Please fill all required shipping fields');
                   }}
-                  className="w-full sm:w-auto bg-[#141414] hover:bg-[#C5A059] text-white px-8 py-3.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-md min-h-[44px] flex items-center justify-center"
+                  className="w-full sm:w-auto bg-[#781C35] hover:bg-[#541326] text-white px-8 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-colors shadow-luxury min-h-[44px] flex items-center justify-center"
                 >
                   Proceed to Payment →
                 </button>
@@ -648,7 +650,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <button
                   type="submit"
                   disabled={placingOrder}
-                  className="w-full sm:w-auto bg-[#141414] hover:bg-[#C5A059] disabled:bg-gray-400 text-white px-6 sm:px-8 py-3.5 rounded-lg text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-colors shadow-lg flex items-center justify-center space-x-2 min-h-[44px]"
+                  className="w-full sm:w-auto bg-[#781C35] hover:bg-[#541326] disabled:bg-stone-400 text-white px-6 sm:px-8 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-colors shadow-luxury flex items-center justify-center space-x-2 min-h-[44px]"
                 >
                   {placingOrder ? (
                     <span>Processing Payment...</span>

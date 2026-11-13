@@ -94,6 +94,10 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
         <div className="flex min-h-11 justify-center">
           {loading ? (
             <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          ) : !import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+            <div className="p-3 bg-[#FAF0F2] rounded-xl border border-[#E9DED5] text-xs text-[#746963]">
+              Google Sign-In is not configured. Please use email and password to sign in.
+            </div>
           ) : (
             <GoogleLogin
               onSuccess={(response) => {
