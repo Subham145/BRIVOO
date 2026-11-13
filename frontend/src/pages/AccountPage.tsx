@@ -146,7 +146,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-2 sm:space-x-3">
-                      <span className="font-bold text-[#1A1A1A] tabular-nums">Total: ₹{order.totalAmount.toLocaleString('en-IN')}</span>
+                      <div className="text-right">
+                        <span className="font-bold text-[#1A1A1A] tabular-nums">Total: ₹{order.totalAmount.toLocaleString('en-IN')}</span>
+                        {Boolean(order.prepaidDiscount && order.prepaidDiscount > 0) && (
+                          <span className="block text-[10px] text-emerald-700 font-semibold">Prepaid: -₹{order.prepaidDiscount}</span>
+                        )}
+                      </div>
                       <span className={`px-2 py-0.5 rounded text-[9.5px] sm:text-[10px] font-bold uppercase ${
                         order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
                         order.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'

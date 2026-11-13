@@ -144,6 +144,8 @@ export interface Order {
   items: OrderItem[];
   totalAmount: number;
   discountAmount: number;
+  prepaidDiscount?: number;
+  couponCode?: string | null;
   paymentMethod: string;
   paymentStatus?: 'Completed' | 'Pending' | 'Refunded' | 'Failed';
   paymentRef?: string;

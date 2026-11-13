@@ -273,8 +273,15 @@ export const api = {
 
   // Orders & Tracking
   async getOrders(): Promise<{ success: boolean; data: Order[] }> {
-    const res = await authFetch(`${API_BASE}/orders`);
-    return res.json();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('brivoo_token') : null;
+    if (!token) return { success: false, data: [] };
+    try {
+      const res = await authFetch(`${API_BASE}/orders`);
+      if (!res.ok) return { success: false, data: [] };
+      return await res.json();
+    } catch {
+      return { success: false, data: [] };
+    }
   },
 
   async createOrder(order: any): Promise<{ success: boolean; data: Order; message?: string }> {
@@ -469,8 +476,15 @@ export const api = {
   },
 
   async getAnalytics(): Promise<{ success: boolean; data: any }> {
-    const res = await authFetch(`${API_BASE}/analytics`);
-    return res.json();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('brivoo_token') : null;
+    if (!token) return { success: false, data: null };
+    try {
+      const res = await authFetch(`${API_BASE}/analytics`);
+      if (!res.ok) return { success: false, data: null };
+      return await res.json();
+    } catch {
+      return { success: false, data: null };
+    }
   },
 
   // WhatsApp CRM & Bot Automations

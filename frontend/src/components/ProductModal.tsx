@@ -24,10 +24,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onReviewSubmitted,
   onOpenAITryOn
 }) => {
-  if (!product) return null;
-
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.name || 'Standard');
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || 'M');
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || 'Standard');
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'M');
   const [quantity, setQuantity] = useState(1);
 
   // Review Form state
@@ -57,7 +55,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     }
   };
 
-  const avgRating = product.reviews && product.reviews.length > 0
+  const avgRating = product?.reviews && product.reviews.length > 0
     ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1)
     : '5.0';
 
@@ -69,6 +67,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  if (!product) return null;
 
   return (
     <div 

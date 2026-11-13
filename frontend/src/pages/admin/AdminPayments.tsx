@@ -134,26 +134,33 @@ export const AdminPayments: React.FC<AdminPaymentsProps> = ({ orders, onRefresh,
         </div>
       </div>
 
-      {/* Payment pricing settings shortcut */}
       {onNavigateToPricing && (
-        <button
-          type="button"
-          onClick={onNavigateToPricing}
-          className="w-full bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-4 text-left transition-colors"
-        >
-          <span className="flex items-center gap-3">
-            <span className="p-3 bg-white rounded-xl border border-amber-200 text-amber-700">
+        <div className="bg-gradient-to-r from-amber-50 to-emerald-50 p-4 rounded-2xl border border-[#E6DFC5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-stone-900 text-[#C5A059] flex items-center justify-center shrink-0 shadow-xs">
               <Banknote className="w-5 h-5" />
-            </span>
-            <span>
-              <span className="block font-bold text-stone-900">Prepaid & COD Pricing Settings</span>
-              <span className="block text-xs text-stone-600 mt-1">
-                Open Store Settings to configure prepaid discounts and COD fees.
-              </span>
-            </span>
-          </span>
-          <span className="text-sm font-bold text-amber-800 whitespace-nowrap">Open Settings →</span>
-        </button>
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="font-bold text-stone-900 text-sm">Prepaid vs Cash on Delivery (COD) Price Difference</h3>
+                <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider">
+                  Price Strategy
+                </span>
+              </div>
+              <p className="text-xs text-stone-600 mt-0.5">
+                Set lower amount for online payment (Prepaid Discount) and extra surcharge for Cash on Delivery (COD Fee) to motivate shoppers to pay online.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onNavigateToPricing}
+            className="bg-stone-900 hover:bg-[#C5A059] text-white hover:text-stone-950 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 flex items-center space-x-1.5"
+          >
+            <span>Configure Pricing Rules</span>
+            <span>→</span>
+          </button>
+        </div>
       )}
 
       {/* Filter and Search Bar */}

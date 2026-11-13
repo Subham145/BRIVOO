@@ -24,7 +24,8 @@ import {
   Layers,
   MessageSquare,
   Factory,
-  Megaphone
+  Megaphone,
+  Banknote
 } from 'lucide-react';
 import { User, Order, Product } from '../../types';
 
@@ -81,8 +82,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     {
       group: 'Finances & Marketing',
       items: [
-        { id: 'offers', label: 'Special Offers & Deals', icon: Sparkles, badge: 'Hot', badgeColor: 'bg-[#C5A059]' },
+        { id: 'pricing', label: 'Prepaid vs COD Pricing', icon: Banknote, badge: 'Rules', badgeColor: 'bg-emerald-600' },
         { id: 'payments', label: 'Payments & Refunds', icon: CreditCard, badge: null },
+        { id: 'offers', label: 'Special Offers & Deals', icon: Sparkles, badge: 'Hot', badgeColor: 'bg-[#C5A059]' },
         { id: 'marketing', label: 'Marketing & Influencers', icon: Megaphone, badge: 'New', badgeColor: 'bg-purple-600' },
         { id: 'returns', label: 'Returns Queue', icon: RotateCcw, badge: pendingReturnsCount || null, badgeColor: 'bg-rose-500' }
       ]

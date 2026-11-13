@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Heart, User as UserIcon, ShoppingBag, X, Menu, Lock, LogOut, ChevronDown, Sparkles } from 'lucide-react';
 import { SiteSettings, User } from '../types';
 
@@ -42,6 +42,18 @@ export const Header: React.FC<HeaderProps> = ({
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  // Lock background scrolling while mobile menu or search modal is open
+  useEffect(() => {
+    if (mobileMenuOpen || showSearchModal) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+  }, [mobileMenuOpen, showSearchModal]);
 
   // Rotating fashion & atelier craftsmanship perks
   const fashionPerks = [
@@ -170,6 +182,14 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="px-1.5 py-0.2 rounded-full bg-[#C5A059] text-stone-950 font-black text-[9px] tracking-wider shadow-xs animate-pulse">
               %
             </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`stitch-thread-link py-0.5 transition-all hover:text-[#C5A059] ${
+              activeTab === 'about' ? 'text-[#C5A059] font-extrabold active-stitch' : 'text-stone-700'
+            }`}
+          >
+            About Us
           </button>
 
         </nav>
@@ -397,6 +417,15 @@ export const Header: React.FC<HeaderProps> = ({
                     <span className="px-1.5 py-0.2 rounded-full bg-[#C5A059] text-stone-950 text-[9px] font-black">%</span>
                   </span>
                   {activeTab === 'offers' && <span className="text-[#C5A059]">●</span>}
+                </button>
+                <button
+                  onClick={() => { setActiveTab('about'); setMobileMenuOpen(false); }}
+                  className={`flex items-center justify-between w-full min-h-[44px] py-2.5 px-3.5 rounded-xl transition-all ${
+                    activeTab === 'about' ? 'bg-[#141414] text-white shadow-sm' : 'text-stone-800 hover:bg-stone-100'
+                  }`}
+                >
+                  <span>About BRIVOO</span>
+                  {activeTab === 'about' && <span className="text-[#C5A059]">●</span>}
                 </button>
 
               </div>

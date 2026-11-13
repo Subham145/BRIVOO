@@ -6,6 +6,8 @@ node_modules/
 # Production builds
 dist/
 build/
+!frontend/dist
+!frontend/dist/**
 
 # Environment and sensitive keys
 .env
@@ -36,8 +38,8 @@ lerna-debug.log*
 # Windows
 Thumbs.db
 Thumbs.db:encryptable
-ehthumbs.db
 ehthumbs_vista.db
+ehthumbs.db
 *.stackdump
 [Dd]esktop.ini
 $RECYCLE.BIN/

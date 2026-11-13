@@ -358,6 +358,14 @@ export function readData() {
       data.settings = INITIAL_DATA.settings;
       dirty = true;
     }
+    if (data.settings && data.settings.prepaidDiscount === undefined) {
+      data.settings.prepaidDiscountEnabled = true;
+      data.settings.prepaidDiscount = 50;
+      data.settings.prepaidDiscountType = 'fixed';
+      data.settings.codSurchargeEnabled = false;
+      data.settings.codSurcharge = 0;
+      dirty = true;
+    }
     if (dirty) {
       writeData(data);
     }

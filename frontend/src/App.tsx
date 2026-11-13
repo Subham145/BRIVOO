@@ -70,6 +70,19 @@ export function App() {
     return false;
   });
   const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+
+      if (path === '/admin' || hash === '#admin' || search.includes('tab=admin') || search.includes('page=admin')) return 'admin';
+      if (path === '/account' || hash === '#account') return 'account';
+      if (path === '/offers' || hash === '#offers') return 'offers';
+      if (path === '/about' || hash === '#about' || search.includes('tab=about') || search.includes('page=about')) return 'about';
+      if (path === '/men' || hash === '#men') return 'men';
+      if (path === '/women' || hash === '#women') return 'women';
+    }
+
     try {
       const saved = localStorage.getItem('brivoo_user');
       if (saved) {
@@ -145,6 +158,71 @@ export function App() {
   useEffect(() => {
     fetchAllData();
   }, [currentUser, isAdmin]);
+
+  useEffect(() => {
+    const handleAuthCleared = () => {
+      setCurrentUser(null);
+      setAuthToken(null);
+      setOrders([]);
+      setAnalytics(null);
+      setIsAdmin(false);
+    };
+
+    const handleUrlChange = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+
+      if (path === '/admin' || hash === '#admin' || search.includes('tab=admin') || search.includes('page=admin')) {
+        setActiveTab('admin');
+      } else if (path === '/account' || hash === '#account') {
+        setActiveTab('account');
+      } else if (path === '/offers' || hash === '#offers') {
+        setActiveTab('offers');
+      } else if (path === '/about' || hash === '#about' || search.includes('tab=about') || search.includes('page=about')) {
+        setActiveTab('about');
+      } else if (path === '/men' || hash === '#men') {
+        setActiveTab('men');
+      } else if (path === '/women' || hash === '#women') {
+        setActiveTab('women');
+      } else if (path === '/' || hash === '' || hash === '#') {
+        setActiveTab('home');
+      }
+    };
+
+    window.addEventListener('brivoo_auth_cleared', handleAuthCleared);
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+
+    return () => {
+      window.removeEventListener('brivoo_auth_cleared', handleAuthCleared);
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const routes: Record<string, string> = {
+      home: '/',
+      admin: '/admin',
+      account: '/account',
+      offers: '/offers',
+      about: '/about',
+      men: '/men',
+      women: '/women'
+    };
+
+    const target = routes[activeTab];
+    if (target && window.location.pathname !== target) {
+      window.history.pushState(null, '', target);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab]);
 
   useEffect(() => {
     if (metaConsent === 'accepted') initializeMetaPixel();
@@ -395,7 +473,7 @@ export function App() {
           <AdminPayments
             orders={orders}
             onRefresh={fetchAllData}
-            onNavigateToPricing={() => setAdminTab('settings')}
+            onNavigateToPricing={() => setAdminTab('pricing')}
           />
         )}
 
@@ -441,10 +519,11 @@ export function App() {
           />
         )}
 
-        {adminTab === 'settings' && (
+        {(adminTab === 'settings' || adminTab === 'pricing') && (
           <AdminSettings
             settings={settings!}
             onRefresh={fetchAllData}
+            initialTab={adminTab === 'pricing' ? 'pricing' : undefined}
           />
         )}
       </AdminLayout>
@@ -655,6 +734,7 @@ export function App() {
         onRemoveItem={handleRemoveCartItem}
         onProceedToCheckout={handleProceedToCheckout}
         freeShippingThreshold={settings?.freeShippingThreshold || 1999}
+        settings={settings || undefined}
       />
 
       {/* Multi-step Checkout Modal */}
