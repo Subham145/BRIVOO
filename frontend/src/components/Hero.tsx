@@ -48,10 +48,10 @@ export const Hero: React.FC<HeroProps> = ({
             </p>
 
             {/* CTAs */}
-            <div className="pt-2 sm:pt-4 flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4">
+            <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-2.5 sm:gap-4 max-w-sm sm:max-w-none mx-auto md:mx-0">
               <button
                 onClick={onShopCollection}
-                className="bg-[#781C35] hover:bg-[#541326] text-white px-6 sm:px-8 py-3.5 rounded-full font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-luxury hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 group"
+                className="w-full sm:w-auto bg-[#781C35] hover:bg-[#541326] text-white px-6 sm:px-8 py-3.5 rounded-full font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-luxury hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 group min-h-[46px]"
               >
                 <span>Shop Collection</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -59,27 +59,25 @@ export const Hero: React.FC<HeroProps> = ({
 
               <button
                 onClick={onExploreNewArrivals}
-                className="bg-white/80 hover:bg-white text-[#781C35] border border-[#781C35]/30 hover:border-[#781C35] px-6 sm:px-7 py-3.5 rounded-full font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-2xs hover:shadow-xs"
+                className="w-full sm:w-auto bg-white/80 hover:bg-white text-[#781C35] border border-[#781C35]/30 hover:border-[#781C35] px-6 sm:px-7 py-3.5 rounded-full font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-2xs hover:shadow-xs flex items-center justify-center min-h-[46px]"
               >
                 Explore New Arrivals
               </button>
             </div>
 
             {/* Highlights Bar */}
-            <div className="pt-4 sm:pt-6 flex items-center justify-center md:justify-start gap-6 text-xs text-[#746963] font-medium border-t border-[#E9DED5]/80">
+            <div className="pt-4 sm:pt-6 grid grid-cols-3 gap-2 xs:gap-4 sm:gap-6 text-xs text-[#746963] font-medium border-t border-[#E9DED5]/80 text-center sm:text-left">
               <div>
-                <span className="block font-serif text-lg sm:text-xl font-bold text-[#781C35]">100%</span>
-                <span>Pure Fabrics</span>
+                <span className="block font-serif text-base xs:text-lg sm:text-xl font-bold text-[#781C35]">100%</span>
+                <span className="text-[10px] xs:text-xs">Pure Fabrics</span>
               </div>
-              <div className="h-6 w-px bg-[#E9DED5]" />
-              <div>
-                <span className="block font-serif text-lg sm:text-xl font-bold text-[#781C35]">7-Day</span>
-                <span>Easy Returns</span>
+              <div className="border-x border-[#E9DED5]">
+                <span className="block font-serif text-base xs:text-lg sm:text-xl font-bold text-[#781C35]">7-Day</span>
+                <span className="text-[10px] xs:text-xs">Easy Returns</span>
               </div>
-              <div className="h-6 w-px bg-[#E9DED5]" />
               <div>
-                <span className="block font-serif text-lg sm:text-xl font-bold text-[#781C35]">₹999+</span>
-                <span>Free Delivery</span>
+                <span className="block font-serif text-base xs:text-lg sm:text-xl font-bold text-[#781C35]">₹999+</span>
+                <span className="text-[10px] xs:text-xs">Free Delivery</span>
               </div>
             </div>
           </div>

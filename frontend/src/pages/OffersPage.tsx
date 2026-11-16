@@ -159,39 +159,39 @@ export const OffersPage: React.FC<OffersPageProps> = ({
 
           <button
             onClick={() => setActiveFilter('welcome')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
               activeFilter === 'welcome'
-                ? 'bg-[#C5A059] text-stone-900 shadow-md'
-                : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                ? 'bg-[#781C35] text-white shadow-md'
+                : 'bg-white text-[#746963] hover:bg-[#FAF0F2] border border-[#E9DED5]'
             }`}
           >
-            <Gift className="w-3.5 h-3.5" />
+            <Gift className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>Welcome Privileges</span>
           </button>
 
           <button
             onClick={() => setActiveFilter('linen')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all whitespace-nowrap shrink-0 ${
               activeFilter === 'linen'
-                ? 'bg-stone-900 text-white shadow-md'
-                : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                ? 'bg-[#781C35] text-white shadow-md'
+                : 'bg-white text-[#746963] hover:bg-[#FAF0F2] border border-[#E9DED5]'
             }`}
           >
-            Linen Specials
+            Ethnic Specials
           </button>
         </div>
 
         {/* Offers Cards Grid */}
         {filteredOffers.length === 0 ? (
-          <div className="bg-white p-12 text-center rounded-3xl border border-dashed border-stone-300 max-w-lg mx-auto">
+          <div className="bg-white p-12 text-center rounded-3xl border border-dashed border-[#E9DED5] max-w-lg mx-auto">
             <Tag className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-stone-800">No matching offers found</h3>
-            <p className="text-xs text-stone-500 mt-1">
+            <h3 className="font-serif text-base font-bold text-[#211A18]">No matching offers found</h3>
+            <p className="text-xs text-[#746963] mt-1">
               Try choosing another filter tab or clearing your search term.
             </p>
             <button
               onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-              className="mt-4 px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold"
+              className="mt-4 px-5 py-2.5 rounded-full bg-[#781C35] hover:bg-[#541326] text-white text-xs font-bold uppercase tracking-wider transition-colors"
             >
               Show All Offers
             </button>

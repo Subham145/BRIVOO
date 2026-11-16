@@ -107,14 +107,49 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   };
 
   return (
-    <div className="bg-[#FBF6F0] min-h-screen py-8 sm:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-[#FBF6F0] min-h-screen py-6 sm:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         
-        {/* Main Dashboard Layout matching Reference Image: Left Sidebar + Right Main Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Mobile / Tablet Horizontal Tab Navigation Bar (Visible on < lg) */}
+        <div className="lg:hidden flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
+          {[
+            { id: 'orders', label: 'My Orders', icon: Package, count: orders.length },
+            { id: 'track', label: 'Track Order', icon: Truck },
+            { id: 'wishlist', label: 'Wishlist', icon: Heart, count: wishlistProducts.length },
+            { id: 'addresses', label: 'Addresses', icon: MapPin },
+            { id: 'profile', label: 'Profile', icon: Settings },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id || (tab.id === 'orders' && activeTab === 'account');
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 min-h-[38px] shadow-2xs ${
+                  isActive
+                    ? 'bg-[#781C35] text-white shadow-sm'
+                    : 'bg-white text-[#746963] border border-[#E9DED5] hover:text-[#781C35]'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-[#FAF0F2] text-[#781C35]'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main Dashboard Layout: Left Sidebar + Right Main Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* LEFT SIDEBAR matching Reference Image */}
-          <aside className="lg:col-span-4 bg-white rounded-3xl p-6 border border-[#E9DED5] shadow-xs space-y-6">
+          {/* LEFT SIDEBAR matching Reference Image (Hidden on mobile < lg in favor of top pill navigation) */}
+          <aside className="hidden lg:block lg:col-span-4 bg-white rounded-3xl p-6 border border-[#E9DED5] shadow-xs space-y-6">
             
             {/* User Profile Card */}
             <div className="flex items-center gap-3.5 pb-6 border-b border-[#E9DED5]">
@@ -381,7 +416,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
                     {/* Step Tracker (Order Placed -> Packed -> Shipped -> Out for Delivery -> Delivered) */}
                     <div className="py-4">
-                      <div className="grid grid-cols-5 gap-1 text-center relative">
+                      {/* Desktop / Tablet Stepper (5 columns) */}
+                      <div className="hidden sm:grid grid-cols-5 gap-1 text-center relative">
                         {/* Connecting Line */}
                         <div className="absolute top-4 left-6 right-6 h-0.5 bg-[#E9DED5] -z-0" />
 
@@ -400,6 +436,30 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                             </div>
                             <span className="text-[11px] font-bold text-[#211A18] leading-tight">{st.title}</span>
                             <span className="text-[9.5px] text-[#746963]">{st.date}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Mobile Stepper (Clean vertical stepper) */}
+                      <div className="sm:hidden space-y-3 relative pl-2">
+                        <div className="absolute top-2 bottom-2 left-5 w-0.5 bg-[#E9DED5]" />
+                        {[
+                          { title: "Order Placed", date: "Confirmed", done: true },
+                          { title: "Packed", date: "Ready", done: searchedOrder.status !== 'Pending' },
+                          { title: "Shipped", date: "In Transit", done: searchedOrder.status === 'Shipped' || searchedOrder.status === 'Delivered' },
+                          { title: "Out for Delivery", date: "Arriving Soon", done: searchedOrder.status === 'Delivered' },
+                          { title: "Delivered", date: "Done", done: searchedOrder.status === 'Delivered' }
+                        ].map((st, i) => (
+                          <div key={i} className="flex items-center gap-3 relative z-10">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0 ${
+                              st.done ? 'bg-[#23865B] text-white' : 'bg-white text-stone-400 border border-[#E9DED5]'
+                            }`}>
+                              {st.done ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
+                            </div>
+                            <div className="flex-1 flex items-baseline justify-between">
+                              <span className={`text-xs font-bold ${st.done ? 'text-[#211A18]' : 'text-stone-400'}`}>{st.title}</span>
+                              <span className="text-[10px] text-[#746963] font-medium">{st.date}</span>
+                            </div>
                           </div>
                         ))}
                       </div>

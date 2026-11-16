@@ -67,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             e.stopPropagation();
             onToggleWishlist(product);
           }}
-          className={`absolute top-2.5 right-2.5 z-10 p-2 rounded-full backdrop-blur-md transition-all shadow-xs flex items-center justify-center ${
+          className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 p-2 min-w-[36px] min-h-[36px] rounded-full backdrop-blur-md transition-all shadow-xs flex items-center justify-center ${
             isWishlisted
               ? 'bg-[#781C35] text-white scale-105'
               : 'bg-white/90 text-stone-700 hover:bg-white hover:text-[#781C35] hover:scale-110'
@@ -81,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
         {/* Mobile Quick Add Button */}
         <button
           onClick={handleQuickAddClick}
-          className="md:hidden absolute bottom-2.5 right-2.5 z-10 bg-[#781C35] text-white p-2 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center"
+          className="md:hidden absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 bg-[#781C35] text-white p-2 sm:p-2.5 min-w-[38px] min-h-[38px] rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center"
           title="Quick Add to Bag"
           aria-label="Quick Add to Bag"
         >
@@ -133,7 +133,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           </span>
 
           {/* Product Title */}
-          <h3 className="font-sans text-xs sm:text-sm font-semibold text-[#211A18] line-clamp-1 mt-0.5 group-hover:text-[#781C35] transition-colors">
+          <h3 className="font-sans text-xs sm:text-sm font-semibold text-[#211A18] line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] mt-0.5 group-hover:text-[#781C35] transition-colors leading-tight">
             {product.title}
           </h3>
         </div>

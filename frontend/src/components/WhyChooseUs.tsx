@@ -42,22 +42,22 @@ export const WhyChooseUs: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 4 Pillars Grid (2-column on mobile, 4-column on desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {pillars.map((pillar, idx) => {
             const Icon = pillar.icon;
             return (
               <div 
                 key={idx}
-                className="bg-white rounded-2xl p-6 border border-[#E9DED5] shadow-xs text-center space-y-3 hover:shadow-luxury hover:-translate-y-1 transition-all duration-300"
+                className="bg-white rounded-2xl p-4 sm:p-6 border border-[#E9DED5] shadow-xs text-center space-y-2 sm:space-y-3 hover:shadow-luxury hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center mx-auto shadow-2xs">
-                  <Icon className="w-5 h-5 text-[#781C35]" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center mx-auto shadow-2xs">
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#781C35]" />
                 </div>
-                <h3 className="font-serif text-base sm:text-lg font-bold text-[#211A18]">
+                <h3 className="font-serif text-sm sm:text-lg font-bold text-[#211A18] leading-tight">
                   {pillar.title}
                 </h3>
-                <p className="text-xs text-[#746963] leading-relaxed font-normal">
+                <p className="text-[11px] sm:text-xs text-[#746963] leading-relaxed font-normal">
                   {pillar.desc}
                 </p>
               </div>

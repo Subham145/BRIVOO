@@ -248,7 +248,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                       <button
                         key={i}
                         onClick={() => setSelectedSize(sz)}
-                        className={`min-w-[42px] py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
+                        className={`min-w-[44px] min-h-[44px] py-2 px-3 rounded-xl text-xs font-semibold border transition-all flex items-center justify-center ${
                           selectedSize === sz
                             ? 'bg-[#781C35] text-white border-[#781C35] shadow-xs'
                             : 'bg-[#FBF6F0] text-[#211A18] border-[#E9DED5] hover:border-[#781C35]'
@@ -267,14 +267,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     <div className="flex items-center border border-[#E9DED5] rounded-xl bg-[#FBF6F0]">
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="px-2.5 py-1 text-sm font-bold text-stone-700 hover:text-[#781C35]"
+                        className="w-9 h-9 flex items-center justify-center text-sm font-bold text-stone-700 hover:text-[#781C35] active:scale-95"
                       >
                         -
                       </button>
-                      <span className="px-2 text-xs font-bold text-[#211A18]">{quantity}</span>
+                      <span className="px-3 text-xs font-bold text-[#211A18] tabular-nums">{quantity}</span>
                       <button
                         onClick={() => setQuantity(quantity + 1)}
-                        className="px-2.5 py-1 text-sm font-bold text-stone-700 hover:text-[#781C35]"
+                        className="w-9 h-9 flex items-center justify-center text-sm font-bold text-stone-700 hover:text-[#781C35] active:scale-95"
                       >
                         +
                       </button>

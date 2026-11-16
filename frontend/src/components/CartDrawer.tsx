@@ -158,14 +158,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="flex items-center border border-[#E9DED5] rounded-xl bg-[#FBF6F0]">
                         <button
                           onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                          className="px-2 py-0.5 text-xs font-bold text-stone-700 hover:text-[#781C35]"
+                          className="min-w-[32px] min-h-[32px] flex items-center justify-center text-xs font-bold text-stone-700 hover:text-[#781C35] active:scale-95 transition-all"
+                          aria-label="Decrease quantity"
                         >
                           -
                         </button>
-                        <span className="px-2 text-xs font-bold text-[#211A18]">{item.quantity}</span>
+                        <span className="px-2.5 text-xs font-bold text-[#211A18]">{item.quantity}</span>
                         <button
                           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 py-0.5 text-xs font-bold text-stone-700 hover:text-[#781C35]"
+                          className="min-w-[32px] min-h-[32px] flex items-center justify-center text-xs font-bold text-stone-700 hover:text-[#781C35] active:scale-95 transition-all"
+                          aria-label="Increase quantity"
                         >
                           +
                         </button>
@@ -187,8 +189,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   {/* Remove Button */}
                   <button
                     onClick={() => onRemoveItem(item.id)}
-                    className="absolute top-3 right-3 text-stone-400 hover:text-red-500 p-1"
+                    className="absolute top-3 right-3 text-stone-400 hover:text-red-500 p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-full hover:bg-stone-100"
                     title="Remove item"
+                    aria-label="Remove item"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -199,7 +202,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           {/* Footer Summary & Checkout */}
           {items.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-[#E9DED5] bg-white space-y-3.5">
+            <div className="p-4 sm:p-5 border-t border-[#E9DED5] bg-white space-y-3.5 pb-safe sm:pb-5">
               
               {/* Coupon Code Input */}
               <form onSubmit={handleApplyCoupon} className="flex gap-2">

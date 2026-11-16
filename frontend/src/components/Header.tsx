@@ -119,33 +119,33 @@ export const Header: React.FC<HeaderProps> = ({
       
       {/* 1. ANNOUNCEMENT BAR (Dark Maroon #541326 / #781C35) */}
       <div className="bg-[#541326] text-[#FBF6F0] py-2 px-3 sm:px-6 text-[10px] sm:text-xs tracking-wider">
-        <div className="max-w-7xl mx-auto flex items-center justify-between sm:justify-center sm:gap-6 md:gap-10">
-          <div className="flex items-center gap-1.5 font-medium">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 xs:gap-4 sm:gap-6 md:gap-10 text-center">
+          <div className="flex items-center gap-1.5 font-medium shrink-0">
             <Truck className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>Free Shipping Above ₹{settings?.freeShippingThreshold || 999}</span>
           </div>
-          <span className="text-[#D6A63A]/40 hidden sm:inline">|</span>
-          <div className="flex items-center gap-1.5 font-medium">
+          <span className="text-[#D6A63A]/40 inline">•</span>
+          <div className="flex items-center gap-1.5 font-medium shrink-0">
             <RotateCcw className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>Easy 7-Day Returns</span>
           </div>
-          <span className="text-[#D6A63A]/40 hidden sm:inline">|</span>
-          <div className="flex items-center gap-1.5 font-medium hidden xs:flex">
+          <span className="text-[#D6A63A]/40 hidden md:inline">•</span>
+          <div className="flex items-center gap-1.5 font-medium hidden md:flex shrink-0">
             <ShieldCheck className="w-3.5 h-3.5 text-[#D6A63A]" />
-            <span>Secure Payments</span>
+            <span>100% Secure Payments</span>
           </div>
         </div>
       </div>
 
       {/* 2. MAIN NAVIGATION BAR */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left: Mobile Menu Trigger + Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden text-[#211A18] p-1.5 rounded-lg hover:bg-[#F2E5D8]/50 transition-colors"
-            aria-label="Open Navigation"
+            className="md:hidden text-[#211A18] p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl hover:bg-[#F2E5D8]/60 active:scale-95 transition-all"
+            aria-label="Open Navigation Menu"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -155,10 +155,10 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('home')}
             className="cursor-pointer group flex flex-col select-none"
           >
-            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.2em] text-[#781C35] group-hover:text-[#541326] transition-colors leading-none">
+            <span className="font-serif text-xl xs:text-2xl sm:text-3xl font-bold tracking-[0.18em] sm:tracking-[0.2em] text-[#781C35] group-hover:text-[#541326] transition-colors leading-none">
               BRIVOO
             </span>
-            <span className="text-[7.5px] sm:text-[8.5px] tracking-[0.32em] text-[#746963] uppercase font-semibold mt-1">
+            <span className="text-[7px] xs:text-[7.5px] sm:text-[8.5px] tracking-[0.28em] sm:tracking-[0.32em] text-[#746963] uppercase font-semibold mt-0.5 sm:mt-1">
               HAUTE ATELIER
             </span>
           </div>
@@ -327,12 +327,12 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Right: Search, Wishlist, Account, Shopping Bag */}
-        <div className="flex items-center space-x-2 sm:space-x-3 text-[#211A18]">
+        <div className="flex items-center space-x-1 sm:space-x-2.5 text-[#211A18]">
           
           {/* Search Trigger */}
           <button
             onClick={() => setShowSearchModal(true)}
-            className="p-2 rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] transition-colors"
+            className="p-2 min-w-[38px] min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] active:scale-95 transition-all"
             title="Search Products"
             aria-label="Search"
           >
@@ -342,7 +342,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Wishlist Trigger */}
           <button
             onClick={onOpenWishlist}
-            className="p-2 rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] transition-colors relative"
+            className="p-2 min-w-[38px] min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] active:scale-95 transition-all relative"
             title="Wishlist"
             aria-label="Wishlist"
           >
@@ -359,10 +359,10 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="p-1 rounded-full hover:ring-2 hover:ring-[#781C35]/30 transition-all flex items-center gap-1"
+                className="p-1 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-full hover:ring-2 hover:ring-[#781C35]/30 active:scale-95 transition-all"
                 aria-label="Account Menu"
               >
-                <div className="w-7 h-7 rounded-full bg-[#781C35] text-white flex items-center justify-center text-xs font-bold">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#781C35] text-white flex items-center justify-center text-xs font-bold">
                   {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               </button>
@@ -432,7 +432,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Shopping Bag Trigger */}
           <button
             onClick={onOpenCart}
-            className="p-2 rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] transition-colors relative"
+            className="p-2 min-w-[38px] min-h-[38px] sm:min-w-[42px] sm:min-h-[42px] flex items-center justify-center rounded-full hover:bg-[#F2E5D8]/50 hover:text-[#781C35] active:scale-95 transition-all relative"
             title="Shopping Bag"
             aria-label="Shopping Bag"
           >
@@ -691,7 +691,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Footer inside mobile drawer */}
-            <div className="p-4 border-t border-[#E9DED5] bg-white space-y-2">
+            <div className="p-4 border-t border-[#E9DED5] bg-white space-y-2 pb-safe">
               {currentUser ? (
                 <div>
                   <p className="text-xs font-bold text-[#211A18]">{currentUser.name}</p>

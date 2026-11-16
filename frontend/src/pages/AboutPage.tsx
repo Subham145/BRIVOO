@@ -40,36 +40,36 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onShopMen, onShopWomen, on
               </p>
 
               {/* Three Trust Pillars from Reference Image */}
-              <div className="pt-4 grid grid-cols-3 gap-4 border-t border-[#E9DED5] text-center">
+              <div className="pt-4 grid grid-cols-3 gap-2 xs:gap-4 border-t border-[#E9DED5] text-center">
                 <div className="space-y-1">
                   <div className="w-10 h-10 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center mx-auto">
                     <Sparkles className="w-5 h-5 text-[#781C35]" />
                   </div>
-                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18]">Quality Fabrics</h4>
-                  <p className="text-[10.5px] text-[#746963]">Pure cottons & silks</p>
+                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18] leading-tight">Quality Fabrics</h4>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#746963]">Pure cottons & silks</p>
                 </div>
 
-                <div className="space-y-1 border-x border-[#E9DED5]">
+                <div className="space-y-1 border-x border-[#E9DED5] px-1">
                   <div className="w-10 h-10 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center mx-auto">
                     <Award className="w-5 h-5 text-[#781C35]" />
                   </div>
-                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18]">Thoughtful Designs</h4>
-                  <p className="text-[10.5px] text-[#746963]">Flattering tailored cuts</p>
+                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18] leading-tight">Thoughtful Designs</h4>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#746963]">Flattering cuts</p>
                 </div>
 
                 <div className="space-y-1">
                   <div className="w-10 h-10 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center mx-auto">
                     <Heart className="w-5 h-5 text-[#781C35]" />
                   </div>
-                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18]">Made in India</h4>
-                  <p className="text-[10.5px] text-[#746963]">Local artisan legacy</p>
+                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#211A18] leading-tight">Made in India</h4>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#746963]">Artisan legacy</p>
                 </div>
               </div>
 
-              <div className="pt-4 flex gap-3">
+              <div className="pt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={onShopWomen}
-                  className="px-8 py-3.5 bg-[#781C35] hover:bg-[#541326] text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-luxury transition-all flex items-center gap-2"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-[#781C35] hover:bg-[#541326] text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-luxury transition-all flex items-center justify-center gap-2"
                 >
                   <span>Shop Women's Collection</span>
                   <ArrowRight className="w-4 h-4" />

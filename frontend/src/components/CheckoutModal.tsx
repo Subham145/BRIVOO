@@ -325,10 +325,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto p-2 sm:p-4 md:p-6 flex justify-center items-start"
     >
-      <div className="bg-[#FBF6F0] w-full max-w-3xl rounded-3xl shadow-2xl border border-[#E9DED5] relative overflow-hidden my-2 sm:my-8 animate-in fade-in">
+      <div className="bg-[#FBF6F0] w-full max-w-3xl rounded-3xl shadow-2xl border border-[#E9DED5] relative overflow-hidden my-2 sm:my-6 max-h-[94vh] flex flex-col animate-in fade-in">
         
         {/* Modal Header */}
-        <div className="bg-[#541326] text-white p-4 sm:p-5 flex items-center justify-between">
+        <div className="bg-[#541326] text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-2">
             <Lock className="w-4 h-4 text-[#D6A63A]" />
             <h2 className="font-serif text-base sm:text-lg font-bold tracking-tight text-white">
@@ -337,7 +337,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           </div>
           <button 
             onClick={onClose}
-            className="text-stone-300 hover:text-white transition-colors p-1.5 rounded-full"
+            className="text-stone-300 hover:text-white transition-colors p-2 rounded-full min-w-[36px] min-h-[36px] flex items-center justify-center"
             aria-label="Close checkout"
           >
             <X className="w-5 h-5" />
@@ -345,7 +345,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         </div>
 
         {/* Step Indicator matching Reference Image */}
-        <div className="bg-[#FAF0F2] px-4 sm:px-8 py-3 border-b border-[#E9DED5] flex items-center justify-center space-x-3 sm:space-x-8 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+        <div className="bg-[#FAF0F2] px-4 sm:px-8 py-3 border-b border-[#E9DED5] flex items-center justify-center space-x-3 sm:space-x-8 text-[11px] sm:text-xs font-bold uppercase tracking-wider shrink-0">
           <div className={`flex items-center space-x-2 ${step === 1 ? 'text-[#781C35]' : 'text-stone-400'}`}>
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold ${
               step === 1 ? 'bg-[#781C35] text-white' : 'bg-stone-300 text-stone-700'
@@ -361,7 +361,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           </div>
         </div>
 
-        <form onSubmit={handleSubmitOrder} className="p-3.5 sm:p-6 md:p-8">
+        <form onSubmit={handleSubmitOrder} className="p-4 sm:p-6 md:p-8 overflow-y-auto flex-1 pb-safe">
           
           {errorMsg && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 text-xs font-semibold rounded-lg border border-red-200">
@@ -490,7 +490,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           ) : (
             /* STEP 2: PAYMENT METHOD */
             <div className="space-y-5 sm:space-y-6">
-              <h3 className="font-sans text-base sm:text-lg font-bold text-stone-900 border-b border-[#E6DFC5] pb-2 tracking-tight">
+              <h3 className="font-sans text-base sm:text-lg font-bold text-stone-900 border-b border-[#E9DED5] pb-2 tracking-tight">
                 Payment Option
               </h3>
 
@@ -502,11 +502,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onClick={() => setPaymentMethod('UPI')}
                   className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
                     paymentMethod === 'UPI' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
-                      : 'border-[#E6DFC5] bg-white hover:border-gray-400'
+                      ? 'border-[#781C35] bg-[#FAF0F2] shadow-sm' 
+                      : 'border-[#E9DED5] bg-white hover:border-[#781C35]/50'
                   }`}
                 >
-                  <QrCode className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <QrCode className="w-4 h-4 sm:w-5 sm:h-5 text-[#781C35]" />
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">UPI / QR</p>
                     <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Google Pay, PhonePe, Paytm</p>
@@ -518,11 +518,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onClick={() => setPaymentMethod('Card')}
                   className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
                     paymentMethod === 'Card' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
-                      : 'border-[#E6DFC5] bg-white hover:border-gray-400'
+                      ? 'border-[#781C35] bg-[#FAF0F2] shadow-sm' 
+                      : 'border-[#E9DED5] bg-white hover:border-[#781C35]/50'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-[#781C35]" />
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">Cards</p>
                     <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Credit & Debit Cards</p>
@@ -534,11 +534,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onClick={() => setPaymentMethod('NetBanking')}
                   className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
                     paymentMethod === 'NetBanking' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
-                      : 'border-[#E6DFC5] bg-white hover:border-gray-400'
+                      ? 'border-[#781C35] bg-[#FAF0F2] shadow-sm' 
+                      : 'border-[#E9DED5] bg-white hover:border-[#781C35]/50'
                   }`}
                 >
-                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#781C35]" />
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">Net Banking</p>
                     <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">All Indian Banks</p>
@@ -550,11 +550,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onClick={() => setPaymentMethod('COD')}
                   className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 min-h-[74px] ${
                     paymentMethod === 'COD' 
-                      ? 'border-[#C5A059] bg-[#F3EEE7] shadow-sm' 
-                      : 'border-[#E6DFC5] bg-white hover:border-gray-400'
+                      ? 'border-[#781C35] bg-[#FAF0F2] shadow-sm' 
+                      : 'border-[#E9DED5] bg-white hover:border-[#781C35]/50'
                   }`}
                 >
-                  <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C5A059]" />
+                  <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#781C35]" />
                   <div>
                     <p className="text-xs font-bold text-[#1A1A1A]">COD</p>
                     <p className="text-[9.5px] sm:text-[10px] text-gray-500 leading-tight">Pay at doorstep</p>
@@ -564,7 +564,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
               {/* Payment Details Container */}
-              <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#E6DFC5]">
+              <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#E9DED5]">
                 {paymentMethod === 'COD' ? (
                   <div className="text-xs space-y-1">
                     <p className="font-bold text-[#1A1A1A]">Cash on Delivery Selected</p>
@@ -574,7 +574,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 ) : (
                   <div className="text-xs space-y-2">
-                    <p className="font-bold text-[#1A1A1A]">Secure Online Payment</p>
+                    <p className="font-bold text-[#1A1A1A]">Secure Online Payment (Save ₹{prepaidDiscount})</p>
                     <p className="text-gray-600">
                       You will complete payment in Razorpay Checkout. Available payment
                       methods depend on the gateway and your selection there.
@@ -587,7 +587,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
               {/* Order Final Summary */}
-              <div className="bg-[#F7F3EE] p-3.5 sm:p-4 rounded-xl border border-[#E6DFC5] text-xs space-y-1.5">
+              <div className="bg-[#FAF0F2] p-3.5 sm:p-4 rounded-xl border border-[#E9DED5] text-xs space-y-1.5">
                 <div className="flex justify-between text-gray-600">
                   <span>Items Total ({items.length})</span>
                   <span className="tabular-nums">₹{subtotal.toLocaleString('en-IN')}</span>
@@ -631,9 +631,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {!isFreeShipping && quoteIsCurrent && shippingQuote?.shippingCourier && (
                   <p className="text-[10px] text-gray-500">Courier: {shippingQuote.shippingCourier}</p>
                 )}
-                <div className="flex justify-between font-bold text-sm text-[#1A1A1A] pt-2 border-t border-[#E6DFC5]">
+                <div className="flex justify-between font-bold text-sm text-[#211A18] pt-2 border-t border-[#E9DED5]">
                   <span>Grand Total</span>
-                  <span className="text-base text-[#1A1A1A] tabular-nums">₹{grandTotal.toLocaleString('en-IN')}</span>
+                  <span className="text-base text-[#781C35] tabular-nums">₹{grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
