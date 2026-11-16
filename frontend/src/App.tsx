@@ -12,26 +12,35 @@ import { NewsletterSection } from './components/NewsletterSection';
 import { OffersBanner } from './components/OffersBanner';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
-import { CheckoutModal } from './components/CheckoutModal';
-import { OrderConfirmationModal } from './components/OrderConfirmationModal';
-import { AuthModal } from './components/AuthModal';
-const AIStylistModal = React.lazy(() => import('./components/AIStylistModal').then(m => ({ default: m.AIStylistModal })));
 import { Footer } from './components/Footer';
 
-// Pages
-import { ShopPage } from './pages/ShopPage';
-import { WomenCollectionPage } from './pages/WomenCollectionPage';
-import { CartPage } from './pages/CartPage';
-import { SearchResultsPage } from './pages/SearchResultsPage';
-import { AccountPage } from './pages/AccountPage';
-import { OffersPage } from './pages/OffersPage';
-import { AboutPage } from './pages/AboutPage';
-import { ContactPage } from './pages/ContactPage';
-import { FAQPage } from './pages/FAQPage';
-import { ShippingPolicyPage } from './pages/ShippingPolicyPage';
-import { ReturnPolicyPage } from './pages/ReturnPolicyPage';
-import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
-import { TermsPage } from './pages/TermsPage';
+// Lazy-loaded modals for optimal initial load
+const CheckoutModal = React.lazy(() => import('./components/CheckoutModal').then(m => ({ default: m.CheckoutModal })));
+const OrderConfirmationModal = React.lazy(() => import('./components/OrderConfirmationModal').then(m => ({ default: m.OrderConfirmationModal })));
+const AuthModal = React.lazy(() => import('./components/AuthModal').then(m => ({ default: m.AuthModal })));
+const AIStylistModal = React.lazy(() => import('./components/AIStylistModal').then(m => ({ default: m.AIStylistModal })));
+
+// Lazy-loaded secondary pages for route-based code-splitting
+const ShopPage = React.lazy(() => import('./pages/ShopPage').then(m => ({ default: m.ShopPage })));
+const WomenCollectionPage = React.lazy(() => import('./pages/WomenCollectionPage').then(m => ({ default: m.WomenCollectionPage })));
+const CartPage = React.lazy(() => import('./pages/CartPage').then(m => ({ default: m.CartPage })));
+const SearchResultsPage = React.lazy(() => import('./pages/SearchResultsPage').then(m => ({ default: m.SearchResultsPage })));
+const AccountPage = React.lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
+const OffersPage = React.lazy(() => import('./pages/OffersPage').then(m => ({ default: m.OffersPage })));
+const AboutPage = React.lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const FAQPage = React.lazy(() => import('./pages/FAQPage').then(m => ({ default: m.FAQPage })));
+const ShippingPolicyPage = React.lazy(() => import('./pages/ShippingPolicyPage').then(m => ({ default: m.ShippingPolicyPage })));
+const ReturnPolicyPage = React.lazy(() => import('./pages/ReturnPolicyPage').then(m => ({ default: m.ReturnPolicyPage })));
+const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
+const TermsPage = React.lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+
+const PageFallback = () => (
+  <div className="min-h-[50vh] flex flex-col items-center justify-center py-20 px-4 bg-[#FBF6F0]">
+    <div className="w-8 h-8 border-2 border-[#781C35] border-t-transparent rounded-full animate-spin mb-3" />
+    <span className="font-serif text-xs tracking-widest text-[#781C35] uppercase font-semibold">Loading...</span>
+  </div>
+);
 
 // Admin Pages & Auth (lazy-loaded)
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -178,7 +187,7 @@ export function App() {
   // Add Product Quick Launch from Admin Dashboard
   const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false);
 
-  // Load store data from backend
+  // Refresh all store data (called on admin mutation or user action)
   const fetchAllData = async () => {
     try {
       const [prodRes, catRes, coupRes, offRes, setRes] = await Promise.all([
@@ -211,8 +220,58 @@ export function App() {
     }
   };
 
+  // 1. Initial public store catalog load (runs once on mount)
   useEffect(() => {
-    fetchAllData();
+    let isMounted = true;
+    const loadInitialCatalog = async () => {
+      try {
+        const [prodRes, catRes, coupRes, offRes, setRes] = await Promise.all([
+          api.getProducts(),
+          api.getCategories(),
+          api.getCoupons(),
+          api.getOffers(),
+          api.getSettings()
+        ]);
+        if (!isMounted) return;
+        if (prodRes.success) setProducts(prodRes.data);
+        if (catRes.success) setCategories(catRes.data);
+        if (coupRes.success) setCoupons(coupRes.data);
+        if (offRes && offRes.success) setOffers(offRes.data);
+        if (setRes.success) setSettings(setRes.data);
+      } catch (err) {
+        console.error('Error loading initial catalog:', err);
+      }
+    };
+    loadInitialCatalog();
+    return () => { isMounted = false; };
+  }, []);
+
+  // 2. Auth-dependent data (orders, analytics) - runs when auth changes
+  useEffect(() => {
+    let isMounted = true;
+    const loadUserData = async () => {
+      if (currentUser) {
+        try {
+          const ordRes = await api.getOrders();
+          if (isMounted && ordRes.success) setOrders(ordRes.data);
+        } catch (err) {
+          console.error('Error fetching orders:', err);
+        }
+      } else {
+        if (isMounted) setOrders([]);
+      }
+
+      if (isAdmin) {
+        try {
+          const anaRes = await api.getAnalytics();
+          if (isMounted && anaRes.success) setAnalytics(anaRes.data);
+        } catch (err) {
+          console.error('Error fetching analytics:', err);
+        }
+      }
+    };
+    loadUserData();
+    return () => { isMounted = false; };
   }, [currentUser, isAdmin]);
 
   useEffect(() => {
@@ -638,7 +697,7 @@ export function App() {
 
       {/* 2. Main Body Router Views */}
       <main className="flex-grow">
-        
+        <React.Suspense fallback={<PageFallback />}>
         {/* PAGE 1: HOMEPAGE matching Reference Image */}
         {activeTab === 'home' && !isAdmin && (
           <>
@@ -852,7 +911,7 @@ export function App() {
             }}
           />
         )}
-
+        </React.Suspense>
       </main>
 
       {/* 3. Global Footer matching Reference Image */}
@@ -867,28 +926,35 @@ export function App() {
       />
 
       {/* Global Authentication Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        promptMessage={authPromptMessage}
-      />
+      {isAuthModalOpen && (
+        <React.Suspense fallback={null}>
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onLoginSuccess={handleLoginSuccess}
+            promptMessage={authPromptMessage}
+          />
+        </React.Suspense>
+      )}
 
       {/* PAGE 4: Global Product Detail Modal / View matching Reference Image */}
-      <ProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-        onToggleWishlist={handleToggleWishlist}
-        isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
-        onReviewSubmitted={fetchAllData}
-        onOpenAITryOn={(prod) => {
-          setAiModalProduct(prod);
-          setAiModalMode('tryon');
-          setIsAIModalOpen(true);
-        }}
-      />
+      {selectedProduct && (
+        <ProductModal
+          key={selectedProduct.id}
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
+          onToggleWishlist={handleToggleWishlist}
+          isWishlisted={wishlistIds.includes(selectedProduct.id)}
+          onReviewSubmitted={fetchAllData}
+          onOpenAITryOn={(prod) => {
+            setAiModalProduct(prod);
+            setAiModalMode('tryon');
+            setIsAIModalOpen(true);
+          }}
+        />
+      )}
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer
@@ -904,26 +970,34 @@ export function App() {
       />
 
       {/* PAGE 6: Multi-step Checkout Modal matching Reference Image */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        items={cartItems}
-        appliedDiscount={appliedDiscount}
-        couponCode={appliedCouponCode}
-        settings={settings}
-        metaConsent={metaConsent === 'accepted'}
-        onOrderSuccess={handleOrderSuccess}
-      />
+      {isCheckoutOpen && (
+        <React.Suspense fallback={null}>
+          <CheckoutModal
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            items={cartItems}
+            appliedDiscount={appliedDiscount}
+            couponCode={appliedCouponCode}
+            settings={settings}
+            metaConsent={metaConsent === 'accepted'}
+            onOrderSuccess={handleOrderSuccess}
+          />
+        </React.Suspense>
+      )}
 
       {/* PAGE 7: Order Confirmation Receipt Modal matching Reference Image */}
-      <OrderConfirmationModal
-        order={confirmedOrder}
-        onClose={() => setConfirmedOrder(null)}
-        onTrackOrder={(id) => {
-          setTrackOrderId(id);
-          setActiveTab('tracking');
-        }}
-      />
+      {confirmedOrder && (
+        <React.Suspense fallback={null}>
+          <OrderConfirmationModal
+            order={confirmedOrder}
+            onClose={() => setConfirmedOrder(null)}
+            onTrackOrder={(id) => {
+              setTrackOrderId(id);
+              setActiveTab('tracking');
+            }}
+          />
+        </React.Suspense>
+      )}
 
       {/* Global AI Fashion Stylist & Try-On Modal */}
       {isAIModalOpen && (

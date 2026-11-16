@@ -8,60 +8,61 @@ interface CategoryShowcaseProps {
   onNavigateTab?: (tab: string) => void;
 }
 
-export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ 
+const CATEGORY_TILES = [
+  {
+    name: "Kurtis",
+    targetCategory: "Women’s Kurtis",
+    image: "/images/product-52b661be-bc40-4666-98bc-719828a872de.jpg",
+    tag: "Popular"
+  },
+  {
+    name: "Kurta Sets",
+    targetCategory: "Women’s Kurta Sets",
+    image: "/images/product-7253dbe7-6795-46ce-a83f-8d19cd66f180.webp",
+    tag: "Trending"
+  },
+  {
+    name: "Dresses",
+    targetCategory: "Women’s Long Kurtas",
+    image: "/images/product-14cc800a-70e9-418a-9a0c-2621abd30bcf.webp",
+    tag: "Festive"
+  },
+  {
+    name: "Tops",
+    targetCategory: "Women’s Tops",
+    image: "/images/product-f39f7d73-2499-4949-a877-edabc33d56f9.webp",
+    tag: "Daily"
+  },
+  {
+    name: "Bottoms",
+    targetCategory: "Co-Ord Sets",
+    image: "/images/product-426be3a5-8905-4e73-8a61-e7f36b6b9d91.webp",
+    tag: "Comfort"
+  },
+  {
+    name: "Men",
+    targetCategory: "Men",
+    isTab: true,
+    tab: "men",
+    image: "/images/hero_slide_1.jpg",
+    tag: "Classic"
+  },
+  {
+    name: "All Categories",
+    targetCategory: "All",
+    isTab: true,
+    tab: "shop-all",
+    isAllTile: true,
+    image: "/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.webp",
+    tag: "Explore"
+  }
+];
+
+export const CategoryShowcase: React.FC<CategoryShowcaseProps> = React.memo(({ 
   categories, 
   onSelectCategory,
   onNavigateTab 
 }) => {
-  const categoryTiles = [
-    {
-      name: "Kurtis",
-      targetCategory: "Women’s Kurtis",
-      image: "/images/product-52b661be-bc40-4666-98bc-719828a872de.jpg",
-      tag: "Popular"
-    },
-    {
-      name: "Kurta Sets",
-      targetCategory: "Women’s Kurta Sets",
-      image: "/images/product-7253dbe7-6795-46ce-a83f-8d19cd66f180.webp",
-      tag: "Trending"
-    },
-    {
-      name: "Dresses",
-      targetCategory: "Women’s Long Kurtas",
-      image: "/images/product-14cc800a-70e9-418a-9a0c-2621abd30bcf.webp",
-      tag: "Festive"
-    },
-    {
-      name: "Tops",
-      targetCategory: "Women’s Tops",
-      image: "/images/product-f39f7d73-2499-4949-a877-edabc33d56f9.webp",
-      tag: "Daily"
-    },
-    {
-      name: "Bottoms",
-      targetCategory: "Co-Ord Sets",
-      image: "/images/product-426be3a5-8905-4e73-8a61-e7f36b6b9d91.webp",
-      tag: "Comfort"
-    },
-    {
-      name: "Men",
-      targetCategory: "Men",
-      isTab: true,
-      tab: "men",
-      image: "/images/hero_slide_1.jpg",
-      tag: "Classic"
-    },
-    {
-      name: "All Categories",
-      targetCategory: "All",
-      isTab: true,
-      tab: "shop-all",
-      isAllTile: true,
-      image: "/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.webp",
-      tag: "Explore"
-    }
-  ];
 
   return (
     <section className="py-10 sm:py-14 bg-[#FBF6F0]">
@@ -88,7 +89,7 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({
 
         {/* Categories Row / Grid (Circular / Rounded Image Cards from Reference Image) */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4 sm:gap-6">
-          {categoryTiles.map((cat, idx) => (
+          {CATEGORY_TILES.map((cat, idx) => (
             <button
               key={idx}
               onClick={() => {
@@ -130,4 +131,6 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({
       </div>
     </section>
   );
-};
+});
+
+CategoryShowcase.displayName = 'CategoryShowcase';

@@ -98,6 +98,10 @@ export const Hero: React.FC<HeroProps> = ({
                   alt="BRIVOO Festive Elegance"
                   className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
                   loading="eager"
+                  fetchPriority="high"
+                  width={600}
+                  height={800}
+                  decoding="async"
                 />
 
                 {/* Floating Atelier Badge */}

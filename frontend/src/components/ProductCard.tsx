@@ -10,7 +10,7 @@ interface ProductCardProps {
   isWishlisted: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
   onQuickAdd,
   onOpenModal,
@@ -177,4 +177,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';

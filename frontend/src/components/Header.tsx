@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Search, 
   Heart, 
@@ -86,14 +86,16 @@ export const Header: React.FC<HeaderProps> = ({
     }
   }, [showSearchModal]);
 
-  // Live filtered search suggestions
-  const searchResults = searchQuery.trim()
-    ? products.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      ).slice(0, 6)
-    : [];
+  // Live filtered search suggestions memoized for performance
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return products.filter(p => 
+      p.title.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      (p.description && p.description.toLowerCase().includes(q))
+    ).slice(0, 6);
+  }, [searchQuery, products]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

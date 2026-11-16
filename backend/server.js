@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -48,6 +49,9 @@ if (process.env.NODE_ENV !== 'production') {
     'http://localhost:5012'
   );
 }
+
+// Compress all responses for enhanced network speed
+app.use(compression());
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -780,13 +784,18 @@ app.post('/api/products/upload-image', authenticateToken, requireAdmin, (req, re
   }
 });
 
-// Static images directory
+// Static images directory with browser caching
 app.use('/images', (req, res, next) => {
-  if (/^[a-zA-Z0-9_-]+\.webp$/i.test(path.basename(req.path))) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  const filename = path.basename(req.path);
+  if (/^[a-zA-Z0-9_.-]+\.(webp|jpg|jpeg|png|svg|avif|ico)$/i.test(filename)) {
+    res.setHeader('Cache-Control', 'public, max-age=2592000, stale-while-revalidate=604800');
   }
   next();
-}, express.static(path.join(__dirname, 'public', 'images')));
+}, express.static(path.join(__dirname, 'public', 'images'), {
+  maxAge: '30d',
+  immutable: false,
+  etag: true
+}));
 
 // ----------------------------------------------------
 // 1. PRODUCTS API (Full CRUD + Reviews + Filter/Search)
