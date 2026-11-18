@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Search, 
   Heart, 
@@ -8,6 +9,7 @@ import {
   Menu, 
   ChevronDown, 
   ChevronRight,
+  ChevronLeft,
   ShieldCheck, 
   Truck, 
   RotateCcw, 
@@ -66,7 +68,12 @@ export const Header: React.FC<HeaderProps> = ({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [womenMegaOpen, setWomenMegaOpen] = useState(false);
   const [collectionsDropdownOpen, setCollectionsDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lock background scroll when mobile menu or search modal is open
   useEffect(() => {
@@ -118,19 +125,19 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 bg-[#FBF6F0]/95 backdrop-blur-md border-b border-[#E9DED5] transition-all">
       
       {/* 1. ANNOUNCEMENT BAR (Dark Maroon #541326 / #781C35) */}
-      <div className="bg-[#541326] text-[#FBF6F0] py-2 px-3 sm:px-6 text-[10px] sm:text-xs tracking-wider">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 xs:gap-4 sm:gap-6 md:gap-10 text-center">
-          <div className="flex items-center gap-1.5 font-medium shrink-0">
+      <div className="bg-[#541326] text-[#FBF6F0] py-1.5 sm:py-2 px-3 sm:px-6 text-[10px] sm:text-xs tracking-wider overflow-hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 xs:gap-4 sm:gap-6 md:gap-10 text-center flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-1 font-medium shrink-0">
             <Truck className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>Free Shipping Above ₹{settings?.freeShippingThreshold || 999}</span>
           </div>
           <span className="text-[#D6A63A]/40 inline">•</span>
-          <div className="flex items-center gap-1.5 font-medium shrink-0">
+          <div className="flex items-center gap-1 font-medium shrink-0">
             <RotateCcw className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>Easy 7-Day Returns</span>
           </div>
           <span className="text-[#D6A63A]/40 hidden md:inline">•</span>
-          <div className="flex items-center gap-1.5 font-medium hidden md:flex shrink-0">
+          <div className="flex items-center gap-1 font-medium hidden md:flex shrink-0">
             <ShieldCheck className="w-3.5 h-3.5 text-[#D6A63A]" />
             <span>100% Secure Payments</span>
           </div>
@@ -138,29 +145,48 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* 2. MAIN NAVIGATION BAR */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3.5 flex items-center justify-between gap-1.5 sm:gap-4">
         
-        {/* Left: Mobile Menu Trigger + Logo */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Left: Mobile Menu Trigger + Subpage Back Button + Logo */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {activeTab !== 'home' && (
+            <button
+              onClick={() => setActiveTab('home')}
+              className="md:hidden text-[#211A18] p-1.5 sm:p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl hover:bg-[#F2E5D8]/60 active:scale-95 transition-all"
+              aria-label="Back to Home"
+              title="Back to Home"
+            >
+              <ChevronLeft className="w-5 h-5 text-[#211A18]" />
+            </button>
+          )}
+
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden text-[#211A18] p-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl hover:bg-[#F2E5D8]/60 active:scale-95 transition-all"
+            className="md:hidden text-[#211A18] p-1.5 sm:p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl hover:bg-[#F2E5D8]/60 active:scale-95 transition-all"
             aria-label="Open Navigation Menu"
+            title="Open Menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
-          {/* BRIVOO Logo with Luxury Haute Atelier Brand Typography */}
+          {/* BRIVOO Circular Medallion Logo & Haute Atelier Brand Typography */}
           <div 
             onClick={() => setActiveTab('home')}
-            className="cursor-pointer group flex flex-col select-none"
+            className="cursor-pointer group flex items-center gap-2.5 select-none pl-0.5 sm:pl-1"
           >
-            <span className="font-serif text-xl xs:text-2xl sm:text-3xl font-bold tracking-[0.18em] sm:tracking-[0.2em] text-[#781C35] group-hover:text-[#541326] transition-colors leading-none">
-              BRIVOO
-            </span>
-            <span className="text-[7px] xs:text-[7.5px] sm:text-[8.5px] tracking-[0.28em] sm:tracking-[0.32em] text-[#746963] uppercase font-semibold mt-0.5 sm:mt-1">
-              HAUTE ATELIER
-            </span>
+            <img 
+              src="/images/brivoo_logo.png" 
+              alt="BRIVOO" 
+              className="w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 rounded-full object-contain bg-white p-0.5 border border-[#C5A064]/40 shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+            />
+            <div className="flex flex-col">
+              <span className="font-serif text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold tracking-[0.16em] sm:tracking-[0.2em] text-[#781C35] group-hover:text-[#541326] transition-colors leading-none">
+                BRIVOO
+              </span>
+              <span className="text-[6.5px] xs:text-[7px] sm:text-[8px] tracking-[0.25em] sm:tracking-[0.32em] text-[#746963] uppercase font-semibold mt-0.5">
+                HAUTE ATELIER
+              </span>
+            </div>
           </div>
         </div>
 
@@ -241,14 +267,17 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Men */}
+          {/* Men (Coming Soon) */}
           <button
             onClick={() => setActiveTab('men')}
-            className={`py-1 transition-colors relative hover:text-[#781C35] ${
+            className={`py-1 transition-colors relative hover:text-[#781C35] flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'men' ? 'text-[#781C35] font-bold' : ''
             }`}
           >
-            Men
+            <span>Men</span>
+            <span className="text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-[#C5A064]/20 text-[#781C35] uppercase border border-[#C5A064]/40">
+              Soon
+            </span>
             {activeTab === 'men' && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#781C35] rounded-full" />
             )}
@@ -446,9 +475,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* 3. SEARCH AUTOCOMPLETE MODAL */}
-      {showSearchModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4 animate-in fade-in">
+      {/* 3. SEARCH AUTOCOMPLETE MODAL (Portaled to document.body for full viewport coverage) */}
+      {mounted && showSearchModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-3 sm:px-4 animate-in fade-in"
+          onClick={() => setShowSearchModal(false)}
+        >
           <div 
             className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-[#E9DED5] overflow-hidden animate-in slide-in-from-top-4 duration-300"
             onClick={e => e.stopPropagation()}
@@ -558,23 +590,46 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* 4. MOBILE SLIDEOUT DRAWER MENU */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex animate-in fade-in">
-          <div className="bg-[#FBF6F0] w-4/5 max-w-sm h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-300">
-            <div>
+      {/* 4. MOBILE SLIDEOUT DRAWER MENU (Portaled to document.body for full viewport coverage) */}
+      {mounted && mobileMenuOpen && createPortal(
+        <div className="fixed inset-0 z-[100] flex animate-in fade-in">
+          {/* Backdrop overlay */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+            onClick={() => setMobileMenuOpen(false)} 
+            aria-hidden="true"
+          />
+
+          {/* Drawer container */}
+          <div className="relative z-10 bg-[#FBF6F0] w-[85%] max-w-[340px] h-full min-h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-300 border-r border-[#E9DED5]">
+            <div className="flex-1 overflow-y-auto">
               {/* Header */}
-              <div className="p-4 border-b border-[#E9DED5] flex items-center justify-between bg-white">
-                <div>
-                  <span className="font-serif text-xl font-bold tracking-[0.18em] text-[#781C35]">BRIVOO</span>
-                  <span className="text-[7.5px] tracking-[0.25em] text-[#746963] block uppercase font-bold">HAUTE ATELIER</span>
+              <div className="p-4 border-b border-[#E9DED5] flex items-center justify-between bg-white sticky top-0 z-10">
+                <div 
+                  onClick={() => {
+                    setActiveTab('home');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="cursor-pointer flex items-center gap-2.5 select-none"
+                >
+                  <img 
+                    src="/images/brivoo_logo.png" 
+                    alt="BRIVOO" 
+                    className="w-9 h-9 rounded-full object-contain bg-white p-0.5 border border-[#C5A064]/40 shadow-xs shrink-0" 
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-serif text-xl font-bold tracking-[0.18em] text-[#781C35]">BRIVOO</span>
+                    <span className="text-[7.5px] tracking-[0.25em] text-[#746963] block uppercase font-bold">HAUTE ATELIER</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-full hover:bg-stone-100 text-stone-600"
+                  className="p-1.5 rounded-full hover:bg-stone-100 text-stone-600 transition-colors"
+                  aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -587,10 +642,12 @@ export const Header: React.FC<HeaderProps> = ({
                     setActiveTab('home');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between ${
+                    activeTab === 'home' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#211A18]'
+                  }`}
                 >
                   <span>Home</span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronRight className={`w-4 h-4 ${activeTab === 'home' ? 'text-white' : 'text-stone-400'}`} />
                 </button>
 
                 <button
@@ -598,21 +655,24 @@ export const Header: React.FC<HeaderProps> = ({
                     setActiveTab('women');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between text-[#781C35]"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between ${
+                    activeTab === 'women' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#781C35]'
+                  }`}
                 >
                   <span>Women's Collection</span>
-                  <ChevronRight className="w-4 h-4 text-[#781C35]" />
+                  <ChevronRight className="w-4 h-4 text-current" />
                 </button>
 
                 {/* Categories Sublist */}
-                <div className="pl-6 space-y-1 py-1">
+                <div className="pl-4 pr-2 space-y-1 py-1">
                   {["Kurtis", "Kurta Sets", "Dresses", "Tops", "Ethnic Sets", "Bottoms"].map((c, i) => (
                     <button
                       key={i}
                       onClick={() => handleCategoryNav(c)}
-                      className="w-full text-left py-1.5 text-xs text-[#746963] hover:text-[#781C35]"
+                      className="w-full text-left py-1.5 px-3 text-xs font-medium text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/30 rounded-lg flex items-center justify-between transition-colors"
                     >
-                      • {c}
+                      <span>• {c}</span>
+                      <ChevronRight className="w-3 h-3 opacity-30" />
                     </button>
                   ))}
                 </div>
@@ -622,10 +682,21 @@ export const Header: React.FC<HeaderProps> = ({
                     setActiveTab('men');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between cursor-pointer ${
+                    activeTab === 'men' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#211A18]'
+                  }`}
                 >
-                  <span>Men</span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <div className="flex items-center gap-2">
+                    <span>Men's Collection</span>
+                    <span className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full uppercase border ${
+                      activeTab === 'men' 
+                        ? 'bg-white/20 text-white border-white/40' 
+                        : 'bg-[#C5A064]/20 text-[#781C35] border-[#C5A064]/40'
+                    }`}>
+                      Coming Soon
+                    </span>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 ${activeTab === 'men' ? 'text-white' : 'text-stone-400'}`} />
                 </button>
 
                 <button
@@ -633,10 +704,12 @@ export const Header: React.FC<HeaderProps> = ({
                     setActiveTab('collections');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between ${
+                    activeTab === 'collections' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#211A18]'
+                  }`}
                 >
                   <span>Collections</span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronRight className={`w-4 h-4 ${activeTab === 'collections' ? 'text-white' : 'text-stone-400'}`} />
                 </button>
 
                 <button
@@ -644,64 +717,124 @@ export const Header: React.FC<HeaderProps> = ({
                     setActiveTab('offers');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between ${
+                    activeTab === 'offers' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#211A18]'
+                  }`}
                 >
                   <span className="flex items-center gap-2">
                     <span>Offers & Sale</span>
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#D6A63A] text-white text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded-full bg-[#D6A63A] text-white text-[9px] font-bold">
                       %
                     </span>
                   </span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronRight className={`w-4 h-4 ${activeTab === 'offers' ? 'text-white' : 'text-stone-400'}`} />
                 </button>
 
                 <button
                   onClick={() => {
-                    setActiveTab('about');
+                    setActiveTab('new-arrivals');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  className={`w-full text-left py-2.5 px-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-between ${
+                    activeTab === 'new-arrivals' ? 'bg-[#781C35] text-white' : 'hover:bg-[#F2E5D8]/50 text-[#211A18]'
+                  }`}
                 >
-                  <span>About Us</span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <span className="flex items-center gap-2">
+                    <span>New Arrivals</span>
+                    <Sparkles className="w-3.5 h-3.5 text-[#D6A63A]" />
+                  </span>
+                  <ChevronRight className={`w-4 h-4 ${activeTab === 'new-arrivals' ? 'text-white' : 'text-stone-400'}`} />
                 </button>
 
-                <button
-                  onClick={() => {
-                    setActiveTab('contact');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between"
-                >
-                  <span>Contact Us</span>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
-                </button>
+                <div className="pt-3 border-t border-[#E9DED5]/80 space-y-1">
+                  <button
+                    onClick={() => {
+                      onOpenAccount();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-xl font-medium text-xs text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  >
+                    <span>My Account & Orders</span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
 
-                <button
-                  onClick={() => {
-                    setActiveTab('tracking');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left py-3 px-3 rounded-xl font-semibold text-sm hover:bg-[#F2E5D8]/50 flex items-center justify-between text-[#781C35]"
-                >
-                  <span>Track Order</span>
-                  <Truck className="w-4 h-4 text-[#781C35]" />
-                </button>
+                  <button
+                    onClick={() => {
+                      onOpenWishlist();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-xl font-medium text-xs text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  >
+                    <span>My Wishlist ({wishlistCount})</span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveTab('tracking');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-xl font-medium text-xs text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  >
+                    <span>Track Your Order</span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveTab('contact');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-xl font-medium text-xs text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  >
+                    <span>Customer Support</span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveTab('about');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left py-2 px-3 rounded-xl font-medium text-xs text-[#746963] hover:text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between"
+                  >
+                    <span>About BRIVOO</span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        onOpenAdmin();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left py-2 px-3 rounded-xl font-bold text-xs text-[#781C35] hover:bg-[#F2E5D8]/50 flex items-center justify-between border-t border-[#E9DED5]/60 mt-1 pt-2"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5" />
+                        Admin Portal
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Footer inside mobile drawer */}
-            <div className="p-4 border-t border-[#E9DED5] bg-white space-y-2 pb-safe">
+            <div className="p-4 border-t border-[#E9DED5] bg-white space-y-2 sticky bottom-0 z-10 pb-safe">
               {currentUser ? (
-                <div>
-                  <p className="text-xs font-bold text-[#211A18]">{currentUser.name}</p>
-                  <p className="text-[11px] text-[#746963]">{currentUser.email}</p>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="truncate">
+                    <p className="text-xs font-bold text-[#211A18] truncate">{currentUser.name}</p>
+                    <p className="text-[10px] text-[#746963] truncate">{currentUser.email}</p>
+                  </div>
                   <button
                     onClick={() => {
                       onLogout();
                       setMobileMenuOpen(false);
                     }}
-                    className="mt-2 text-xs font-bold text-red-600"
+                    className="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                   >
                     Sign Out
                   </button>
@@ -712,15 +845,15 @@ export const Header: React.FC<HeaderProps> = ({
                     setMobileMenuOpen(false);
                     onOpenAuthModal();
                   }}
-                  className="w-full py-2.5 bg-[#781C35] text-white text-xs font-bold rounded-xl text-center shadow-md uppercase tracking-wider"
+                  className="w-full py-3 bg-[#781C35] hover:bg-[#541326] text-white text-xs font-bold rounded-xl text-center shadow-md uppercase tracking-wider transition-colors active:scale-95"
                 >
                   Sign In / Register
                 </button>
               )}
             </div>
           </div>
-          <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

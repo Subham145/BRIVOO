@@ -44,8 +44,19 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           alt={product.title}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+          className={`h-full w-full object-cover object-top transition-all duration-500 group-hover:scale-105 ${
+            product.images && product.images.length > 1 ? 'group-hover:opacity-0' : ''
+          }`}
         />
+        {product.images && product.images.length > 1 && (
+          <img
+            src={product.images[1]}
+            alt={`${product.title} alternate view`}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-top opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
+          />
+        )}
 
         {/* Tag / Discount Badge (Top-Left) */}
         <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">

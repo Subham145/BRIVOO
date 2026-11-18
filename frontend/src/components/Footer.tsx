@@ -46,31 +46,38 @@ export const Footer: React.FC<FooterProps> = ({
           
           {/* Column 1: Brand Info */}
           <div className="sm:col-span-2 lg:col-span-4 space-y-4">
-            <div className="flex flex-col cursor-pointer" onClick={() => navTo('home')}>
-              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.2em] text-[#FBF6F0]">
-                BRIVOO
-              </span>
-              <span className="text-[8px] sm:text-[9px] tracking-[0.35em] text-[#D6A63A] uppercase font-bold mt-0.5">
-                HAUTE ATELIER
-              </span>
+            <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => navTo('home')}>
+              <img 
+                src="/images/brivoo_logo.png" 
+                alt="BRIVOO" 
+                className="w-11 h-11 rounded-full object-contain bg-white p-0.5 border border-[#D6A63A]/50 shadow-md shrink-0" 
+              />
+              <div className="flex flex-col">
+                <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.2em] text-[#FBF6F0]">
+                  BRIVOO
+                </span>
+                <span className="text-[8px] sm:text-[9px] tracking-[0.35em] text-[#D6A63A] uppercase font-bold mt-0.5">
+                  HAUTE ATELIER
+                </span>
+              </div>
             </div>
 
             <p className="text-xs text-[#FBF6F0]/80 leading-relaxed max-w-sm">
               BRIVOO is a contemporary fashion brand bringing elegant, comfortable and affordable ethnic wear for the modern woman. Thoughtfully designed and crafted with care in India.
             </p>
 
-            <div className="space-y-1 text-xs text-[#FBF6F0]/80">
+            <div className="space-y-1.5 text-xs text-[#FBF6F0]/80">
               <p className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#D6A63A]" />
+                <MapPin className="w-3.5 h-3.5 text-[#D6A63A] shrink-0" />
                 <span>Indore, Madhya Pradesh, India</span>
               </p>
               <p className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#D6A63A]" />
-                <a href="tel:+918000554999" className="hover:text-white">+91 8000 554 999</a>
+                <Phone className="w-3.5 h-3.5 text-[#D6A63A] shrink-0" />
+                <a href="tel:+919009499992" className="hover:text-white font-medium">+91 9009499992</a>
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#D6A63A]" />
-                <a href="mailto:support@brivoo.in" className="hover:text-white">support@brivoo.in</a>
+                <Mail className="w-3.5 h-3.5 text-[#D6A63A] shrink-0" />
+                <a href="mailto:support@brivoo.in" className="hover:text-white font-medium">support@brivoo.in</a>
               </p>
             </div>
 
@@ -129,8 +136,11 @@ export const Footer: React.FC<FooterProps> = ({
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('men')} className="hover:text-white transition-colors">
-                  Men's Collection
+                <button onClick={() => navTo('men')} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+                  <span>Men's Collection</span>
+                  <span className="text-[9px] font-bold text-[#D6A63A] bg-[#D6A63A]/15 px-1.5 py-0.5 rounded border border-[#D6A63A]/30 uppercase">
+                    Soon
+                  </span>
                 </button>
               </li>
               <li>

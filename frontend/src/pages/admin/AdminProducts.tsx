@@ -17,7 +17,10 @@ import {
   FileSpreadsheet,
   FileText,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Star,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Product, Category, ProductColor } from '../../types';
 import { api } from '../../services/api';
@@ -61,7 +64,9 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
   const [originalPrice, setOriginalPrice] = useState('2499');
   const [tag, setTag] = useState('NEW');
   const [stock, setStock] = useState('25');
-  const [image, setImage] = useState('/images/linen_resort_shirt.png');
+  const [image, setImage] = useState('/images/brivoo_logo.png');
+  const [images, setImages] = useState<string[]>(['/images/brivoo_logo.png']);
+  const [newImageUrl, setNewImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [specs, setSpecs] = useState('');
 
@@ -94,15 +99,19 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     const firstCat = categories[0]?.name || 'Shirts';
     setSelectedCatName(firstCat);
     setSelectedSubCatName(categories[0]?.subcategories?.[0]?.name || '');
-    setGender('Men');
-    setPrice('1799');
-    setOriginalPrice('2499');
+    setGender('Women');
+    setPrice('1499');
+    setOriginalPrice('1999');
     setTag('NEW');
     setStock('25');
-    setImage('/images/linen_resort_shirt.png');
+    const defaultCover = '/images/brivoo_logo.png';
+    setImage(defaultCover);
+    setImages([defaultCover]);
+    setNewImageUrl('');
+    setImageUploadMessage('');
     setDescription('Handcrafted luxury apparel cut from fine breathable fabrics.');
     setSpecs('100% Premium European Flax Linen. Machine wash cold.');
-    setColors([{ name: 'Ivory', hex: '#F5F2EB' }, { name: 'Black', hex: '#1C1C1C' }]);
+    setColors([{ name: 'Maroon', hex: '#781C35' }, { name: 'Ivory', hex: '#F5F2EB' }]);
     setSizes(['S', 'M', 'L', 'XL']);
     setShowModal(true);
   };
@@ -118,7 +127,13 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     setOriginalPrice(p.originalPrice.toString());
     setTag(p.tag || 'NEW');
     setStock(p.stock.toString());
-    setImage(p.image);
+    const initialImages = Array.isArray(p.images) && p.images.length > 0
+      ? p.images.filter(Boolean)
+      : (p.image ? [p.image] : ['/images/brivoo_logo.png']);
+    setImages(initialImages);
+    setImage(p.image || initialImages[0] || '/images/brivoo_logo.png');
+    setNewImageUrl('');
+    setImageUploadMessage('');
     setDescription(p.description);
     setSpecs(p.specs);
     setColors(p.colors || []);
@@ -126,34 +141,40 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     setShowModal(true);
   };
 
-  const handleProductImageUpload = async (file?: File) => {
-    if (!file) return;
+  const handleProductImageUpload = async (files?: FileList | File[] | null) => {
+    if (!files || files.length === 0) return;
 
+    const fileList = Array.from(files);
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setImageUploadMessage('Please choose a JPG, PNG or WebP image.');
-      if (imageFileInputRef.current) imageFileInputRef.current.value = '';
-      return;
-    }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setImageUploadMessage('Image size must be 5 MB or less.');
-      if (imageFileInputRef.current) imageFileInputRef.current.value = '';
-      return;
+    for (const file of fileList) {
+      if (!allowedTypes.includes(file.type)) {
+        setImageUploadMessage(`Invalid file format for "${file.name}". Please choose JPG, PNG, or WebP.`);
+        if (imageFileInputRef.current) imageFileInputRef.current.value = '';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setImageUploadMessage(`"${file.name}" exceeds the 5 MB file size limit.`);
+        if (imageFileInputRef.current) imageFileInputRef.current.value = '';
+        return;
+      }
     }
 
     setUploadingImage(true);
-    setImageUploadMessage('Uploading image...');
+    setImageUploadMessage(`Uploading ${fileList.length} image(s)...`);
 
     try {
-      const reader = new FileReader();
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        reader.onload = () => typeof reader.result === 'string'
-          ? resolve(reader.result)
-          : reject(new Error('Could not read the selected image.'));
-        reader.onerror = () => reject(new Error('Could not read the selected image.'));
-        reader.readAsDataURL(file);
-      });
+      const dataUrls: string[] = await Promise.all(
+        fileList.map(file => new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => typeof reader.result === 'string'
+            ? resolve(reader.result)
+            : reject(new Error(`Could not read ${file.name}`));
+          reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+          reader.readAsDataURL(file);
+        }))
+      );
 
       const token = localStorage.getItem('brivoo_token');
       const response = await fetch('/api/products/upload-image', {
@@ -162,22 +183,74 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ image: dataUrl })
+        body: JSON.stringify({ images: dataUrls })
       });
 
       const result = await response.json();
-      if (!response.ok || !result.success || !result.data?.url) {
+      if (!response.ok || !result.success) {
         throw new Error(result.message || 'Image upload failed.');
       }
 
-      setImage(result.data.url);
-      setImageUploadMessage('Image uploaded successfully.');
+      const uploadedUrls: string[] = result.data?.urls || (result.data?.url ? [result.data.url] : []);
+      if (uploadedUrls.length > 0) {
+        setImages(current => {
+          const next = [...current, ...uploadedUrls];
+          if (!image || image === '/images/brivoo_logo.png') {
+            setImage(next[0]);
+          }
+          return next;
+        });
+        setImageUploadMessage(`Successfully added ${uploadedUrls.length} image(s)!`);
+      }
     } catch (error) {
       setImageUploadMessage(
         error instanceof Error ? error.message : 'Image upload failed.'
       );
     } finally {
       setUploadingImage(false);
+      if (imageFileInputRef.current) imageFileInputRef.current.value = '';
+    }
+  };
+
+  const handleAddImageUrl = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const url = newImageUrl.trim();
+    if (!url) return;
+    setImages(current => {
+      const next = [...current, url];
+      if (!image) setImage(url);
+      return next;
+    });
+    setNewImageUrl('');
+    setImageUploadMessage('Image URL added.');
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0 || index >= images.length) return;
+    const selected = images[index];
+    const next = [selected, ...images.filter((_, i) => i !== index)];
+    setImages(next);
+    setImage(selected);
+  };
+
+  const handleMoveImage = (index: number, direction: 'left' | 'right') => {
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= images.length) return;
+    const next = [...images];
+    const temp = next[index];
+    next[index] = next[targetIndex];
+    next[targetIndex] = temp;
+    setImages(next);
+    setImage(next[0]);
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const next = images.filter((_, i) => i !== index);
+    setImages(next);
+    if (next.length > 0) {
+      setImage(next[0]);
+    } else {
+      setImage('');
     }
   };
 
@@ -185,6 +258,8 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
     e.preventDefault();
     if (!title || !price || !selectedCatName) return;
     setSaving(true);
+
+    const primaryImg = images[0] || image || '/images/brivoo_logo.png';
 
     const payload = {
       title,
@@ -196,7 +271,8 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
       originalPrice: Number(originalPrice),
       tag,
       stock: Number(stock),
-      image,
+      image: primaryImg,
+      images: images.length > 0 ? images : [primaryImg],
       description,
       specs,
       colors,
@@ -796,7 +872,7 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-bold text-gray-700 mb-1">Stock Quantity</label>
                   <input 
@@ -819,56 +895,181 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                     <option value="LIMITED">LIMITED EDITION</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block font-bold text-gray-700 mb-1">Image URL</label>
+              </div>
+
+              {/* MULTI-IMAGE MEDIA GALLERY */}
+              <section className="space-y-4 rounded-2xl border border-[#E6DFC5] bg-[#FAF7F2] p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E6DFC5]/60 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-[#781C35]" />
+                        Product Images & Media Gallery
+                      </h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#781C35] text-white">
+                        {images.length} {images.length === 1 ? 'image' : 'images'}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-gray-600">
+                      Upload multiple images or paste URLs. The <strong>first image (Cover)</strong> is the default storefront preview.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={imageFileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={e => {
+                        if (e.target.files) {
+                          void handleProductImageUpload(e.target.files);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploadingImage}
+                      onClick={() => imageFileInputRef.current?.click()}
+                      className="flex items-center gap-2 px-3.5 py-2 bg-[#781C35] hover:bg-[#601429] text-white text-xs font-bold rounded-xl shadow transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      {uploadingImage ? 'Uploading Photos...' : '+ Upload Multiple Photos'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Add image URL input */}
+                <div className="flex gap-2">
                   <input
                     type="text"
-                    value={image}
-                    onChange={e => {
-                      setImage(e.target.value);
-                      setImageUploadMessage('');
+                    value={newImageUrl}
+                    onChange={e => setNewImageUrl(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddImageUrl();
+                      }
                     }}
-                    placeholder="Paste an image URL or upload a file"
-                    className="w-full p-2.5 bg-[#FAF7F2] border border-[#E6DFC5] rounded-xl font-mono text-[11px]"
-                  />
-                  <input
-                    ref={imageFileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={e => {
-                      void handleProductImageUpload(e.target.files?.[0]);
-                    }}
+                    placeholder="Or enter direct image URL (https://... or /images/...)"
+                    className="flex-1 p-2.5 bg-white border border-[#E6DFC5] rounded-xl text-xs font-mono focus:border-[#781C35] focus:outline-none"
                   />
                   <button
                     type="button"
-                    disabled={uploadingImage}
-                    onClick={() => imageFileInputRef.current?.click()}
-                    className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl border border-[#C5A059] px-3 py-2 font-bold text-[#8A682D] hover:bg-[#FAF7F2] disabled:opacity-50"
+                    onClick={handleAddImageUrl}
+                    disabled={!newImageUrl.trim()}
+                    className="px-4 py-2.5 bg-white hover:bg-gray-50 border border-[#C5A059] text-[#781C35] text-xs font-bold rounded-xl disabled:opacity-40 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <UploadCloud className="w-4 h-4" />
-                    {uploadingImage ? 'Uploading Image...' : 'Choose & Upload Image'}
+                    <Plus className="w-3.5 h-3.5" />
+                    Add URL
                   </button>
-                  {imageUploadMessage && (
-                    <p role="status" className="mt-1 text-[10px] text-gray-600">
-                      {imageUploadMessage}
-                    </p>
-                  )}
-                  {image && (
-                    <img
-                      src={image}
-                      alt="Product preview"
-                      className="mt-2 h-20 w-full rounded-lg border border-[#E6DFC5] bg-white object-contain"
-                      onError={e => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      onLoad={e => {
-                        e.currentTarget.style.display = 'block';
-                      }}
-                    />
-                  )}
                 </div>
-              </div>
+
+                {imageUploadMessage && (
+                  <p role="status" className="text-xs font-medium text-gray-700 bg-white/80 border border-[#E6DFC5] px-3 py-1.5 rounded-lg">
+                    {imageUploadMessage}
+                  </p>
+                )}
+
+                {/* Gallery Cards Grid */}
+                {images.length === 0 ? (
+                  <div className="py-8 text-center border-2 border-dashed border-[#E6DFC5] rounded-xl bg-white/60">
+                    <ImageIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs font-medium text-gray-500">No images added yet.</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Upload photos above or paste URLs to build this product's gallery.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {images.map((imgUrl, idx) => {
+                      const isCover = idx === 0;
+                      return (
+                        <div
+                          key={`${imgUrl}-${idx}`}
+                          className={`group relative rounded-xl border-2 bg-white overflow-hidden shadow-sm transition-all hover:shadow-md ${
+                            isCover ? 'border-[#781C35] ring-2 ring-[#781C35]/20' : 'border-[#E6DFC5]'
+                          }`}
+                        >
+                          <div className="relative aspect-[3/4] bg-stone-100 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={imgUrl}
+                              alt={`Product image ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              onError={e => {
+                                (e.currentTarget as HTMLImageElement).src = '/images/brivoo_logo.png';
+                              }}
+                            />
+
+                            {/* Badge */}
+                            {isCover ? (
+                              <span className="absolute top-2 left-2 bg-[#781C35] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1">
+                                <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                                COVER
+                              </span>
+                            ) : (
+                              <span className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
+                                #{idx + 1}
+                              </span>
+                            )}
+
+                            {/* Delete button (top right) */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              title="Delete image"
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-600/90 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity shadow cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Controls bar below image */}
+                          <div className="p-1.5 bg-[#FAF7F2] border-t border-[#E6DFC5] flex items-center justify-between text-[11px]">
+                            {/* Make Cover Button */}
+                            {!isCover ? (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimaryImage(idx)}
+                                className="text-[10px] font-bold text-[#781C35] hover:underline flex items-center gap-0.5 cursor-pointer"
+                                title="Set as primary cover image"
+                              >
+                                <Star className="w-3 h-3 text-[#C5A059]" />
+                                Set Cover
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-bold text-[#781C35]">
+                                Primary
+                              </span>
+                            )}
+
+                            {/* Reorder Buttons */}
+                            <div className="flex items-center gap-0.5 ml-auto">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveImage(idx, 'left')}
+                                title="Move earlier"
+                                className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-20 hover:bg-white rounded transition-colors cursor-pointer"
+                              >
+                                <ChevronLeft className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === images.length - 1}
+                                onClick={() => handleMoveImage(idx, 'right')}
+                                title="Move later"
+                                className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-20 hover:bg-white rounded transition-colors cursor-pointer"
+                              >
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
 
               {/* SIZE & COLOUR VARIANTS */}
               <section className="space-y-4 rounded-2xl border border-[#E6DFC5] bg-[#FAF7F2] p-4">
@@ -1303,11 +1504,11 @@ export const AdminProducts: React.FC<AdminProductsProps> = ({
                               <td className="p-2.5 font-mono text-[10px] text-gray-400">{idx + 1}</td>
                               <td className="p-2.5">
                                 <img
-                                  src={p.image || '/images/linen_resort_shirt.png'}
+                                  src={p.image || '/images/brivoo_logo.png'}
                                   alt={p.title || 'Product'}
                                   className="w-8 h-10 object-cover rounded bg-[#FAF7F2] border border-[#E6DFC5]"
                                   onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/images/linen_resort_shirt.png';
+                                    (e.target as HTMLImageElement).src = '/images/brivoo_logo.png';
                                   }}
                                 />
                               </td>

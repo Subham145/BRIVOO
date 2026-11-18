@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Star, 
@@ -12,7 +12,10 @@ import {
   Ruler, 
   ChevronDown, 
   ChevronUp,
-  MapPin
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
@@ -50,6 +53,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [pincode, setPincode] = useState('');
   const [pincodeChecked, setPincodeChecked] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'care' | 'reviews'>('details');
+
+  // Multi-image gallery state
+  const productImages = React.useMemo(() => {
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return product.images.filter(Boolean);
+    }
+    return product.image ? [product.image] : ['/images/brivoo_logo.png'];
+  }, [product.id, product.images, product.image]);
+
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [product.id]);
 
   // Review state
   const [reviewerName, setReviewerName] = useState('');
@@ -122,35 +139,89 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 p-5 sm:p-8">
             
-            {/* Left Column: Big Product Image */}
+            {/* Left Column: Big Product Image & Multi-Image Gallery */}
             <div className="md:col-span-6 space-y-4">
-              <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-[#FBF6F0] border border-[#E9DED5] shadow-xs">
+              <div className="group relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-[#FBF6F0] border border-[#E9DED5] shadow-xs">
                 <img 
-                  src={product.image} 
-                  alt={product.title}
-                  className="w-full h-full object-cover object-top"
+                  src={productImages[activeImageIndex] || product.image} 
+                  alt={`${product.title} - view ${activeImageIndex + 1}`}
+                  className="w-full h-full object-cover object-top transition-all duration-300"
                 />
 
                 {product.tag && (
-                  <div className="absolute top-3 left-3">
+                  <div className="absolute top-3 left-3 z-10">
                     <span className="bg-[#781C35] text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full shadow-md">
                       {product.tag}
                     </span>
                   </div>
                 )}
+
+                {/* Image Counter Badge */}
+                {productImages.length > 1 && (
+                  <div className="absolute bottom-3 right-3 z-10 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-2.5 py-1 rounded-full shadow">
+                    {activeImageIndex + 1} / {productImages.length}
+                  </div>
+                )}
+
+                {/* Left / Right Nav Arrows on Main Image */}
+                {productImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveImageIndex(prev => (prev > 0 ? prev - 1 : productImages.length - 1));
+                      }}
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 shadow-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-105 cursor-pointer"
+                      title="Previous photo"
+                      aria-label="Previous photo"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveImageIndex(prev => (prev < productImages.length - 1 ? prev + 1 : 0));
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 shadow-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-105 cursor-pointer"
+                      title="Next photo"
+                      aria-label="Next photo"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
               </div>
 
-              {/* Thumbnails row if available */}
-              {product.images && product.images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {product.images.map((img, i) => (
-                    <img 
-                      key={i} 
-                      src={img} 
-                      alt="" 
-                      className="w-16 h-20 object-cover rounded-xl border border-[#E9DED5] cursor-pointer hover:border-[#781C35]" 
-                    />
-                  ))}
+              {/* Thumbnails row */}
+              {productImages.length > 1 && (
+                <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin">
+                  {productImages.map((img, i) => {
+                    const isActive = activeImageIndex === i;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setActiveImageIndex(i)}
+                        className={`relative flex-shrink-0 w-16 h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                          isActive
+                            ? 'border-[#781C35] ring-2 ring-[#781C35]/30 scale-102 shadow-sm'
+                            : 'border-[#E9DED5] opacity-70 hover:opacity-100 hover:border-stone-400'
+                        }`}
+                        title={`View photo ${i + 1}`}
+                      >
+                        <img 
+                          src={img} 
+                          alt="" 
+                          className="w-full h-full object-cover object-top"
+                          onError={e => {
+                            (e.currentTarget as HTMLImageElement).src = '/images/brivoo_logo.png';
+                          }}
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -467,6 +538,34 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             </div>
 
+          </div>
+          {/* Sticky Mobile Add to Cart & Buy Now Bar matching Reference Screen 4 */}
+          <div className="md:hidden sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-3.5 border-t border-[#E9DED5] flex items-center gap-2.5 z-40 shadow-xl">
+            <button
+              onClick={() => onToggleWishlist(product)}
+              className={`p-3 rounded-xl border transition-all ${
+                isWishlisted
+                  ? 'bg-[#FAF0F2] border-[#781C35] text-[#781C35]'
+                  : 'border-[#E9DED5] text-[#746963]'
+              }`}
+              title="Wishlist"
+              aria-label="Wishlist"
+            >
+              <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-[#781C35]' : ''}`} />
+            </button>
+            <button
+              onClick={() => onAddToCart(product, selectedColor, selectedSize, quantity)}
+              className="flex-1 bg-[#781C35] hover:bg-[#541326] text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider shadow-luxury flex items-center justify-center gap-2"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Add to Cart</span>
+            </button>
+            <button
+              onClick={() => onBuyNow(product, selectedColor, selectedSize, quantity)}
+              className="bg-[#D6A63A] hover:bg-[#E5BE5E] text-[#211A18] py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm"
+            >
+              Buy Now
+            </button>
           </div>
         </div>
       </div>

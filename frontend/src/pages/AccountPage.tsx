@@ -13,7 +13,9 @@ import {
   ChevronRight,
   ShoppingBag,
   ExternalLink,
-  RotateCcw
+  RotateCcw,
+  Bell,
+  MessageSquare
 } from 'lucide-react';
 import { Order, Product, User } from '../types';
 import { ProductCard } from '../components/ProductCard';
@@ -264,8 +266,133 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           {/* RIGHT MAIN AREA */}
           <main className="lg:col-span-8 space-y-6">
             
+            {/* Screen 10: Mobile My Account Screen matching Reference Design */}
+            {activeTab === 'account' && (
+              <div className="lg:hidden space-y-4">
+                {/* User Profile Card */}
+                <div className="bg-white rounded-2xl p-4 border border-[#E9DED5] shadow-xs flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-full bg-[#EAD9CB] text-[#781C35] flex items-center justify-center font-bold text-base shadow-2xs">
+                    {userInitials}
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-serif text-base font-bold text-[#211A18] truncate">
+                      Hi, {userName}
+                    </h2>
+                    <p className="text-xs text-[#746963] truncate">{userEmail}</p>
+                  </div>
+                </div>
+
+                {/* Account Navigation List Cards matching Screen 10 */}
+                <div className="bg-white rounded-2xl border border-[#E9DED5] shadow-xs divide-y divide-[#E9DED5] overflow-hidden">
+                  <button
+                    onClick={() => setActiveTab('orders')}
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-[#FBF6F0] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">My Orders</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {orders.length > 0 && (
+                        <span className="text-[10px] font-bold text-[#781C35] bg-[#FAF0F2] px-2 py-0.5 rounded-full">
+                          {orders.length}
+                        </span>
+                      )}
+                      <ChevronRight className="w-4 h-4 text-stone-400" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('addresses')}
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-[#FBF6F0] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">My Addresses</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-stone-400" />
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('wishlist')}
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-[#FBF6F0] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <Heart className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">Wishlist</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {wishlistProducts.length > 0 && (
+                        <span className="text-[10px] font-bold text-[#781C35] bg-[#FAF0F2] px-2 py-0.5 rounded-full">
+                          {wishlistProducts.length}
+                        </span>
+                      )}
+                      <ChevronRight className="w-4 h-4 text-stone-400" />
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('profile')}
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-[#FBF6F0] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <Settings className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">Profile Settings</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-stone-400" />
+                  </button>
+
+                  <div className="w-full p-4 flex items-center justify-between text-left">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <Bell className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">Notifications</span>
+                    </div>
+                    <span className="text-[10px] text-[#23865B] bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">Active</span>
+                  </div>
+
+                  <a
+                    href="mailto:support@brivoo.in"
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-[#FBF6F0] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] flex items-center justify-center">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-[#211A18]">Help & Support</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-stone-400" />
+                  </a>
+
+                  {onLogout && (
+                    <button
+                      onClick={onLogout}
+                      className="w-full p-4 flex items-center justify-between text-left text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+                          <LogOut className="w-4 h-4" />
+                        </div>
+                        <span className="text-xs font-bold">Logout</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-red-400" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* 1. MY ORDERS TAB matching Reference Image */}
-            {(activeTab === 'orders' || activeTab === 'account') && (
+            {(activeTab === 'orders' || (activeTab === 'account' && typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E9DED5] shadow-xs space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-[#E9DED5]">
                   <div>

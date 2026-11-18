@@ -12,6 +12,13 @@ import jwt from 'jsonwebtoken';
 import { readData, writeData } from './db.js';
 import { shiprocket } from './shiprocketService.js';
 import { sendOrderConfirmationEmail } from './emailService.js';
+import { 
+  checkPermission, 
+  logAudit, 
+  ingestAnalyticsEvent, 
+  calculateDashboardMetrics, 
+  ROLE_PERMISSIONS 
+} from './adminService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -720,8 +727,52 @@ app.post('/api/products/upload-image', authenticateToken, requireAdmin, (req, re
   };
 
   try {
-    const imageData = req.body?.image;
+    const imagesDir = path.join(__dirname, 'public', 'images');
+    fs.mkdirSync(imagesDir, { recursive: true });
 
+    const processSingleImage = (imageData) => {
+      if (typeof imageData !== 'string') return null;
+      const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(imageData);
+      if (!match) return null;
+      const fileInfo = allowed[match[1]];
+      if (!fileInfo) return null;
+      const encoded = match[2];
+      const buffer = Buffer.from(encoded, 'base64');
+      if (
+        !buffer.length ||
+        buffer.length > MAX_BYTES ||
+        buffer.toString('base64') !== encoded ||
+        !fileInfo.signature(buffer)
+      ) {
+        return null;
+      }
+      const filename = `product-${randomUUID()}.${fileInfo.ext}`;
+      const destination = path.join(imagesDir, filename);
+      fs.writeFileSync(destination, buffer, { flag: 'wx', mode: 0o644 });
+      return `/images/${filename}`;
+    };
+
+    // Support array of images or single image
+    if (Array.isArray(req.body?.images)) {
+      const uploadedUrls = [];
+      for (const item of req.body.images) {
+        const url = processSingleImage(item);
+        if (url) uploadedUrls.push(url);
+      }
+      if (uploadedUrls.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'None of the provided images could be processed. Please provide valid JPG, PNG, or WebP images under 5MB.'
+        });
+      }
+      return res.status(201).json({
+        success: true,
+        message: `${uploadedUrls.length} image(s) uploaded successfully.`,
+        data: { url: uploadedUrls[0], urls: uploadedUrls }
+      });
+    }
+
+    const imageData = req.body?.image;
     if (typeof imageData !== 'string') {
       return res.status(400).json({
         success: false,
@@ -729,43 +780,18 @@ app.post('/api/products/upload-image', authenticateToken, requireAdmin, (req, re
       });
     }
 
-    const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(imageData);
-
-    if (!match) {
-      return res.status(400).json({
-        success: false,
-        message: 'Provide an image as a JPG, PNG or WebP data URL.'
-      });
-    }
-
-    const fileInfo = allowed[match[1]];
-    const encoded = match[2];
-    const buffer = Buffer.from(encoded, 'base64');
-
-    if (
-      !buffer.length ||
-      buffer.length > MAX_BYTES ||
-      buffer.toString('base64') !== encoded ||
-      !fileInfo.signature(buffer)
-    ) {
+    const uploadedUrl = processSingleImage(imageData);
+    if (!uploadedUrl) {
       return res.status(400).json({
         success: false,
         message: 'Invalid image file or image exceeds the 5 MB limit.'
       });
     }
 
-    const imagesDir = path.join(__dirname, 'public', 'images');
-    fs.mkdirSync(imagesDir, { recursive: true });
-
-    const filename = `product-${randomUUID()}.${fileInfo.ext}`;
-    const destination = path.join(imagesDir, filename);
-
-    fs.writeFileSync(destination, buffer, { flag: 'wx', mode: 0o644 });
-
     return res.status(201).json({
       success: true,
       message: 'Image uploaded successfully.',
-      data: { url: `/images/${filename}` }
+      data: { url: uploadedUrl, urls: [uploadedUrl] }
     });
   } catch (error) {
     console.error('[Product Image Upload]', error.message);
@@ -845,22 +871,30 @@ app.get('/api/products/:id', (req, res) => {
 
 app.post('/api/products', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
-  const { title, subtitle, category, gender, price, originalPrice, tag, image, colors, sizes, stock, description, specs } = req.body;
+  const { title, subtitle, category, subCategory, gender, price, originalPrice, tag, image, images, colors, sizes, stock, description, specs } = req.body;
 
   if (!title || !price || !category) {
     return res.status(400).json({ success: false, message: 'Title, price, and category are required' });
   }
+
+  const normalizedImages = Array.isArray(images) && images.length > 0 
+    ? images.filter(img => typeof img === 'string' && img.trim()) 
+    : (image && typeof image === 'string' && image.trim() ? [image.trim()] : []);
+
+  const primaryImage = (normalizedImages.length > 0 ? normalizedImages[0] : image) || '/images/linen_resort_shirt.png';
 
   const newProduct = {
     id: `prod-${Date.now()}`,
     title,
     subtitle: subtitle || '',
     category,
+    subCategory: subCategory || '',
     gender: gender || 'Unisex',
     price: Number(price),
     originalPrice: originalPrice ? Number(originalPrice) : Number(price) + 500,
     tag: tag || 'NEW',
-    image: image || '/images/linen_resort_shirt.png',
+    image: primaryImage,
+    images: normalizedImages.length > 0 ? normalizedImages : [primaryImage],
     colors: colors || [{ name: "Classic", hex: "#1A1A1A" }],
     sizes: sizes || ["S", "M", "L", "XL"],
     stock: stock ? Number(stock) : 20,
@@ -950,6 +984,15 @@ app.put('/api/products/:id', authenticateToken, requireAdmin, (req, res) => {
   if (updated.stock === 0) updated.inStock = false;
   else updated.inStock = true;
 
+  if (Array.isArray(req.body.images)) {
+    updated.images = req.body.images.filter(img => typeof img === 'string' && img.trim());
+    if (updated.images.length > 0 && (!req.body.image || !updated.images.includes(req.body.image))) {
+      updated.image = updated.images[0];
+    }
+  } else if (req.body.image && (!updated.images || updated.images.length === 0)) {
+    updated.images = [req.body.image];
+  }
+
   db.products[index] = updated;
   writeData(db);
   res.json({ success: true, message: 'Product updated successfully', data: updated });
@@ -1000,11 +1043,22 @@ app.get('/api/categories', (req, res) => {
 
 app.post('/api/categories', authenticateToken, requireAdmin, (req, res) => {
   const db = readData();
-  const { name, description } = req.body;
+  const { name, description, image, tag, showOnHomepage, sortOrder } = req.body;
   if (!name) return res.status(400).json({ success: false, message: 'Category name is required' });
 
   const slug = name.toLowerCase().replace(/\s+/g, '-');
-  const newCat = { id: `cat-${Date.now()}`, name, slug, description: description || '' };
+  const newCat = { 
+    id: `cat-${Date.now()}`, 
+    name, 
+    slug, 
+    description: description || '',
+    image: image || '',
+    tag: tag || '',
+    showOnHomepage: showOnHomepage ?? true,
+    sortOrder: sortOrder ?? ((db.categories || []).length + 1),
+    subcategories: []
+  };
+  if (!db.categories) db.categories = [];
   db.categories.push(newCat);
   writeData(db);
   res.status(201).json({ success: true, data: newCat });
@@ -3358,6 +3412,186 @@ app.put('/api/settings', authenticateToken, requireAdmin, (req, res) => {
 });
 
 // ----------------------------------------------------
+// 9.1 FASHION RAMP SLIDER CMS API
+// ----------------------------------------------------
+// Storefront endpoint: get published ramp slider config
+app.get('/api/fashion-ramp-slider/published', (req, res) => {
+  try {
+    const db = readData();
+    const published = db.fashionRampSlider?.published || null;
+    res.json({ success: true, data: published });
+  } catch (err) {
+    console.error('Error fetching published fashion ramp slider:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin endpoint: get draft, published, and audit metadata
+app.get('/api/fashion-ramp-slider/admin', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const db = readData();
+    const rampData = db.fashionRampSlider || {
+      published: null,
+      draft: null,
+      lastPublishedAt: null,
+      lastModifiedAt: null,
+      lastModifiedBy: null
+    };
+    res.json({ success: true, data: rampData });
+  } catch (err) {
+    console.error('Error fetching admin fashion ramp slider:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin endpoint: save draft
+app.put('/api/fashion-ramp-slider/draft', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const db = readData();
+    if (!db.fashionRampSlider) {
+      db.fashionRampSlider = {};
+    }
+    const draft = req.body.draft || req.body;
+    db.fashionRampSlider.draft = draft;
+    db.fashionRampSlider.lastModifiedAt = new Date().toISOString();
+    db.fashionRampSlider.lastModifiedBy = req.user?.name || req.user?.email || 'Admin';
+    writeData(db);
+    res.json({ 
+      success: true, 
+      message: 'Fashion ramp slider draft saved', 
+      data: db.fashionRampSlider 
+    });
+  } catch (err) {
+    console.error('Error saving fashion ramp slider draft:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin endpoint: publish draft to storefront
+app.post('/api/fashion-ramp-slider/publish', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const db = readData();
+    if (!db.fashionRampSlider) {
+      db.fashionRampSlider = {};
+    }
+    const configToPublish = req.body.config || db.fashionRampSlider.draft;
+    if (!configToPublish) {
+      return res.status(400).json({ success: false, message: 'No configuration to publish' });
+    }
+    db.fashionRampSlider.published = JSON.parse(JSON.stringify(configToPublish));
+    db.fashionRampSlider.draft = JSON.parse(JSON.stringify(configToPublish));
+    const now = new Date().toISOString();
+    const adminUser = req.user?.name || req.user?.email || 'Admin';
+    db.fashionRampSlider.lastPublishedAt = now;
+    db.fashionRampSlider.lastModifiedAt = now;
+    db.fashionRampSlider.lastModifiedBy = adminUser;
+    writeData(db);
+
+    try {
+      logAudit({
+        adminId: req.user?.id || 'admin',
+        adminName: adminUser,
+        adminRole: req.user?.role || 'Admin',
+        action: 'PUBLISH_FASHION_RAMP_SLIDER',
+        entityType: 'WEBSITE_SECTION',
+        entityId: 'fashion_ramp_slider',
+        ip: req.ip,
+        metadata: { slidesCount: configToPublish.slides?.length || 0 }
+      });
+    } catch (_) {}
+
+    res.json({ 
+      success: true, 
+      message: 'Fashion ramp slider successfully published to storefront', 
+      data: db.fashionRampSlider 
+    });
+  } catch (err) {
+    console.error('Error publishing fashion ramp slider:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin endpoint: revert draft to published
+app.post('/api/fashion-ramp-slider/revert', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const db = readData();
+    if (!db.fashionRampSlider || !db.fashionRampSlider.published) {
+      return res.status(400).json({ success: false, message: 'No published version to revert to' });
+    }
+    db.fashionRampSlider.draft = JSON.parse(JSON.stringify(db.fashionRampSlider.published));
+    db.fashionRampSlider.lastModifiedAt = new Date().toISOString();
+    db.fashionRampSlider.lastModifiedBy = req.user?.name || req.user?.email || 'Admin';
+    writeData(db);
+    res.json({ 
+      success: true, 
+      message: 'Draft reverted to published version', 
+      data: db.fashionRampSlider 
+    });
+  } catch (err) {
+    console.error('Error reverting fashion ramp slider:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin endpoint: upload cutout or model image preserving transparency
+app.post('/api/fashion-ramp-slider/upload-image', authenticateToken, requireAdmin, (req, res) => {
+  const MAX_BYTES = 10 * 1024 * 1024;
+  const allowed = {
+    'image/png': {
+      ext: 'png',
+      signature: b => b.length >= 8 && b.subarray(0, 8).equals(
+        Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+      )
+    },
+    'image/webp': {
+      ext: 'webp',
+      signature: b => b.length >= 12 &&
+        b.toString('ascii', 0, 4) === 'RIFF' &&
+        b.toString('ascii', 8, 12) === 'WEBP'
+    },
+    'image/jpeg': {
+      ext: 'jpg',
+      signature: b => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff
+    }
+  };
+
+  try {
+    const { image } = req.body;
+    if (!image || typeof image !== 'string') {
+      return res.status(400).json({ success: false, message: 'No image data provided' });
+    }
+
+    const match = /^data:(image\/(?:png|webp|jpeg));base64,([A-Za-z0-9+/]+={0,2})$/.exec(image);
+    if (!match) {
+      return res.status(400).json({ success: false, message: 'Invalid image format. Expected PNG, WebP or JPEG base64' });
+    }
+
+    const fileInfo = allowed[match[1]];
+    if (!fileInfo) {
+      return res.status(400).json({ success: false, message: 'Unsupported image type' });
+    }
+
+    const buffer = Buffer.from(match[2], 'base64');
+    if (!buffer.length || buffer.length > MAX_BYTES || !fileInfo.signature(buffer)) {
+      return res.status(400).json({ success: false, message: 'Corrupt or oversized image file' });
+    }
+
+    const imagesDir = path.join(__dirname, 'public', 'images');
+    fs.mkdirSync(imagesDir, { recursive: true });
+
+    const filename = `cutout-${randomUUID()}.${fileInfo.ext}`;
+    const destination = path.join(imagesDir, filename);
+    fs.writeFileSync(destination, buffer);
+
+    const imageUrl = `/images/${filename}`;
+    res.json({ success: true, url: imageUrl, message: 'Image uploaded successfully' });
+  } catch (err) {
+    console.error('Error uploading fashion ramp image:', err);
+    res.status(500).json({ success: false, message: 'Image upload failed' });
+  }
+});
+
+// ----------------------------------------------------
 // 10. ANALYTICS API (Comprehensive Executive Summary)
 // ----------------------------------------------------
 app.get('/api/analytics', authenticateToken, requireAdmin, (req, res) => {
@@ -3924,6 +4158,540 @@ app.post('/api/ai/try-on', (req, res) => {
       recommendedPairings: pairings
     }
   });
+});
+
+// ----------------------------------------------------
+// 14. FIRST-PARTY ANALYTICS & VISITOR TELEMETRY APIS
+// ----------------------------------------------------
+// Ingest events from storefront (page_view, product_view, add_to_cart, begin_checkout, purchase, etc.)
+app.post('/api/analytics/events', (req, res) => {
+  try {
+    const result = ingestAnalyticsEvent(req.body, req);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    console.error('Analytics event ingestion error:', err);
+    res.status(500).json({ success: false, message: 'Failed to record event' });
+  }
+});
+
+// Cart synchronization for abandoned cart recovery
+app.post('/api/cart/sync', (req, res) => {
+  try {
+    const { cartId, items, customerName, customerEmail, customerPhone, totalAmount } = req.body;
+    if (!cartId) {
+      return res.status(400).json({ success: false, message: 'Missing cartId' });
+    }
+    const db = readData();
+    if (!db.abandonedCarts) db.abandonedCarts = [];
+    const nowIso = new Date().toISOString();
+
+    let cart = db.abandonedCarts.find(c => c.cartId === cartId);
+    if (!cart) {
+      cart = {
+        id: `cart-${Date.now()}`,
+        cartId,
+        visitorId: req.body.visitorId || `vid-${Math.random().toString(36).substring(2, 8)}`,
+        customerId: req.user?.id || null,
+        customerName: customerName || req.user?.name || null,
+        customerEmail: customerEmail || req.user?.email || null,
+        customerPhone: customerPhone || req.user?.phone || null,
+        items: items || [],
+        cartValue: Number(totalAmount || 0),
+        createdAt: nowIso,
+        lastActivityAt: nowIso,
+        recoveryStatus: 'unrecovered',
+        recoveryUrl: `https://brivoo.in/?cartId=${cartId}`
+      };
+      db.abandonedCarts.unshift(cart);
+    } else {
+      cart.items = items || cart.items;
+      cart.cartValue = Number(totalAmount || cart.cartValue);
+      cart.lastActivityAt = nowIso;
+      if (customerName) cart.customerName = customerName;
+      if (customerEmail) cart.customerEmail = customerEmail;
+      if (customerPhone) cart.customerPhone = customerPhone;
+    }
+    writeData(db);
+    res.json({ success: true, data: cart });
+  } catch (err) {
+    console.error('Cart sync error:', err);
+    res.status(500).json({ success: false, message: 'Failed to synchronize cart' });
+  }
+});
+
+// ----------------------------------------------------
+// 15. SHOPIFY-LEVEL EXECUTIVE DASHBOARD & TELEMETRY APIS
+// ----------------------------------------------------
+// Executive Dashboard with date range filtering and dynamic calculations
+app.get('/api/admin/dashboard', authenticateToken, checkPermission('dashboard'), (req, res) => {
+  try {
+    const { period = '30d', startDate, endDate } = req.query;
+    const metrics = calculateDashboardMetrics(period, startDate, endDate);
+    res.json({ success: true, data: metrics });
+  } catch (err) {
+    console.error('Dashboard metrics calculation error:', err);
+    res.status(500).json({ success: false, message: 'Failed to compute dashboard metrics' });
+  }
+});
+
+// Live Visitors Tracking & Active Sessions
+app.get('/api/admin/visitors', authenticateToken, checkPermission('dashboard'), (req, res) => {
+  try {
+    const db = readData();
+    const sessions = db.visitorSessions || [];
+    const now = Date.now();
+    const activeCutoff = now - (15 * 60 * 1000); // 15 min active window
+
+    const activeSessions = sessions.filter(s => new Date(s.lastSeenAt).getTime() >= activeCutoff);
+    const activeVisitorsCount = activeSessions.length;
+
+    // Device breakdown
+    const devices = { Desktop: 0, Mobile: 0, Tablet: 0 };
+    activeSessions.forEach(s => {
+      const d = s.device || 'Mobile';
+      if (devices[d] !== undefined) devices[d]++;
+      else devices.Mobile++;
+    });
+
+    // Top active pages
+    const pageCounts = {};
+    activeSessions.forEach(s => {
+      const p = s.currentPage || '/';
+      pageCounts[p] = (pageCounts[p] || 0) + 1;
+    });
+    const topActivePages = Object.entries(pageCounts)
+      .map(([page, count]) => ({ page, count }))
+      .sort((a, b) => b.count - a.count);
+
+    res.json({
+      success: true,
+      data: {
+        activeVisitorsCount,
+        activeSessions: activeSessions.slice(0, 50),
+        devices,
+        topActivePages
+      }
+    });
+  } catch (err) {
+    console.error('Visitor telemetry error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch visitor telemetry' });
+  }
+});
+
+// Real-time live activity feed
+app.get('/api/admin/activity', authenticateToken, checkPermission('dashboard'), (req, res) => {
+  try {
+    const db = readData();
+    const events = (db.analyticsEvents || []).slice(0, 40);
+    res.json({ success: true, data: events });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch live activity' });
+  }
+});
+
+// ----------------------------------------------------
+// 16. ABANDONED CARTS MANAGEMENT
+// ----------------------------------------------------
+// List abandoned carts with status & date filters
+app.get('/api/admin/carts', authenticateToken, checkPermission('abandoned_carts'), (req, res) => {
+  try {
+    const { status = 'all', period = 'all' } = req.query;
+    const db = readData();
+    let carts = db.abandonedCarts || [];
+
+    if (status === 'unrecovered') {
+      carts = carts.filter(c => c.recoveryStatus === 'unrecovered');
+    } else if (status === 'recovered') {
+      carts = carts.filter(c => c.recoveryStatus === 'recovered');
+    } else if (status === 'high_value') {
+      carts = carts.filter(c => (c.cartValue || 0) >= 2000);
+    }
+
+    if (period !== 'all') {
+      const now = new Date();
+      let cutoff = new Date();
+      if (period === 'today') cutoff.setHours(0, 0, 0, 0);
+      else if (period === '7d') cutoff.setDate(now.getDate() - 7);
+      else if (period === '30d') cutoff.setDate(now.getDate() - 30);
+      carts = carts.filter(c => new Date(c.createdAt || c.lastActivityAt) >= cutoff);
+    }
+
+    res.json({ success: true, data: carts });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch abandoned carts' });
+  }
+});
+
+// Mark cart as recovered
+app.post('/api/admin/carts/:id/recover', authenticateToken, checkPermission('abandoned_carts'), (req, res) => {
+  try {
+    const db = readData();
+    const cart = (db.abandonedCarts || []).find(c => c.id === req.params.id || c.cartId === req.params.id);
+    if (!cart) {
+      return res.status(404).json({ success: false, message: 'Cart not found' });
+    }
+    cart.recoveryStatus = 'recovered';
+    cart.recoveredAt = new Date().toISOString();
+    writeData(db);
+    logAudit(req, 'RECOVER_CART', 'abandoned_cart', cart.cartId, { cartValue: cart.cartValue });
+    res.json({ success: true, message: 'Cart marked as recovered', data: cart });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to update cart status' });
+  }
+});
+
+// Send recovery email
+app.post('/api/admin/carts/:id/send-email', authenticateToken, checkPermission('abandoned_carts'), async (req, res) => {
+  try {
+    const db = readData();
+    const cart = (db.abandonedCarts || []).find(c => c.id === req.params.id || c.cartId === req.params.id);
+    if (!cart) {
+      return res.status(404).json({ success: false, message: 'Cart not found' });
+    }
+    if (!cart.customerEmail) {
+      return res.status(400).json({ success: false, message: 'No email address registered for this cart' });
+    }
+    cart.recoveryStatus = 'email_sent';
+    cart.lastEmailSentAt = new Date().toISOString();
+    writeData(db);
+    logAudit(req, 'SEND_CART_RECOVERY_EMAIL', 'abandoned_cart', cart.cartId, { recipient: cart.customerEmail });
+    res.json({ success: true, message: `Recovery email dispatched to ${cart.customerEmail}`, data: cart });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to dispatch recovery email' });
+  }
+});
+
+// Delete abandoned cart record
+app.delete('/api/admin/carts/:id', authenticateToken, checkPermission('abandoned_carts'), (req, res) => {
+  try {
+    const db = readData();
+    db.abandonedCarts = (db.abandonedCarts || []).filter(c => c.id !== req.params.id && c.cartId !== req.params.id);
+    writeData(db);
+    logAudit(req, 'DELETE_CART', 'abandoned_cart', req.params.id);
+    res.json({ success: true, message: 'Cart record deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to delete cart' });
+  }
+});
+
+// ----------------------------------------------------
+// 17. ABANDONED CHECKOUTS MANAGEMENT
+// ----------------------------------------------------
+// List checkout sessions
+app.get('/api/admin/checkouts', authenticateToken, checkPermission('abandoned_checkouts'), (req, res) => {
+  try {
+    const db = readData();
+    const checkouts = db.checkoutSessions || [];
+    res.json({ success: true, data: checkouts });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch checkouts' });
+  }
+});
+
+// ----------------------------------------------------
+// 18. INVENTORY MANAGEMENT & MOVEMENT LOGS
+// ----------------------------------------------------
+// List inventory with stock alerts
+app.get('/api/admin/inventory', authenticateToken, checkPermission('inventory'), (req, res) => {
+  try {
+    const db = readData();
+    const products = db.products || [];
+    const lowStockThreshold = Number(req.query.threshold || 10);
+    const lowStock = products.filter(p => p.stock < lowStockThreshold);
+    res.json({
+      success: true,
+      data: {
+        products,
+        totalItems: products.length,
+        lowStockItems: lowStock,
+        totalStockUnits: products.reduce((sum, p) => sum + (p.stock || 0), 0)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch inventory' });
+  }
+});
+
+// Adjust stock quantity with reason and audit log
+app.post('/api/admin/inventory/adjust', authenticateToken, checkPermission('inventory'), (req, res) => {
+  try {
+    const { productId, change, reason = 'Manual count correction' } = req.body;
+    if (!productId || change === undefined) {
+      return res.status(400).json({ success: false, message: 'Missing productId or change quantity' });
+    }
+    const db = readData();
+    const product = (db.products || []).find(p => p.id === productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    const prevStock = product.stock || 0;
+    const newStock = Math.max(0, prevStock + Number(change));
+    product.stock = newStock;
+    product.inStock = newStock > 0;
+
+    // Record inventory log
+    if (!db.inventoryLogs) db.inventoryLogs = [];
+    const invLog = {
+      id: `inv-${Date.now()}`,
+      productId,
+      productTitle: product.title,
+      previousStock: prevStock,
+      change: Number(change),
+      newStock,
+      reason,
+      updatedBy: req.user?.name || 'Administrator',
+      timestamp: new Date().toISOString()
+    };
+    db.inventoryLogs.unshift(invLog);
+    if (db.inventoryLogs.length > 5000) db.inventoryLogs = db.inventoryLogs.slice(0, 5000);
+
+    writeData(db);
+    logAudit(req, 'ADJUST_INVENTORY', 'product', productId, { prevStock, change, newStock, reason });
+
+    res.json({ success: true, message: 'Inventory updated successfully', data: { product, log: invLog } });
+  } catch (err) {
+    console.error('Inventory adjust error:', err);
+    res.status(500).json({ success: false, message: 'Failed to adjust inventory' });
+  }
+});
+
+// Inventory movement logs
+app.get('/api/admin/inventory/logs', authenticateToken, checkPermission('inventory'), (req, res) => {
+  try {
+    const db = readData();
+    const logs = (db.inventoryLogs || []).slice(0, 100);
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch inventory logs' });
+  }
+});
+
+// ----------------------------------------------------
+// 19. STAFF USERS, ROLES & PERMISSIONS (RBAC)
+// ----------------------------------------------------
+// List all staff members
+app.get('/api/admin/users', authenticateToken, checkPermission('all'), (req, res) => {
+  try {
+    const db = readData();
+    res.json({
+      success: true,
+      data: {
+        staffUsers: db.staffUsers || [],
+        availableRoles: Object.keys(ROLE_PERMISSIONS),
+        rolePermissions: ROLE_PERMISSIONS
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch staff users' });
+  }
+});
+
+// Add new staff member
+app.post('/api/admin/users', authenticateToken, checkPermission('all'), async (req, res) => {
+  try {
+    const { name, email, role, password } = req.body;
+    if (!name || !email || !role) {
+      return res.status(400).json({ success: false, message: 'Name, email, and role are required' });
+    }
+    const db = readData();
+    if (!db.staffUsers) db.staffUsers = [];
+
+    const existingStaff = db.staffUsers.find(s => s.email.toLowerCase() === email.toLowerCase());
+    if (existingStaff) {
+      return res.status(409).json({ success: false, message: 'Staff user already exists with this email' });
+    }
+
+    // Also register or verify matching user in db.users so they can login
+    let user = (db.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(password || 'BrivooAdmin@2026', 10);
+      user = {
+        id: `usr-staff-${Date.now()}`,
+        name,
+        email,
+        password: hashedPassword,
+        role: 'admin',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+      };
+      db.users.push(user);
+    } else {
+      user.role = 'admin';
+    }
+
+    const newStaff = {
+      id: `staff-${Date.now()}`,
+      userId: user.id,
+      name,
+      email,
+      role: ROLE_PERMISSIONS[role] ? role : 'Support Staff',
+      status: 'Active',
+      createdAt: new Date().toISOString(),
+      lastLoginAt: null
+    };
+
+    db.staffUsers.unshift(newStaff);
+    writeData(db);
+    logAudit(req, 'CREATE_STAFF_USER', 'staff', newStaff.id, { email, role });
+
+    res.status(201).json({ success: true, message: 'Staff member created successfully', data: newStaff });
+  } catch (err) {
+    console.error('Create staff error:', err);
+    res.status(500).json({ success: false, message: 'Failed to create staff member' });
+  }
+});
+
+// Edit staff member role or status
+app.put('/api/admin/users/:id', authenticateToken, checkPermission('all'), (req, res) => {
+  try {
+    const { role, status } = req.body;
+    const db = readData();
+    const staff = (db.staffUsers || []).find(s => s.id === req.params.id);
+    if (!staff) {
+      return res.status(404).json({ success: false, message: 'Staff member not found' });
+    }
+    if (role && ROLE_PERMISSIONS[role]) staff.role = role;
+    if (status) staff.status = status;
+    writeData(db);
+    logAudit(req, 'UPDATE_STAFF_USER', 'staff', staff.id, { role, status });
+    res.json({ success: true, message: 'Staff updated successfully', data: staff });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to update staff' });
+  }
+});
+
+// Remove staff member
+app.delete('/api/admin/users/:id', authenticateToken, checkPermission('all'), (req, res) => {
+  try {
+    const db = readData();
+    const staff = (db.staffUsers || []).find(s => s.id === req.params.id);
+    if (!staff) {
+      return res.status(404).json({ success: false, message: 'Staff member not found' });
+    }
+    if (staff.userId === req.user?.id) {
+      return res.status(400).json({ success: false, message: 'You cannot remove your own administrative account' });
+    }
+    db.staffUsers = db.staffUsers.filter(s => s.id !== req.params.id);
+    writeData(db);
+    logAudit(req, 'DELETE_STAFF_USER', 'staff', req.params.id);
+    res.json({ success: true, message: 'Staff user removed' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to delete staff user' });
+  }
+});
+
+// List Audit Logs
+app.get('/api/admin/audit-logs', authenticateToken, checkPermission('all'), (req, res) => {
+  try {
+    const db = readData();
+    const logs = (db.auditLogs || []).slice(0, 100);
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch audit logs' });
+  }
+});
+
+// ----------------------------------------------------
+// 20. ORDER INVOICE & PRINTABLE DATA
+// ----------------------------------------------------
+app.get('/api/admin/orders/:id/invoice', authenticateToken, checkPermission('orders'), (req, res) => {
+  try {
+    const db = readData();
+    const order = (db.orders || []).find(o => o.id === req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    const subtotal = (order.items || []).reduce((sum, it) => sum + (it.price * it.quantity), 0);
+    const taxRate = 0.05; // 5% GST on ethnic garments
+    const estimatedTax = Math.round(subtotal * taxRate);
+    const shipping = order.totalAmount >= 999 ? 0 : 99;
+
+    const invoiceData = {
+      invoiceNumber: `INV-${order.id}`,
+      date: order.createdAt || new Date().toISOString(),
+      order,
+      seller: {
+        company: "BRIVOO Haute Atelier",
+        address: "Atelier Street, Fashion District",
+        city: "Indore, MP, 452001",
+        country: "India",
+        gstin: "23AABCB1234F1Z5",
+        email: "support@brivoo.in"
+      },
+      customer: {
+        name: order.customerName,
+        email: order.email,
+        phone: order.phone,
+        address: order.address
+      },
+      items: order.items,
+      subtotal,
+      discount: order.discountAmount || 0,
+      tax: estimatedTax,
+      shipping,
+      grandTotal: order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.status === 'Cancelled' ? 'Cancelled' : 'Paid'
+    };
+
+    res.json({ success: true, data: invoiceData });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to generate invoice' });
+  }
+});
+
+// ----------------------------------------------------
+// 21. CSV EXPORTS (PRODUCTS & ORDERS)
+// ----------------------------------------------------
+app.get('/api/admin/products/export-csv', authenticateToken, checkPermission('products'), (req, res) => {
+  try {
+    const db = readData();
+    const products = db.products || [];
+    const headers = ['ID', 'Title', 'Category', 'Price', 'Original Price', 'Stock', 'In Stock', 'Featured', 'Sizes', 'Colors'];
+    const rows = products.map(p => [
+      `"${p.id}"`,
+      `"${(p.title || '').replace(/"/g, '""')}"`,
+      `"${p.category || ''}"`,
+      p.price || 0,
+      p.originalPrice || 0,
+      p.stock || 0,
+      p.inStock ? 'TRUE' : 'FALSE',
+      p.featured ? 'TRUE' : 'FALSE',
+      `"${(p.sizes || []).join(', ')}"`,
+      `"${(p.colors || []).map(c => c.name).join(', ')}"`
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="brivoo_products.csv"');
+    res.send(csvContent);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to export products CSV' });
+  }
+});
+
+app.get('/api/admin/orders/export-csv', authenticateToken, checkPermission('orders'), (req, res) => {
+  try {
+    const db = readData();
+    const orders = db.orders || [];
+    const headers = ['Order ID', 'Date', 'Customer Name', 'Email', 'Phone', 'Items Count', 'Total Amount', 'Discount', 'Payment Method', 'Status'];
+    const rows = orders.map(o => [
+      `"${o.id}"`,
+      `"${o.createdAt || ''}"`,
+      `"${(o.customerName || '').replace(/"/g, '""')}"`,
+      `"${o.email || ''}"`,
+      `"${o.phone || ''}"`,
+      (o.items || []).length,
+      o.totalAmount || 0,
+      o.discountAmount || 0,
+      `"${o.paymentMethod || 'UPI'}"`,
+      `"${o.status || 'Pending'}"`
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="brivoo_orders.csv"');
+    res.send(csvContent);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to export orders CSV' });
+  }
 });
 
 // ----------------------------------------------------

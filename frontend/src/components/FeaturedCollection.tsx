@@ -26,7 +26,11 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({
   wishlistIds,
   onViewAll
 }) => {
-  const displayList = products.slice(0, 8);
+  const displayList = products ? products.slice(0, 8) : [];
+
+  if (displayList.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-12 sm:py-16 bg-[#FBF6F0]">

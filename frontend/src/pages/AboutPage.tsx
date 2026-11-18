@@ -81,9 +81,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onShopMen, onShopWomen, on
             <div className="md:col-span-5">
               <div className="relative rounded-3xl overflow-hidden aspect-[3/4] bg-[#F2E5D8] shadow-luxury border-4 border-white">
                 <img
-                  src="/images/product-d81c1739-e249-4126-a33f-08a46cf16d44.webp"
+                  src="/images/brivoo_logo.png"
                   alt="BRIVOO Haute Atelier"
-                  className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-contain p-8 bg-[#FFFDF9] hover:scale-105 transition-transform duration-700"
                 />
               </div>
             </div>

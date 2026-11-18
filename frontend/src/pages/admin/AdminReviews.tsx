@@ -151,7 +151,7 @@ export const AdminReviews: React.FC = () => {
               {/* Product Info Bar */}
               <div className="flex items-center space-x-3 pb-3 border-b border-[#FAF7F2]">
                 <img
-                  src={r.productImage || '/images/linen_resort_shirt.png'}
+                  src={r.productImage || '/images/brivoo_logo.png'}
                   alt={r.productTitle}
                   className="w-10 h-10 object-cover rounded-lg border border-[#E6DFC5]"
                 />

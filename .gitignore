@@ -70,3 +70,5 @@ backend/data/*.tmp
 # Backup archives
 .staging_backups/
 *.bak
+backend/data/*.backup_*
+*.backup_*

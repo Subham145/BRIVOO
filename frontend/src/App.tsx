@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Product, CartItem, Order, Category, Coupon, Offer, SiteSettings, User } from './types';
 import { api } from './services/api';
 import { initializeMetaPixel, trackMetaEvent, trackMetaPageView, trackMetaPurchase } from './services/metaPixel';
+import { analyticsTracker } from './services/analyticsTracker';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { FeaturedFashionRampSection } from './components/FeaturedFashionRampSection';
 import { FeaturedCollection } from './components/FeaturedCollection';
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { OccasionShowcase } from './components/OccasionShowcase';
@@ -23,6 +25,7 @@ const AIStylistModal = React.lazy(() => import('./components/AIStylistModal').th
 // Lazy-loaded secondary pages for route-based code-splitting
 const ShopPage = React.lazy(() => import('./pages/ShopPage').then(m => ({ default: m.ShopPage })));
 const WomenCollectionPage = React.lazy(() => import('./pages/WomenCollectionPage').then(m => ({ default: m.WomenCollectionPage })));
+const MenComingSoonPage = React.lazy(() => import('./pages/MenComingSoonPage').then(m => ({ default: m.MenComingSoonPage })));
 const CartPage = React.lazy(() => import('./pages/CartPage').then(m => ({ default: m.CartPage })));
 const SearchResultsPage = React.lazy(() => import('./pages/SearchResultsPage').then(m => ({ default: m.SearchResultsPage })));
 const AccountPage = React.lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
@@ -60,6 +63,13 @@ const AdminVendors = React.lazy(() => import('./pages/admin/AdminVendors').then(
 const AdminMarketing = React.lazy(() => import('./pages/admin/AdminMarketing').then(m => ({ default: m.AdminMarketing })));
 const AdminLogin = React.lazy(() => import('./pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
 const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminLiveVisitors = React.lazy(() => import('./pages/admin/AdminLiveVisitors').then(m => ({ default: m.AdminLiveVisitors })));
+const AdminAbandonedCarts = React.lazy(() => import('./pages/admin/AdminAbandonedCarts').then(m => ({ default: m.AdminAbandonedCarts })));
+const AdminAbandonedCheckouts = React.lazy(() => import('./pages/admin/AdminAbandonedCheckouts').then(m => ({ default: m.AdminAbandonedCheckouts })));
+const AdminInventory = React.lazy(() => import('./pages/admin/AdminInventory').then(m => ({ default: m.AdminInventory })));
+const AdminStaffPermissions = React.lazy(() => import('./pages/admin/AdminStaffPermissions').then(m => ({ default: m.AdminStaffPermissions })));
+const AdminAuditLogs = React.lazy(() => import('./pages/admin/AdminAuditLogs').then(m => ({ default: m.AdminAuditLogs })));
+const AdminFashionRampCMS = React.lazy(() => import('./pages/admin/AdminFashionRampCMS').then(m => ({ default: m.AdminFashionRampCMS })));
 
 export function App() {
   // Store Data States
@@ -363,6 +373,7 @@ export function App() {
 
   useEffect(() => {
     if (metaConsent === 'accepted' && !isAdmin) trackMetaPageView(activeTab);
+    if (!isAdmin) analyticsTracker.trackPageView(activeTab);
   }, [activeTab, metaConsent, isAdmin]);
 
   useEffect(() => {
@@ -414,10 +425,9 @@ export function App() {
       item => item.product.id === product.id && item.selectedColor === color && item.selectedSize === size
     );
 
+    let nextCart: CartItem[];
     if (existingIndex > -1) {
-      const updated = [...cartItems];
-      updated[existingIndex].quantity += quantity;
-      setCartItems(updated);
+      nextCart = cartItems.map((item, idx) => idx === existingIndex ? { ...item, quantity: item.quantity + quantity } : item);
     } else {
       const newItem: CartItem = {
         id: `${product.id}-${color}-${size}-${Date.now()}`,
@@ -426,8 +436,9 @@ export function App() {
         selectedSize: size,
         quantity
       };
-      setCartItems([...cartItems, newItem]);
+      nextCart = [...cartItems, newItem];
     }
+    setCartItems(nextCart);
     trackMetaEvent('AddToCart', {
       content_ids: [product.id],
       contents: [{ id: product.id, quantity }],
@@ -436,6 +447,7 @@ export function App() {
       value: Number(product.price) * quantity,
       currency: 'INR'
     });
+    analyticsTracker.trackAddToCart(product, quantity, color, size, nextCart);
     setIsCartOpen(true);
     if (selectedProduct) setSelectedProduct(null);
   };
@@ -462,7 +474,9 @@ export function App() {
   };
 
   const handleRemoveCartItem = (cartItemId: string) => {
-    setCartItems(cartItems.filter(item => item.id !== cartItemId));
+    const nextCart = cartItems.filter(item => item.id !== cartItemId);
+    analyticsTracker.trackRemoveFromCart(cartItemId, nextCart);
+    setCartItems(nextCart);
   };
 
   // Wishlist Action (Guest & User Synced)
@@ -488,11 +502,20 @@ export function App() {
       value: Math.max(0, cartItems.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0) - discount),
       currency: 'INR'
     });
+    const checkoutTotal = Math.max(0, cartItems.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0) - discount);
+    const checkoutSessionId = `chk_${Date.now()}`;
+    analyticsTracker.trackBeginCheckout(
+      checkoutSessionId,
+      cartItems,
+      checkoutTotal,
+      currentUser ? { name: currentUser.name, email: currentUser.email } : undefined
+    );
     setIsCheckoutOpen(true);
   };
 
   const handleOrderSuccess = (newOrder: Order) => {
     trackMetaPurchase(newOrder);
+    analyticsTracker.trackPurchase(newOrder);
     setIsCheckoutOpen(false);
     setCartItems([]);
     setConfirmedOrder(newOrder);
@@ -550,6 +573,37 @@ export function App() {
                 setOpenAddProductModal(true);
               }}
             />
+          )}
+
+          {adminTab === 'fashion_ramp_slider' && (
+            <AdminFashionRampCMS
+              products={products}
+              onRefresh={fetchAllData}
+            />
+          )}
+
+          {adminTab === 'live_visitors' && (
+            <AdminLiveVisitors />
+          )}
+
+          {adminTab === 'abandoned_carts' && (
+            <AdminAbandonedCarts />
+          )}
+
+          {adminTab === 'abandoned_checkouts' && (
+            <AdminAbandonedCheckouts />
+          )}
+
+          {adminTab === 'inventory' && (
+            <AdminInventory />
+          )}
+
+          {adminTab === 'staff' && (
+            <AdminStaffPermissions />
+          )}
+
+          {adminTab === 'audit_logs' && (
+            <AdminAuditLogs />
           )}
 
           {adminTab === 'orders' && (
@@ -701,16 +755,14 @@ export function App() {
         {/* PAGE 1: HOMEPAGE matching Reference Image */}
         {activeTab === 'home' && !isAdmin && (
           <>
-            <Hero
-              settings={settings!}
-              onShopCollection={() => {
+            <FeaturedFashionRampSection
+              products={products}
+              onOpenModal={setSelectedProduct}
+              onExploreCollection={() => {
                 setActiveTab('women');
                 window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
               }}
-              onExploreNewArrivals={() => {
-                setActiveTab('new-arrivals');
-                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-              }}
+              settings={settings || undefined}
             />
 
             <CategoryShowcase
@@ -727,6 +779,7 @@ export function App() {
             />
 
             <OccasionShowcase
+              products={products}
               onSelectOccasion={(occCategory) => {
                 setSelectedCategoryFilter(occCategory);
                 setActiveTab('shop-all');
@@ -786,6 +839,7 @@ export function App() {
         {activeTab === 'women' && !isAdmin && (
           <WomenCollectionPage
             products={products}
+            categories={categories}
             onSelectCategory={(catName) => {
               setSelectedCategoryFilter(catName);
               setActiveTab('shop-all');
@@ -799,8 +853,21 @@ export function App() {
           />
         )}
 
+        {/* MEN'S COLLECTION COMING SOON PAGE */}
+        {activeTab === 'men' && !isAdmin && (
+          <MenComingSoonPage
+            onExploreWomen={() => setActiveTab('women')}
+            onBackToHome={() => setActiveTab('home')}
+            trendingProducts={products}
+            onOpenProductModal={setSelectedProduct}
+            onQuickAdd={handleAddToCart}
+            onToggleWishlist={handleToggleWishlist}
+            wishlistIds={wishlistIds}
+          />
+        )}
+
         {/* PAGE 3: SHOP / PRODUCT LISTING matching Reference Image */}
-        {(activeTab === 'shop-all' || activeTab === 'men' || activeTab === 'collections' || activeTab === 'new-arrivals') && !isAdmin && (
+        {(activeTab === 'shop-all' || activeTab === 'collections' || activeTab === 'new-arrivals') && !isAdmin && (
           <ShopPage
             products={products}
             categories={categories}
@@ -808,7 +875,7 @@ export function App() {
             onOpenModal={setSelectedProduct}
             onToggleWishlist={handleToggleWishlist}
             wishlistIds={wishlistIds}
-            initialGender={activeTab === 'men' ? 'Men' : 'Women'}
+            initialGender="Women"
             initialCategory={activeTab === 'new-arrivals' ? 'All' : selectedCategoryFilter}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}

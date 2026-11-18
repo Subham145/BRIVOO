@@ -262,7 +262,7 @@ export const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, onRefresh, onN
                         {o.items?.slice(0, 2).map((item, idx) => (
                           <div key={idx} className="relative group">
                             <img
-                              src={item.image || '/images/linen_resort_shirt.png'}
+                              src={item.image || '/images/brivoo_logo.png'}
                               alt={item.title}
                               className="w-8 h-8 rounded-md object-cover border border-[#E6DFC5]"
                               title={`${item.title} (${item.selectedSize}, ${item.selectedColor})`}

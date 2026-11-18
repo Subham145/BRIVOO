@@ -173,6 +173,9 @@ export interface Category {
   description: string;
   subcategories?: SubCategory[];
   image?: string;
+  tag?: string;
+  showOnHomepage?: boolean;
+  sortOrder?: number;
 }
 
 export interface PaymentRecord {
@@ -519,4 +522,232 @@ export interface AITryOnResult {
   stylingTips: string[];
   recommendedPairings: Product[];
 }
+
+// ----------------------------------------------------
+// SHOPIFY-LEVEL ADMIN SUITE & FIRST-PARTY ANALYTICS TYPES
+// ----------------------------------------------------
+export interface DashboardMetrics {
+  period: string;
+  dateRange: { start: string; end: string };
+  totalSales: number;
+  netSales: number;
+  totalOrders: number;
+  aov: number;
+  totalCustomers: number;
+  newCustomers: number;
+  websiteVisitors: number;
+  uniqueVisitors: number;
+  liveActiveVisitors: number;
+  conversionRate: number;
+  addToCartRate: number;
+  checkoutConversionRate: number;
+  abandonedCartsCount: number;
+  abandonedCartsValue: number;
+  abandonedCheckoutsCount: number;
+  refundsCount: number;
+  refundsAmount: number;
+  pendingOrdersCount: number;
+  lowStockCount: number;
+  salesTrend: { label: string; sales: number; orders: number }[];
+  topSellingProducts: { id: string; title: string; unitsSold: number; revenue: number; image?: string }[];
+  trafficSources: { name: string; count: number; percentage: number }[];
+  deviceBreakdown: { name: string; count: number; percentage: number }[];
+  conversionFunnel: {
+    visitors: number;
+    productViews: number;
+    addToCarts: number;
+    checkoutsStarted: number;
+    purchases: number;
+  };
+}
+
+export interface VisitorSession {
+  id: string;
+  visitorId: string;
+  sessionId: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  landingPage: string;
+  currentPage: string;
+  source: string;
+  device: 'Desktop' | 'Mobile' | 'Tablet';
+  browser: string;
+  ip?: string;
+  status: 'active' | 'idle' | 'ended';
+}
+
+export interface AnalyticsEvent {
+  id: string;
+  eventName: string;
+  visitorId: string;
+  sessionId: string;
+  productId?: string;
+  cartId?: string;
+  orderId?: string;
+  page?: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
+}
+
+export interface AbandonedCart {
+  id: string;
+  cartId: string;
+  visitorId: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
+  items: {
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
+    selectedColor?: string;
+    selectedSize?: string;
+    image?: string;
+  }[];
+  cartValue: number;
+  createdAt: string;
+  lastActivityAt: string;
+  recoveryStatus: 'unrecovered' | 'recovered' | 'email_sent';
+  recoveryUrl: string;
+  orderId?: string;
+  recoveredAt?: string;
+}
+
+export interface CheckoutSession {
+  id: string;
+  checkoutId: string;
+  cartId?: string;
+  visitorId: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
+  items: any[];
+  checkoutValue: number;
+  paymentMethod: string;
+  paymentStatus: 'pending' | 'initiated' | 'failed' | 'completed';
+  orderId?: string | null;
+  createdAt: string;
+  lastActivityAt: string;
+  status: 'started' | 'payment_initiated' | 'payment_failed' | 'completed';
+}
+
+export interface StaffUser {
+  id: string;
+  userId?: string;
+  name: string;
+  email: string;
+  role: 'Super Admin' | 'Store Manager' | 'Order Manager' | 'Product Manager' | 'Marketing Manager' | 'Support Staff';
+  status: 'Active' | 'Inactive';
+  createdAt: string;
+  lastLoginAt?: string | null;
+}
+
+export interface AuditLog {
+  id: string;
+  adminId: string;
+  adminName: string;
+  adminRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  timestamp: string;
+  ip: string;
+  metadata?: Record<string, any>;
+}
+
+export interface InventoryLog {
+  id: string;
+  productId: string;
+  productTitle: string;
+  previousStock: number;
+  change: number;
+  newStock: number;
+  reason: string;
+  updatedBy: string;
+  timestamp: string;
+}
+
+export interface RampSlide {
+  id: string;
+  productId?: string;
+  title: string;
+  subtitle?: string;
+  productUrl?: string;
+  productImage?: string;
+  cutoutImage?: string; // transparent background PNG or WebP
+  fallbackImage?: string;
+  renderMode?: 'cutout' | 'card'; // 'cutout' (default) or 'card'
+  price?: number;
+  originalPrice?: number;
+  tag?: string;
+  showPrice?: boolean;
+  ctaText?: string;
+  active: boolean;
+  sortOrder: number;
+  // Desktop positioning
+  desktopX: number; // px offset
+  desktopY: number; // px offset
+  desktopScale: number; // 0.5 - 1.5
+  desktopRotation: number; // deg (-15 to 15)
+  desktopShadowStrength: number; // 0 - 100
+  // Mobile positioning
+  mobileX: number; // px offset
+  mobileY: number; // px offset
+  mobileScale: number; // 0.5 - 1.5
+  mobileShadowStrength: number; // 0 - 100
+  mobileVisible?: boolean;
+}
+
+export interface RampSectionSettings {
+  enabled: boolean;
+  eyebrow: string;
+  headline: string;
+  headlineItalic: string;
+  description: string;
+  ctaText: string;
+  ctaUrl: string;
+  secondaryText: string;
+  showTrustBadges: boolean;
+  badge1Number: string;
+  badge1Label: string;
+  badge2Number: string;
+  badge2Label: string;
+  badge3Number: string;
+  badge3Label: string;
+  backgroundColor: string;
+  accentBurgundy: string;
+  accentGold: string;
+  textColor: string;
+  mutedTextColor: string;
+}
+
+export interface RampSliderSettings {
+  autoplay: boolean;
+  autoplayInterval: number;
+  pauseOnHover: boolean;
+  loop: boolean;
+  transitionDuration: number;
+  visibleNeighbors: number;
+  stageHeightDesktop: number;
+  stageHeightMobile: number;
+  glowColor: string;
+}
+
+export interface RampSliderConfig {
+  sectionSettings: RampSectionSettings;
+  sliderSettings: RampSliderSettings;
+  slides: RampSlide[];
+}
+
+export interface FashionRampCMSData {
+  published: RampSliderConfig;
+  draft: RampSliderConfig;
+  lastPublishedAt?: string;
+  lastModifiedAt?: string;
+  lastModifiedBy?: string;
+}
+
 

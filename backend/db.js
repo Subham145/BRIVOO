@@ -358,6 +358,45 @@ export function readData() {
       data.settings = INITIAL_DATA.settings;
       dirty = true;
     }
+    if (!data.visitorSessions) {
+      data.visitorSessions = [];
+      dirty = true;
+    }
+    if (!data.analyticsEvents) {
+      data.analyticsEvents = [];
+      dirty = true;
+    }
+    if (!data.abandonedCarts) {
+      data.abandonedCarts = [];
+      dirty = true;
+    }
+    if (!data.checkoutSessions) {
+      data.checkoutSessions = [];
+      dirty = true;
+    }
+    if (!data.auditLogs) {
+      data.auditLogs = [];
+      dirty = true;
+    }
+    if (!data.inventoryLogs) {
+      data.inventoryLogs = [];
+      dirty = true;
+    }
+    if (!data.staffUsers || data.staffUsers.length === 0) {
+      data.staffUsers = [
+        {
+          id: "staff-1",
+          userId: "usr-admin",
+          name: "Sujal Rathore",
+          email: "sujalrathore970@gmail.com",
+          role: "Super Admin",
+          status: "Active",
+          createdAt: "2026-08-01T00:00:00.000Z",
+          lastLoginAt: new Date().toISOString()
+        }
+      ];
+      dirty = true;
+    }
     if (data.settings && data.settings.prepaidDiscount === undefined) {
       data.settings.prepaidDiscountEnabled = true;
       data.settings.prepaidDiscount = 50;

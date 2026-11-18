@@ -25,7 +25,13 @@ import {
   MessageSquare,
   Factory,
   Megaphone,
-  Banknote
+  Banknote,
+  Radio,
+  Clock,
+  ExternalLink,
+  History,
+  KeyRound,
+  FileText
 } from 'lucide-react';
 import { User, Order, Product } from '../../types';
 
@@ -58,234 +64,246 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const pendingOrdersCount = orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length;
   const inTransitCount = orders.filter(o => o.status === 'Shipped' || o.tracking?.status === 'In Transit').length;
-  const pendingReturnsCount = analytics?.pendingReturnsCount ?? 1;
   const lowStockCount = products.filter(p => p.stock < 10).length;
 
   const navGroups = [
     {
-      group: 'Core Operations',
+      group: 'Core Storefront',
       items: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+        { id: 'fashion_ramp_slider', label: 'Fashion Ramp CMS', icon: Sparkles, badge: 'Runway', badgeColor: 'bg-[#78152C]' },
+        { id: 'live_visitors', label: 'Live Telemetry', icon: Radio, badge: 'Live', badgeColor: 'bg-emerald-500' },
         { id: 'orders', label: 'Orders Pipeline', icon: ShoppingBag, badge: pendingOrdersCount || null, badgeColor: 'bg-amber-500' },
-        { id: 'tracking', label: 'Live Tracking', icon: Truck, badge: inTransitCount || null, badgeColor: 'bg-[#C5A059]' }
+        { id: 'tracking', label: 'Live Tracking', icon: Truck, badge: inTransitCount || null, badgeColor: 'bg-[#781C35]' }
       ]
     },
     {
-      group: 'Catalogue & Stock',
+      group: 'Cart & Checkout Recovery',
       items: [
-        { id: 'products', label: 'Products & Inventory', icon: Package, badge: lowStockCount || null, badgeColor: 'bg-rose-500' },
-        { id: 'vendors', label: 'Vendors & Inward Stock', icon: Factory, badge: 'ERP', badgeColor: 'bg-[#C5A059]' },
+        { id: 'abandoned_carts', label: 'Abandoned Carts', icon: ShoppingBag, badge: 'Drop', badgeColor: 'bg-rose-500' },
+        { id: 'abandoned_checkouts', label: 'Abandoned Checkouts', icon: CreditCard, badge: null }
+      ]
+    },
+    {
+      group: 'Catalogue & Inventory',
+      items: [
+        { id: 'products', label: 'Products Catalog', icon: Package, badge: null },
+        { id: 'inventory', label: 'Inventory Control', icon: Layers, badge: lowStockCount || null, badgeColor: 'bg-rose-500' },
         { id: 'categories', label: 'Categories & Subs', icon: FolderTree, badge: null },
-        { id: 'coupons', label: 'Promos & Coupons', icon: Tag, badge: null }
+        { id: 'vendors', label: 'Vendors & Inward ERP', icon: Factory, badge: null }
       ]
     },
     {
-      group: 'Finances & Marketing',
+      group: 'Revenue & Marketing',
       items: [
-        { id: 'pricing', label: 'Prepaid vs COD Pricing', icon: Banknote, badge: 'Rules', badgeColor: 'bg-emerald-600' },
+        { id: 'coupons', label: 'Promos & Coupons', icon: Tag, badge: null },
+        { id: 'offers', label: 'Special Offers', icon: Sparkles, badge: 'Hot', badgeColor: 'bg-amber-500' },
+        { id: 'pricing', label: 'Prepaid vs COD Rules', icon: Banknote, badge: null },
         { id: 'payments', label: 'Payments & Refunds', icon: CreditCard, badge: null },
-        { id: 'offers', label: 'Special Offers & Deals', icon: Sparkles, badge: 'Hot', badgeColor: 'bg-[#C5A059]' },
-        { id: 'marketing', label: 'Marketing & Influencers', icon: Megaphone, badge: 'New', badgeColor: 'bg-purple-600' },
-        { id: 'returns', label: 'Returns Queue', icon: RotateCcw, badge: pendingReturnsCount || null, badgeColor: 'bg-rose-500' }
+        { id: 'returns', label: 'Returns Queue', icon: RotateCcw, badge: null },
+        { id: 'marketing', label: 'Influencer Marketing', icon: Megaphone, badge: null }
       ]
     },
     {
-      group: 'Clientele & Brand',
+      group: 'Clientele & CRM',
       items: [
-        { id: 'whatsapp', label: 'WhatsApp CRM & Bot', icon: MessageSquare, badge: 'Live', badgeColor: 'bg-emerald-500' },
-        { id: 'customers', label: 'Patrons & CRM', icon: Users, badge: null },
-        { id: 'reviews', label: 'Reviews Moderation', icon: Star, badge: null },
-        { id: 'settings', label: 'Store & Hero Slider', icon: Settings, badge: null }
+        { id: 'customers', label: 'Customer CRM', icon: Users, badge: null },
+        { id: 'whatsapp', label: 'WhatsApp Concierge', icon: MessageSquare, badge: 'Bot', badgeColor: 'bg-emerald-600' },
+        { id: 'reviews', label: 'Reviews Moderation', icon: Star, badge: null }
+      ]
+    },
+    {
+      group: 'Organization & Security',
+      items: [
+        { id: 'staff', label: 'Staff Roles & RBAC', icon: KeyRound, badge: 'Roles', badgeColor: 'bg-indigo-600' },
+        { id: 'audit_logs', label: 'Security Audit Trail', icon: FileText, badge: null },
+        { id: 'settings', label: 'Store Settings', icon: Settings, badge: null }
       ]
     }
   ];
 
-  const currentTabObj = navGroups.flatMap(g => g.items).find(i => i.id === activeTab) || navGroups[0].items[0];
-
   return (
-    <div className="min-h-screen bg-[#F7F4EE] flex text-[#1A1A1A] font-sans antialiased">
+    <div className="min-h-screen bg-[#F9FAFB] flex text-[#111827] font-sans antialiased">
       
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 lg:hidden"
         />
       )}
 
-      {/* FIXED LUXURY EXECUTIVE SIDEBAR */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#101010] text-[#E0E0E0] border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      {/* SHOPIFY-STYLE CLEAN WHITE SIDEBAR */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         
-        {/* Sidebar Brand Header */}
+        {/* Brand Header */}
         <div>
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3">
-                <img 
-                  src="/logo.png" 
-                  alt="BRIVOO Admin" 
-                  className="w-10 h-10 rounded-full object-contain border border-[#C5A059]/40 bg-white/5 p-0.5 shadow-xs" 
-                />
-                <div>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-base font-sans font-extrabold tracking-[0.22em] text-white">BRIVOO</span>
-                    <span className="text-[8px] px-1.5 py-0.2 rounded font-mono font-bold bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30">
-                      OS v2.4
-                    </span>
-                  </div>
-                  <p className="text-[9.5px] text-gray-400 uppercase tracking-widest mt-0.5 font-semibold flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Admin Suite</span>
-                  </p>
-                </div>
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#781C35] text-white flex items-center justify-center font-serif font-black text-sm shadow-xs">
+                B
+              </div>
+              <div>
+                <span className="font-serif font-extrabold text-sm tracking-wider text-gray-900 block leading-tight">
+                  BRIVOO
+                </span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">
+                  Haute Atelier
+                </span>
               </div>
             </div>
 
             <button 
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-gray-400 hover:text-white p-1"
+              onClick={() => setSidebarOpen(false)} 
+              className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation Links Grouped */}
-          <div className="px-3 py-4 space-y-6 max-h-[calc(100vh-230px)] overflow-y-auto custom-scrollbar">
-            {navGroups.map((group, gIdx) => (
+          {/* Quick "Online Store" Link */}
+          <div className="px-3 py-2.5 border-b border-gray-100">
+            <button
+              onClick={onExitToStore}
+              className="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Store className="w-3.5 h-3.5 text-[#781C35]" />
+                <span>Online Store</span>
+              </span>
+              <ExternalLink className="w-3 h-3 text-gray-400" />
+            </button>
+          </div>
+
+          {/* Navigation Item Groups */}
+          <div className="p-3 space-y-5 overflow-y-auto max-h-[calc(100vh-170px)]">
+            {navGroups.map((grp, gIdx) => (
               <div key={gIdx} className="space-y-1">
-                <p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">
-                  {group.group}
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  {grp.group}
                 </p>
-                {group.items.map(item => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
+                <div className="space-y-0.5">
+                  {grp.items.map(item => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
 
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        onSelectTab(item.id);
-                        setSidebarOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
-                        isActive
-                          ? 'bg-[#C5A059] text-white font-bold shadow-lg shadow-[#C5A059]/20'
-                          : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                          isActive ? 'text-white' : 'text-gray-400 group-hover:text-[#C5A059]'
-                        }`} />
-                        <span>{item.label}</span>
-                      </div>
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          onSelectTab(item.id);
+                          setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                          isActive
+                            ? 'bg-[#FAF0F2] text-[#781C35] font-bold border-l-2 border-[#781C35]'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#781C35]' : 'text-gray-400'}`} />
+                          <span className="truncate">{item.label}</span>
+                        </div>
 
-                      {item.badge !== null && item.badge > 0 && (
-                        <span className={`text-[10px] px-2 py-0.2 rounded-full font-bold text-white shadow-xs ${
-                          item.badgeColor || 'bg-[#C5A059]'
-                        }`}>
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                        {item.badge !== null && item.badge !== undefined && (
+                          <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white shrink-0 ${item.badgeColor || 'bg-gray-500'}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Sidebar Bottom Footer: Admin Profile & Actions */}
-        <div className="p-4 border-t border-white/10 bg-[#0C0C0C] space-y-3">
-          
-          {/* User Dossier Snippet */}
-          <div className="flex items-center space-x-3 px-2 py-1">
-            <img
-              src={currentUser.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name)}`}
-              alt={currentUser.name}
-              className="w-9 h-9 rounded-full object-cover border border-[#C5A059]/40"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-gray-400 truncate">{currentUser.email}</p>
+        {/* Sidebar Footer: Current Staff & Logout */}
+        <div className="p-3 border-t border-gray-200 bg-gray-50/70">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-gray-200 shadow-2xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-[#FAF0F2] text-[#781C35] font-bold text-xs flex items-center justify-center shrink-0">
+                {currentUser.name.slice(0, 1)}
+              </div>
+              <div className="truncate text-left">
+                <p className="text-xs font-bold text-gray-900 truncate leading-tight">
+                  {currentUser.name}
+                </p>
+                <span className="text-[10px] text-gray-500 block">
+                  Administrator
+                </span>
+              </div>
             </div>
-          </div>
-
-          {/* Quick Exit to Storefront & Logout */}
-          <div className="grid grid-cols-2 gap-2 pt-1 text-[11px] font-bold">
-            <button
-              onClick={onExitToStore}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-gray-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors border border-white/10"
-              title="Return to customer shop view"
-            >
-              <Store className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>Storefront</span>
-            </button>
 
             <button
               onClick={onLogout}
-              className="p-2 bg-rose-500/15 hover:bg-rose-500/25 rounded-xl text-rose-300 flex items-center justify-center gap-1.5 transition-colors border border-rose-500/20"
-              title="Sign out of admin session"
+              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Sign Out"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
-
         </div>
 
       </aside>
 
-      {/* MAIN VIEWPORT CANVAS */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-72">
+      {/* MAIN ADMIN WORKSPACE */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         
-        {/* TOP COMMAND HEADER BAR */}
-        <header className="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E6DFC5]/60 px-3 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between shadow-xs">
+        {/* Top Header Navbar */}
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           
-          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-white border border-[#E6DFC5] text-gray-700 min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
-              aria-label="Open Admin Menu"
+              className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+              aria-label="Open sidebar"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-5 h-5" />
             </button>
 
-            <div className="min-w-0">
-              <div className="flex items-center space-x-1.5 sm:space-x-2 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                <span>Console</span>
-                <ChevronRight className="w-3 h-3 text-gray-400" />
-                <span className="text-[#C5A059] truncate">{currentTabObj.label}</span>
-              </div>
-              <h2 className="font-sans text-base sm:text-xl font-extrabold text-stone-900 leading-tight tracking-tight truncate">
-                {currentTabObj.label}
-              </h2>
-            </div>
+            <span className="text-xs font-semibold text-gray-500 capitalize hidden sm:inline">
+              Shopify-Standard E-Commerce Engine
+            </span>
           </div>
 
-          {/* Quick Actions & Metrics */}
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <div className="hidden sm:flex items-center space-x-2 text-xs bg-white px-3 py-1.5 rounded-xl border border-[#E6DFC5] text-gray-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="text-[11px] font-semibold">Store Telemetry: <strong>Active</strong></span>
-            </div>
+          <div className="flex items-center gap-3">
+            {/* Quick Live Telemetry Pill */}
+            <button
+              onClick={() => onSelectTab('live_visitors')}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Live View</span>
+            </button>
 
+            {/* Quick Add Product Button */}
             <button
               onClick={onAddNewProduct}
-              className="bg-[#141414] hover:bg-[#C5A059] text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center space-x-1.5 min-h-[40px]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#781C35] hover:bg-[#541326] text-white text-xs font-bold transition-colors shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">New Garment</span>
-              <span className="xs:hidden">New</span>
+              <span className="hidden sm:inline">Add Product</span>
+            </button>
+
+            {/* Exit to Storefront */}
+            <button
+              onClick={onExitToStore}
+              className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#781C35] transition-colors p-1.5 rounded-lg hover:bg-gray-100"
+              title="Preview Storefront"
+            >
+              <Store className="w-4 h-4" />
+              <span className="hidden md:inline">View Store</span>
             </button>
           </div>
 
         </header>
 
-        {/* BODY CANVAS */}
-        <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-7xl w-full mx-auto animate-fadeIn overflow-x-hidden">
+        {/* Dynamic Admin Body Content */}
+        <main className="p-4 sm:p-6 lg:p-8 flex-1">
           {children}
         </main>
 

@@ -1,0 +1,1 @@
+export { FeaturedFashionRampSection } from '../FeaturedFashionRampSection';

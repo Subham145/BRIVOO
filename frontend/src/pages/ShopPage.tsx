@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { SlidersHorizontal, Search, X, Check, ChevronRight, ArrowUpDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { SlidersHorizontal, Search, X, Check, ChevronRight, ArrowUpDown, Sparkles } from 'lucide-react';
 import { Product, Category } from '../types';
 import { ProductCard } from '../components/ProductCard';
 
@@ -74,6 +75,17 @@ export const ShopPage: React.FC<ShopPageProps> = ({
     { name: "Purple", hex: "#6A356A" }
   ];
 
+  // Dynamic category filter list
+  const categoryFilterList = useMemo(() => {
+    const list = [{ name: "All Categories", val: "All" }];
+    if (categories && categories.length > 0) {
+      categories.forEach(c => {
+        list.push({ name: c.name, val: c.name });
+      });
+    }
+    return list;
+  }, [categories]);
+
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
 
   // Toggle helpers
@@ -129,12 +141,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
       }
       // Category
       if (selectedCategory !== 'All') {
-        const pCat = product.category.toLowerCase();
+        const pCat = (product.category || '').toLowerCase();
         const sCat = selectedCategory.toLowerCase();
-        if (sCat.includes('kurti') && !pCat.includes('kurti') && !pCat.includes('kurta')) return false;
-        else if (sCat.includes('set') && !pCat.includes('set') && !pCat.includes('co-ord')) return false;
-        else if (sCat.includes('top') && !pCat.includes('top')) return false;
-        else if (!sCat.includes('kurti') && !sCat.includes('set') && !sCat.includes('top') && pCat !== sCat) return false;
+        if (pCat !== sCat && !pCat.includes(sCat) && !sCat.includes(pCat)) {
+          return false;
+        }
       }
       // Sizes
       if (selectedSizes.length > 0) {
@@ -260,18 +271,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#211A18]">Category</h4>
               <div className="space-y-2 text-xs">
-                {[
-                  { name: "All Categories", val: "All" },
-                  { name: "Women’s Kurtis", val: "Women’s Kurtis" },
-                  { name: "Women’s Kurta Sets", val: "Women’s Kurta Sets" },
-                  { name: "Women’s Long Kurtas", val: "Women’s Long Kurtas" },
-                  { name: "Women’s Tops", val: "Women’s Tops" },
-                  { name: "Co-Ord Sets", val: "Co-Ord Sets" }
-                ].map((c, i) => {
+                {categoryFilterList.map((c, i) => {
                   const isChecked = selectedCategory === c.val;
                   const count = c.val === "All" 
                     ? products.length 
-                    : products.filter(p => p.category.toLowerCase().includes(c.val.toLowerCase())).length;
+                    : products.filter(p => (p.category || '').toLowerCase().includes(c.val.toLowerCase()) || c.val.toLowerCase().includes((p.category || '').toLowerCase())).length;
 
                   return (
                     <label
@@ -374,18 +378,54 @@ export const ShopPage: React.FC<ShopPageProps> = ({
           <main className="md:col-span-9 space-y-6">
             
             {filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#E9DED5] space-y-4">
-                <h3 className="font-serif text-xl font-bold text-[#211A18]">No products match your filters</h3>
-                <p className="text-xs sm:text-sm text-[#746963] max-w-md mx-auto">
-                  Try clearing some filters or searching for another category like Kurtis or Kurta Sets.
-                </p>
-                <button
-                  onClick={clearAllFilters}
-                  className="bg-[#781C35] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-md hover:bg-[#541326] transition-colors"
-                >
-                  Reset All Filters
-                </button>
-              </div>
+              selectedGender === 'Men' ? (
+                <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-[#E9DED5] space-y-4 shadow-xs">
+                  <div className="w-12 h-12 rounded-full bg-[#781C35]/10 text-[#781C35] flex items-center justify-center mx-auto">
+                    <Sparkles className="w-6 h-6 text-[#C5A064]" />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold tracking-[0.25em] text-[#781C35] uppercase">
+                      BRIVOO HOMME · COMING SOON
+                    </span>
+                    <h3 className="font-serif text-2xl font-bold text-[#211A18]">
+                      Men's Collection is Under Craftsmanship
+                    </h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#746963] max-w-md mx-auto leading-relaxed">
+                    Our master tailors are hand-crafting a bespoke line of pure linen shirts, festive kurtas, and tailored Nehru waistcoats. In the meantime, explore our best-selling women's ethnic ensembles.
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                    <button
+                      onClick={() => {
+                        setSelectedGender('Women');
+                        setSelectedCategory('All');
+                      }}
+                      className="bg-[#781C35] hover:bg-[#501020] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      Explore Women's Collection
+                    </button>
+                    <button
+                      onClick={clearAllFilters}
+                      className="border border-[#E9DED5] text-[#211A18] hover:bg-stone-50 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider transition-colors cursor-pointer"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl p-12 text-center border border-[#E9DED5] space-y-4">
+                  <h3 className="font-serif text-xl font-bold text-[#211A18]">No products match your filters</h3>
+                  <p className="text-xs sm:text-sm text-[#746963] max-w-md mx-auto">
+                    Try clearing some filters or searching for another category like Kurtis or Kurta Sets.
+                  </p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="bg-[#781C35] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-md hover:bg-[#541326] transition-colors"
+                  >
+                    Reset All Filters
+                  </button>
+                </div>
+              )
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
                 {filteredProducts.map(product => (
@@ -407,18 +447,25 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
       </div>
 
-      {/* MOBILE FULL-SCREEN FILTER DRAWER */}
-      {showMobileFilters && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in">
-          <div className="bg-white w-4/5 max-w-md h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
-            <div className="p-5 border-b border-[#E9DED5] flex items-center justify-between">
+      {/* MOBILE FULL-SCREEN FILTER DRAWER (Portaled to document.body for full viewport coverage) */}
+      {showMobileFilters && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] flex justify-end animate-in fade-in">
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowMobileFilters(false)}
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 bg-white w-[85%] max-w-md h-full min-h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div className="p-4 sm:p-5 border-b border-[#E9DED5] flex items-center justify-between sticky top-0 bg-white z-10">
               <h3 className="font-serif text-lg font-bold text-[#211A18] flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5 text-[#781C35]" />
                 <span>Filters</span>
               </h3>
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="p-1 rounded-full text-stone-500 hover:bg-stone-100"
+                className="p-1.5 rounded-full text-stone-500 hover:bg-stone-100 transition-colors"
+                aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -429,14 +476,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#211A18] mb-3">Category</h4>
                 <div className="space-y-2">
-                  {[
-                    { name: "All Categories", val: "All" },
-                    { name: "Women’s Kurtis", val: "Women’s Kurtis" },
-                    { name: "Women’s Kurta Sets", val: "Women’s Kurta Sets" },
-                    { name: "Women’s Long Kurtas", val: "Women’s Long Kurtas" },
-                    { name: "Women’s Tops", val: "Women’s Tops" },
-                    { name: "Co-Ord Sets", val: "Co-Ord Sets" }
-                  ].map((c, i) => (
+                  {categoryFilterList.map((c, i) => (
                     <label key={i} className="flex items-center gap-2 text-xs cursor-pointer py-1">
                       <input
                         type="radio"
@@ -492,7 +532,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             </div>
 
             {/* Mobile Footer Buttons */}
-            <div className="p-4 border-t border-[#E9DED5] flex gap-3 bg-[#FBF6F0]">
+            <div className="p-4 border-t border-[#E9DED5] flex gap-3 bg-[#FBF6F0] sticky bottom-0 z-10 pb-safe">
               <button
                 onClick={clearAllFilters}
                 className="w-1/2 py-3 rounded-xl border border-[#E9DED5] bg-white text-xs font-bold uppercase tracking-wider text-[#746963]"
@@ -501,13 +541,14 @@ export const ShopPage: React.FC<ShopPageProps> = ({
               </button>
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="w-1/2 py-3 rounded-xl bg-[#781C35] text-white text-xs font-bold uppercase tracking-wider shadow-md"
+                className="w-1/2 py-3 rounded-xl bg-[#781C35] text-white text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all"
               >
                 Apply ({filteredProducts.length})
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

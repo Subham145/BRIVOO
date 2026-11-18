@@ -1,4 +1,4 @@
-import { Product, Category, Coupon, Offer, Order, SiteSettings, User, Vendor, VendorInwardRecord, VendorPayoutRecord, InfluencerCollab, MarketingExpense, MarketingSummary, AIStylistRecommendation, AITryOnResult, ShiprocketStatus, ShiprocketServiceabilityResponse } from '../types';
+import { Product, Category, Coupon, Offer, Order, SiteSettings, User, Vendor, VendorInwardRecord, VendorPayoutRecord, InfluencerCollab, MarketingExpense, MarketingSummary, AIStylistRecommendation, AITryOnResult, ShiprocketStatus, ShiprocketServiceabilityResponse, RampSliderConfig, FashionRampCMSData } from '../types';
 
 const API_BASE = '/api';
 
@@ -170,11 +170,20 @@ export const api = {
     return res.json();
   },
 
-  async createCategory(cat: { name: string; description?: string }): Promise<{ success: boolean; data: Category }> {
+  async createCategory(cat: { name: string; description?: string; image?: string; tag?: string; showOnHomepage?: boolean; sortOrder?: number }): Promise<{ success: boolean; data: Category }> {
     const res = await authFetch(`${API_BASE}/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cat)
+    });
+    return res.json();
+  },
+
+  async updateCategory(id: string, updates: Partial<Category>): Promise<{ success: boolean; data: Category }> {
+    const res = await authFetch(`${API_BASE}/categories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
     });
     return res.json();
   },
@@ -674,6 +683,155 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
+    });
+    return res.json();
+  },
+
+  // ----------------------------------------------------
+  // SHOPIFY-LEVEL ADMIN SUITE APIS
+  // ----------------------------------------------------
+  async getAdminDashboard(period: string = '30d', startDate?: string, endDate?: string): Promise<{ success: boolean; data: any; message?: string }> {
+    const params = new URLSearchParams({ period });
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const res = await authFetch(`${API_BASE}/admin/dashboard?${params.toString()}`);
+    return res.json();
+  },
+
+  async getAdminVisitors(): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/visitors`);
+    return res.json();
+  },
+
+  async getAdminActivity(): Promise<{ success: boolean; data: any[]; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/activity`);
+    return res.json();
+  },
+
+  async getAdminAbandonedCarts(status: string = 'all', period: string = 'all'): Promise<{ success: boolean; data: any[]; message?: string }> {
+    const params = new URLSearchParams({ status, period });
+    const res = await authFetch(`${API_BASE}/admin/carts?${params.toString()}`);
+    return res.json();
+  },
+
+  async recoverAbandonedCart(id: string): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/carts/${id}/recover`, { method: 'POST' });
+    return res.json();
+  },
+
+  async sendCartRecoveryEmail(id: string): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/carts/${id}/send-email`, { method: 'POST' });
+    return res.json();
+  },
+
+  async deleteAbandonedCart(id: string): Promise<{ success: boolean; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/carts/${id}`, { method: 'DELETE' });
+    return res.json();
+  },
+
+  async getAdminAbandonedCheckouts(): Promise<{ success: boolean; data: any[]; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/checkouts`);
+    return res.json();
+  },
+
+  async getAdminInventory(threshold: number = 10): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/inventory?threshold=${threshold}`);
+    return res.json();
+  },
+
+  async adjustInventory(productId: string, change: number, reason: string): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/inventory/adjust`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, change, reason })
+    });
+    return res.json();
+  },
+
+  async getAdminInventoryLogs(): Promise<{ success: boolean; data: any[]; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/inventory/logs`);
+    return res.json();
+  },
+
+  async getAdminStaffUsers(): Promise<{ success: boolean; data: { staffUsers: any[]; availableRoles: string[]; rolePermissions: Record<string, string[]> }; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/users`);
+    return res.json();
+  },
+
+  async createStaffUser(userData: { name: string; email: string; role: string; password?: string }): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    return res.json();
+  },
+
+  async updateStaffUser(id: string, updateData: { role?: string; status?: string }): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    });
+    return res.json();
+  },
+
+  async deleteStaffUser(id: string): Promise<{ success: boolean; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/users/${id}`, { method: 'DELETE' });
+    return res.json();
+  },
+
+  async getAdminAuditLogs(): Promise<{ success: boolean; data: any[]; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/audit-logs`);
+    return res.json();
+  },
+
+  async getOrderInvoice(orderId: string): Promise<{ success: boolean; data: any; message?: string }> {
+    const res = await authFetch(`${API_BASE}/admin/orders/${orderId}/invoice`);
+    return res.json();
+  },
+
+  // Fashion Ramp Slider CMS API
+  async getPublishedFashionRamp(): Promise<{ success: boolean; data: RampSliderConfig | null; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/published`);
+    return res.json();
+  },
+
+  async getAdminFashionRamp(): Promise<{ success: boolean; data: FashionRampCMSData; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/admin`);
+    return res.json();
+  },
+
+  async saveFashionRampDraft(draft: RampSliderConfig): Promise<{ success: boolean; data: FashionRampCMSData; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/draft`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ draft })
+    });
+    return res.json();
+  },
+
+  async publishFashionRamp(config?: RampSliderConfig): Promise<{ success: boolean; data: FashionRampCMSData; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/publish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config })
+    });
+    return res.json();
+  },
+
+  async revertFashionRamp(): Promise<{ success: boolean; data: FashionRampCMSData; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/revert`, {
+      method: 'POST'
+    });
+    return res.json();
+  },
+
+  async uploadFashionRampImage(base64Image: string): Promise<{ success: boolean; url: string; message?: string }> {
+    const res = await authFetch(`${API_BASE}/fashion-ramp-slider/upload-image`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64Image })
     });
     return res.json();
   }

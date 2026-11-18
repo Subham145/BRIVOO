@@ -47,8 +47,8 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-[#746963] block text-[11px]">Phone Support</span>
-                  <a href="tel:+918000554999" className="font-bold text-[#211A18] hover:text-[#781C35]">
-                    +91 8000 554 999
+                  <a href="tel:+919009499992" className="font-bold text-[#211A18] hover:text-[#781C35]">
+                    +91 9009499992
                   </a>
                   <p className="text-[10px] text-stone-400">Mon - Sat: 10:00 AM - 7:00 PM IST</p>
                 </div>

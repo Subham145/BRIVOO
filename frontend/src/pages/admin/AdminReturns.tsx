@@ -205,7 +205,7 @@ export const AdminReturns: React.FC<AdminReturnsProps> = ({ orders, onRefresh })
                   {ret.items?.map((item, idx) => (
                     <div key={idx} className="flex items-center space-x-3 bg-[#FAF7F2] p-2.5 rounded-xl border border-[#E6DFC5]">
                       <img
-                        src={item.image || '/images/linen_resort_shirt.png'}
+                        src={item.image || '/images/brivoo_logo.png'}
                         alt={item.productTitle}
                         className="w-10 h-10 object-cover rounded-lg border border-[#E6DFC5]"
                       />

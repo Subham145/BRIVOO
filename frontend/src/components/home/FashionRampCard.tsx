@@ -1,0 +1,1 @@
+export { FashionRampCard } from '../FashionRampCard';

@@ -1,42 +1,57 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Product } from '../types';
 
 interface OccasionShowcaseProps {
+  products?: Product[];
   onSelectOccasion: (occasion: string) => void;
 }
 
-const OCCASIONS = [
-  {
-    title: "Festive Wear",
-    subtitle: "Vibrant embroidery & celebratory silks",
-    image: "/images/product-7253dbe7-6795-46ce-a83f-8d19cd66f180.webp",
-    tag: "Diwali Special",
-    query: "Women’s Kurta Sets"
-  },
-  {
-    title: "Daily Wear",
-    subtitle: "Breathable cottons & effortless style",
-    image: "/images/product-f39f7d73-2499-4949-a877-edabc33d56f9.webp",
-    tag: "All-Day Comfort",
-    query: "Women’s Tops"
-  },
-  {
-    title: "Office Wear",
-    subtitle: "Sophisticated solids & sleek silhouettes",
-    image: "/images/product-5e9da709-c65e-49c6-970c-44e14f41709c.jpg",
-    tag: "Professional Chic",
-    query: "Co-Ord Sets"
-  },
-  {
-    title: "Party Wear",
-    subtitle: "Statement outfits & glamorous cuts",
-    image: "/images/product-14cc800a-70e9-418a-9a0c-2621abd30bcf.webp",
-    tag: "Evening Glow",
-    query: "Women’s Long Kurtas"
+export const OccasionShowcase: React.FC<OccasionShowcaseProps> = React.memo(({ 
+  products = [], 
+  onSelectOccasion 
+}) => {
+  // If there are no products in the catalog yet, do not render static mock images
+  if (!products || products.length === 0) {
+    return null;
   }
-];
 
-export const OccasionShowcase: React.FC<OccasionShowcaseProps> = React.memo(({ onSelectOccasion }) => {
+  // Dynamically group products into occasion edits
+  const festiveProduct = products.find(p => p.category?.toLowerCase().includes('kurta') || p.tag === 'FESTIVE') || products[0];
+  const dailyProduct = products.find(p => p.category?.toLowerCase().includes('top') || p.category?.toLowerCase().includes('kurti')) || products[1] || products[0];
+  const officeProduct = products.find(p => p.category?.toLowerCase().includes('coord') || p.category?.toLowerCase().includes('bottom')) || products[2] || products[0];
+  const partyProduct = products.find(p => p.category?.toLowerCase().includes('long') || p.category?.toLowerCase().includes('dress')) || products[3] || products[0];
+
+  const occasions = [
+    {
+      title: "Festive Wear",
+      subtitle: "Vibrant embroidery & celebratory silks",
+      image: festiveProduct?.image || '/images/brivoo_logo.png',
+      tag: "Diwali Special",
+      query: festiveProduct?.category || "Women’s Kurta Sets"
+    },
+    {
+      title: "Daily Wear",
+      subtitle: "Breathable cottons & effortless style",
+      image: dailyProduct?.image || '/images/brivoo_logo.png',
+      tag: "All-Day Comfort",
+      query: dailyProduct?.category || "Women’s Tops"
+    },
+    {
+      title: "Office Wear",
+      subtitle: "Sophisticated solids & sleek silhouettes",
+      image: officeProduct?.image || '/images/brivoo_logo.png',
+      tag: "Professional Chic",
+      query: officeProduct?.category || "Co-Ord Sets"
+    },
+    {
+      title: "Party Wear",
+      subtitle: "Statement outfits & glamorous cuts",
+      image: partyProduct?.image || '/images/brivoo_logo.png',
+      tag: "Evening Glow",
+      query: partyProduct?.category || "Women’s Long Kurtas"
+    }
+  ];
 
   return (
     <section className="py-10 sm:py-14 bg-white border-y border-[#E9DED5]">
@@ -54,9 +69,9 @@ export const OccasionShowcase: React.FC<OccasionShowcaseProps> = React.memo(({ o
           </div>
         </div>
 
-        {/* 4 Cards Grid (From Reference Image) */}
+        {/* 4 Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {OCCASIONS.map((occ, idx) => (
+          {occasions.map((occ, idx) => (
             <div
               key={idx}
               onClick={() => onSelectOccasion(occ.query)}
@@ -96,4 +111,3 @@ export const OccasionShowcase: React.FC<OccasionShowcaseProps> = React.memo(({ o
 });
 
 OccasionShowcase.displayName = 'OccasionShowcase';
-
